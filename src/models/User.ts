@@ -1,7 +1,7 @@
 import { Entity, rootCollection, field } from "firebase-firestorm";
 
 @rootCollection({
-  name: "user"
+  name: "users"
 })
 export default class User extends Entity {
   @field({ name: "first-name" })
