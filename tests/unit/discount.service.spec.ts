@@ -27,7 +27,7 @@ describe("discount Service", () => {
     await discounts.get().then((snap) => {
       snap.docs.forEach(async (doc) => await doc.ref.delete());
     });
-  });
+  }, 3000);
 
   it("can save discount async", async () => {
     await saveDiscountAsync(discount).then((_discount) => {

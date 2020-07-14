@@ -28,7 +28,7 @@ describe("User Service", () => {
     await users.get().then((snap) => {
       snap.docs.forEach(async (doc) => await doc.ref.delete());
     });
-  });
+  }, 3000);
 
   it("can save user async", async () => {
     await saveUserAsync(user).then((_user) => {
