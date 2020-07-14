@@ -32,7 +32,7 @@ describe("Line Item Service", () => {
     await items.get().then((snap) => {
       snap.docs.forEach(async (doc) => await doc.ref.delete());
     });
-  }, 3000);
+  });
 
   it("can save line item async", async () => {
     await saveLineItemAsync(item).then((_item) => {

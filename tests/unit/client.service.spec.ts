@@ -27,7 +27,7 @@ describe("Client Service", () => {
     await clients.get().then((snap) => {
       snap.docs.forEach(async (doc) => await doc.ref.delete());
     });
-  }, 3000);
+  });
 
   it("can save client async", async () => {
     await saveClientAsync(client).then((_client) => {
