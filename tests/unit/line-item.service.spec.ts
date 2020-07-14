@@ -6,12 +6,12 @@ import { firestore, firestoreSetup, firestoreTeardown } from "./setup-teardown";
 const { saveLineItemAsync, deleteLineItemAsync } = lineitemService;
 
 let item: LineItem;
-let blankItem: LineItem;
+let blank: LineItem;
 
 beforeAll(() => {
   firestoreSetup();
   item = new LineItem();
-  blankItem = new LineItem();
+  blank = new LineItem();
   item.cost = 950;
   item.details = "16in GoodYear Tyre";
   item.discounted = true;
@@ -44,7 +44,7 @@ describe("Line Item Service", () => {
   it("can delete item async", async () => {
     await saveLineItemAsync(item).then(async (_item) => {
       const local = [item.cost, item.quantity, item.type];
-      const { id, cost, quantity, type } = _item ? _item : blankItem;
+      const { id, cost, quantity, type } = _item ? _item : blank;
 
       const saved = [cost, quantity, type];
       expect(local).toEqual(saved);
