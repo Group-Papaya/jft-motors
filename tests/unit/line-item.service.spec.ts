@@ -25,24 +25,23 @@ afterAll(() => {
 });
 
 describe("Line Item Service", () => {
-  const batch = firestore.batch();
   const items = firestore.collection("lineitems");
 
   afterEach(async () => {
-    await items.get().then((snap) => {
-      snap.docs.forEach(async (doc) => await doc.ref.delete());
+    await items.get().then(snap => {
+      snap.docs.forEach(async doc => await doc.ref.delete());
     });
   }, 3000);
 
   it("can save line item async", async () => {
-    await saveLineItemAsync(item).then((_item) => {
+    await saveLineItemAsync(item).then(_item => {
       expect(_item).not.toBe(null);
       expect(_item?.id).not.toBe(undefined);
     });
   });
 
   it("can delete item async", async () => {
-    await saveLineItemAsync(item).then(async (_item) => {
+    await saveLineItemAsync(item).then(async _item => {
       const local = [item.cost, item.quantity, item.type];
       const { id, cost, quantity, type } = _item ? _item : blank;
 

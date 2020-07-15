@@ -5,7 +5,6 @@ import { firestore, firestoreSetup, firestoreTeardown } from "./setup-teardown";
 const { saveDiscountAsync, deleteDiscountAsync } = discountService;
 
 let discount: Discount;
-let saved: Discount;
 
 beforeAll(() => {
   firestoreSetup();
@@ -20,24 +19,23 @@ afterAll(() => {
 });
 
 describe("discount Service", () => {
-  const batch = firestore.batch();
   const discounts = firestore.collection("discounts");
 
   afterEach(async () => {
-    await discounts.get().then((snap) => {
-      snap.docs.forEach(async (doc) => await doc.ref.delete());
+    await discounts.get().then(snap => {
+      snap.docs.forEach(async doc => await doc.ref.delete());
     });
   }, 3000);
 
   it("can save discount async", async () => {
-    await saveDiscountAsync(discount).then((_discount) => {
+    await saveDiscountAsync(discount).then(_discount => {
       expect(_discount).not.toBe(null);
       expect(_discount?.id).not.toBe(undefined);
     });
   });
 
   it("can delete discount async", async () => {
-    await saveDiscountAsync(discount).then(async (_discount) => {
+    await saveDiscountAsync(discount).then(async _discount => {
       expect(discount.details).toEqual(_discount?.details);
       if (_discount)
         await deleteDiscountAsync(_discount.id).then(async () => {
