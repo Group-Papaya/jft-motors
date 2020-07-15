@@ -5,5 +5,5 @@ export default {
   saveDiscountAsync: async (discount: Discount) =>
     await Collection(Discount).create(discount),
   deleteDiscountAsync: async (id: string) =>
-    await Collection(Discount).remove(id),
+    await Collection(Discount).remove(id)
 };

@@ -5,7 +5,6 @@ import { firestore, firestoreSetup, firestoreTeardown } from "./setup-teardown";
 const { saveClientAsync, deleteClientAsync } = clientService;
 
 let client: Client;
-let saved: Client;
 
 beforeAll(() => {
   firestoreSetup();
@@ -20,24 +19,23 @@ afterAll(() => {
 });
 
 describe("Client Service", () => {
-  const batch = firestore.batch();
   const clients = firestore.collection("clients");
 
   afterEach(async () => {
-    await clients.get().then((snap) => {
-      snap.docs.forEach(async (doc) => await doc.ref.delete());
+    await clients.get().then(snap => {
+      snap.docs.forEach(async doc => await doc.ref.delete());
     });
   }, 3000);
 
   it("can save client async", async () => {
-    await saveClientAsync(client).then((_client) => {
+    await saveClientAsync(client).then(_client => {
       expect(_client).not.toBe(null);
       expect(_client?.id).not.toBe(undefined);
     });
   });
 
   it("can delete client async", async () => {
-    await saveClientAsync(client).then(async (_client) => {
+    await saveClientAsync(client).then(async _client => {
       expect(client.email).toEqual(_client?.email);
       if (_client)
         await deleteClientAsync(_client.id).then(async () => {
