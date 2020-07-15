@@ -1,6 +1,7 @@
 <template>
   <div class="about">
     <h1>This is an about page</h1>
-    <p>It should be about Jtf motors</p>
+
+    <h1>Working Github Issue #4</h1>
   </div>
 </template>
