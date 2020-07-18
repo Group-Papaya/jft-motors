@@ -1,10 +1,17 @@
 import { Discount } from "@/models";
 import discountService from "@/services/discount.service";
-import { firestore, firestoreSetup, firestoreTeardown } from "./setup-teardown";
+import { cnLog } from "@/utils";
+import {
+  firestore,
+  firestoreDelete,
+  firestoreSetup,
+  firestoreTeardown
+} from "./setup-teardown";
 
 const { saveDiscountAsync, deleteDiscountAsync } = discountService;
 
 let discount: Discount;
+const discounts = firestore.collection("discounts");
 
 beforeAll(() => {
   firestoreSetup();
@@ -14,34 +21,29 @@ beforeAll(() => {
   discount.percentage = true;
 });
 
-afterAll(() => {
-  firestoreTeardown();
-});
+afterAll(() => firestoreTeardown());
 
 describe("discount Service", () => {
-  const discounts = firestore.collection("discounts");
+  afterEach(() => firestoreDelete(discounts));
 
-  afterEach(async () => {
-    await discounts.get().then(snap => {
-      snap.docs.forEach(async doc => await doc.ref.delete());
-    });
-  }, 3000);
+  it("can save discount async", () =>
+    saveDiscountAsync(discount)
+      .then(result => {
+        expect(result).not.toBe(null);
+        expect(result?.id).not.toBe(undefined);
+      })
+      .catch(cnLog));
 
-  it("can save discount async", async () => {
-    await saveDiscountAsync(discount).then(_discount => {
-      expect(_discount).not.toBe(null);
-      expect(_discount?.id).not.toBe(undefined);
-    });
-  });
+  it("can delete discount async", () => {
+    saveDiscountAsync(discount)
+      .then(result => {
+        expect(discount.details).toEqual(result?.details);
 
-  it("can delete discount async", async () => {
-    await saveDiscountAsync(discount).then(async _discount => {
-      expect(discount.details).toEqual(_discount?.details);
-      if (_discount)
-        await deleteDiscountAsync(_discount.id).then(async () => {
-          const doc = await discounts.doc(_discount.id).get();
+        deleteDiscountAsync(result.id).then(async () => {
+          const doc = await discounts.doc(result.id).get();
           expect(doc.exists).toBeFalsy();
         });
-    });
+      })
+      .catch(cnLog);
   });
 });

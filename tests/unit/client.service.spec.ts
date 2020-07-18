@@ -1,10 +1,17 @@
 import { Client } from "@/models";
 import clientService from "@/services/client.service";
-import { firestore, firestoreSetup, firestoreTeardown } from "./setup-teardown";
+import { cnLog } from "@/utils";
+import {
+  firestore,
+  firestoreDelete,
+  firestoreSetup,
+  firestoreTeardown
+} from "./setup-teardown";
 
 const { saveClientAsync, deleteClientAsync } = clientService;
 
 let client: Client;
+const clients = firestore.collection("clients");
 
 beforeAll(() => {
   firestoreSetup();
@@ -14,34 +21,29 @@ beforeAll(() => {
   client.lastname = "example";
 });
 
-afterAll(() => {
-  firestoreTeardown();
-});
+afterAll(() => firestoreTeardown());
 
 describe("Client Service", () => {
-  const clients = firestore.collection("clients");
+  afterEach(() => firestoreDelete(clients));
 
-  afterEach(async () => {
-    await clients.get().then(snap => {
-      snap.docs.forEach(async doc => await doc.ref.delete());
-    });
-  }, 3000);
+  it("can save client async", () =>
+    saveClientAsync(client)
+      .then(result => {
+        expect(result).not.toBe(null);
+        expect(result?.id).not.toBe(undefined);
+      })
+      .catch(cnLog));
 
-  it("can save client async", async () => {
-    await saveClientAsync(client).then(_client => {
-      expect(_client).not.toBe(null);
-      expect(_client?.id).not.toBe(undefined);
-    });
-  });
+  it("can delete client async", () => {
+    saveClientAsync(client)
+      .then(result => {
+        expect(client.email).toEqual(result?.email);
 
-  it("can delete client async", async () => {
-    await saveClientAsync(client).then(async _client => {
-      expect(client.email).toEqual(_client?.email);
-      if (_client)
-        await deleteClientAsync(_client.id).then(async () => {
-          const doc = await clients.doc(_client.id).get();
+        deleteClientAsync(result.id).then(async () => {
+          const doc = await clients.doc(result.id).get();
           expect(doc.exists).toBeFalsy();
         });
-    });
+      })
+      .catch(cnLog);
   });
 });

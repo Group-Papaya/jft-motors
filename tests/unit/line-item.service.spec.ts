@@ -1,12 +1,19 @@
 import { LineItem } from "@/models";
 import { PRODUCT } from "@/models/LineItem";
 import lineitemService from "@/services/line-item.service";
-import { firestore, firestoreSetup, firestoreTeardown } from "./setup-teardown";
+import { cnLog } from "@/utils";
+import {
+  firestore,
+  firestoreDelete,
+  firestoreSetup,
+  firestoreTeardown
+} from "./setup-teardown";
 
 const { saveLineItemAsync, deleteLineItemAsync } = lineitemService;
 
 let item: LineItem;
 let blank: LineItem;
+const items = firestore.collection("lineitems");
 
 beforeAll(() => {
   firestoreSetup();
@@ -20,37 +27,33 @@ beforeAll(() => {
   item.type = PRODUCT;
 });
 
-afterAll(() => {
-  firestoreTeardown();
-});
+afterAll(() => firestoreTeardown());
 
 describe("Line Item Service", () => {
-  const items = firestore.collection("lineitems");
+  afterEach(() => firestoreDelete(items));
 
-  afterEach(async () => {
-    await items.get().then(snap => {
-      snap.docs.forEach(async doc => await doc.ref.delete());
-    });
-  }, 3000);
+  it("can save line item async", () =>
+    saveLineItemAsync(item)
+      .then(result => {
+        expect(result).not.toBe(null);
+        expect(result?.id).not.toBe(undefined);
+      })
+      .catch(cnLog));
 
-  it("can save line item async", async () => {
-    await saveLineItemAsync(item).then(_item => {
-      expect(_item).not.toBe(null);
-      expect(_item?.id).not.toBe(undefined);
-    });
-  });
+  it("can delete item async", () => {
+    saveLineItemAsync(item)
+      .then(value => {
+        const local = [item.cost, item.quantity, item.type];
+        const { id, cost, quantity, type } = value ? value : blank;
 
-  it("can delete item async", async () => {
-    await saveLineItemAsync(item).then(async _item => {
-      const local = [item.cost, item.quantity, item.type];
-      const { id, cost, quantity, type } = _item ? _item : blank;
+        const saved = [cost, quantity, type];
 
-      const saved = [cost, quantity, type];
-      expect(local).toEqual(saved);
-      await deleteLineItemAsync(id).then(async () => {
-        const doc = await items.doc(id).get();
-        expect(doc.exists).toBeFalsy();
-      });
-    });
+        expect(local).toEqual(saved);
+        deleteLineItemAsync(id).then(async () => {
+          const doc = await items.doc(id).get();
+          expect(doc.exists).toBeFalsy();
+        });
+      })
+      .catch(cnLog);
   });
 });

@@ -1,10 +1,17 @@
 import { User } from "@/models";
 import userService from "@/services/user.service";
-import { firestore, firestoreSetup, firestoreTeardown } from "./setup-teardown";
+import { cnLog } from "@/utils";
+import {
+  firestore,
+  firestoreDelete,
+  firestoreSetup,
+  firestoreTeardown
+} from "./setup-teardown";
 
 const { saveUserAsync, deleteUserAsync } = userService;
 
 let user: User;
+const users = firestore.collection("users");
 
 beforeAll(() => {
   firestoreSetup();
@@ -15,34 +22,29 @@ beforeAll(() => {
   user.password = "password";
 });
 
-afterAll(() => {
-  firestoreTeardown();
-});
+afterAll(() => firestoreTeardown());
 
 describe("User Service", () => {
-  const users = firestore.collection("users");
+  afterEach(() => firestoreDelete(users));
 
-  afterEach(async () => {
-    await users.get().then(snap => {
-      snap.docs.forEach(async doc => await doc.ref.delete());
-    });
-  }, 3000);
+  it("can save user async", () =>
+    saveUserAsync(user)
+      .then(result => {
+        expect(result).not.toBe(null);
+        expect(result?.id).not.toBe(undefined);
+      })
+      .catch(cnLog));
 
-  it("can save user async", async () => {
-    await saveUserAsync(user).then(_user => {
-      expect(_user).not.toBe(null);
-      expect(_user?.id).not.toBe(undefined);
-    });
-  });
+  it("can delete user async", () => {
+    saveUserAsync(user)
+      .then(value => {
+        expect(user.email).toEqual(value?.email);
 
-  it("can delete user async", async () => {
-    await saveUserAsync(user).then(async _user => {
-      expect(user.email).toEqual(_user?.email);
-      if (_user)
-        await deleteUserAsync(_user.id).then(async () => {
-          const doc = await users.doc(_user.id).get();
+        deleteUserAsync(value.id).then(async () => {
+          const doc = await users.doc(value.id).get();
           expect(doc.exists).toBeFalsy();
         });
-    });
+      })
+      .catch(cnLog);
   });
 });
