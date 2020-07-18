@@ -1,7 +1,8 @@
 import { User } from "@/models";
 import { Collection } from "firebase-firestorm";
+import { catchError } from "./../utils";
 
 export default {
-  saveUserAsync: async (user: User) => await Collection(User).create(user),
-  deleteUserAsync: async (id: string) => await Collection(User).remove(id)
+  saveUserAsync: (user: User) => catchError(Collection(User).create(user)),
+  deleteUserAsync: (id: string) => catchError(Collection(User).remove(id))
 };
