@@ -82,7 +82,7 @@
           <v-card-subtitle class="pb-0">Admin</v-card-subtitle>
 
           <v-card-text class="text--primary">
-            <div>Alex Johnson</div>
+            <div data-cy="user-full-name">Alex Johnson</div>
           </v-card-text>
         </v-card>
       </v-col>
