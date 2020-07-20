@@ -4,7 +4,7 @@ import firebase from "firebase/app";
 import "firebase/firestore";
 
 export const firestore = firebase
-  .initializeApp({ projectId: "jft-motors-test" })
+  .initializeApp({ projectId: "jft-motors" })
   .firestore();
 
 firestorm.initialize(firestore);
