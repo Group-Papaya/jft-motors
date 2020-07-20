@@ -12,4 +12,3 @@ const BASE_ROLE = 0;
 const ADMIN_ROLE = 1;
 
 export { ADMIN_ROLE, BASE_ROLE };
-
