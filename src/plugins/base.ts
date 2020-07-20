@@ -4,7 +4,7 @@ import Vue from "vue";
 
 const requireComponent = require.context("@/components/", true, /\.vue$/);
 
-requireComponent.keys().forEach(fileName => {
+requireComponent.keys().forEach((fileName) => {
   const componentConfig = requireComponent(fileName);
 
   const componentName = upperFirst(
