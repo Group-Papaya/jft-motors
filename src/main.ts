@@ -1,6 +1,6 @@
 import Vue from "vue";
 import App from "./App.vue";
-import "./firebase";
+import "./firestore";
 import "./plugins/base";
 import "./plugins/validate";
 import vuetify from "./plugins/vuetify";
