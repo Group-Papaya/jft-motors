@@ -11,7 +11,7 @@ export default {
   name: "AppView",
 
   components: {
-    AppFooter: () => import("./AppFooter")
-  }
+    AppFooter: () => import("./AppFooter"),
+  },
 };
 </script>

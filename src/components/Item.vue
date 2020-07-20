@@ -40,13 +40,13 @@ export default {
         icon: undefined,
         subtitle: undefined,
         title: undefined,
-        to: undefined
-      })
+        to: undefined,
+      }),
     },
     text: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   computed: {
@@ -55,7 +55,7 @@ export default {
 
       let text = "";
 
-      this.item.title.split(" ").forEach(val => {
+      this.item.title.split(" ").forEach((val) => {
         text += val.substring(0, 1);
       });
 
@@ -63,7 +63,7 @@ export default {
     },
     href() {
       return this.item.href || (!this.item.to ? "#" : undefined);
-    }
-  }
+    },
+  },
 };
 </script>

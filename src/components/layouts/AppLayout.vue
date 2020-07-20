@@ -15,11 +15,11 @@ export default {
   components: {
     AppBar: () => import("./AppBar"),
     AppDrawer: () => import("./AppDrawer"),
-    AppView: () => import("./AppView")
+    AppView: () => import("./AppView"),
   },
 
   data: () => ({
-    expandOnHover: false
-  })
+    expandOnHover: false,
+  }),
 };
 </script>
