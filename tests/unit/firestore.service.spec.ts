@@ -2,7 +2,7 @@ import { User } from "@/models";
 import { ADMIN_ROLE, BASE_ROLE } from "@/models/User";
 import FireService from "@/services/firestore.service";
 import { assertSucceeds } from "@firebase/testing";
-import { setup } from "./firebase-testing";
+import { initialize, setup } from "./firebase-testing";
 
 const db = new FireService();
 
@@ -28,6 +28,8 @@ const setId = async (doc: any, obj: any) => {
   obj.id = doc.id;
   await db.firestore.collection("added").add({ doc });
 };
+
+initialize()
 
 describe("Firebase Service", () => {
   beforeAll(async () => (db.firestore = await setup()));
