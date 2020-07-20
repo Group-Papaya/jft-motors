@@ -1,15 +1,7 @@
-import { Entity, rootCollection, field } from "firebase-firestorm";
+import Record from "./Record";
 
-@rootCollection({
-  name: "discounts"
-})
-export default class Discount extends Entity {
-  @field({ name: "details" })
-  details!: string;
-
-  @field({ name: "amount" })
+export default class Discount extends Record {
   amount!: number;
-
-  @field({ name: "percentage" })
+  details!: string;
   percentage!: boolean;
 }

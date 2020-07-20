@@ -1,39 +1,19 @@
-import {
-  Entity,
-  rootCollection,
-  field,
-  IDocumentRef,
-  documentRef
-} from "firebase-firestorm";
-import Discount from "./Discount";
+import firebase from "firebase/app";
+import Record from "./Record";
 
-@rootCollection({
-  name: "line-items"
-})
-export default class LineItem extends Entity {
-  @field({ name: "type" })
+export default class LineItem extends Record {
   type!: string;
-
-  @field({ name: "cost" })
   cost!: number;
-
-  @field({ name: "units" })
   units!: number;
-
-  @field({ name: "details" })
   details!: string;
-
-  @field({ name: "quantity" })
   quantity!: number;
-
-  @documentRef({ name: "discount", entity: Discount })
-  discount!: IDocumentRef<Discount>;
-
-  @field({ name: "discounted" })
+  discount?: firebase.firestore.DocumentReference | string;
   discounted!: boolean;
 }
 
+const JOB = "JOB";
 const WORKER = "WORKER";
 const PRODUCT = "PRODUCT";
 
-export { WORKER, PRODUCT };
+export { JOB, WORKER, PRODUCT };
+
