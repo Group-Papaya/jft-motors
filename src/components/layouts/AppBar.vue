@@ -91,29 +91,29 @@ export default {
                   attrs: this.$attrs,
                   class: {
                     "black--text": !hover,
-                    "white--text secondary elevation-12": hover
+                    "white--text secondary elevation-12": hover,
                   },
                   props: {
                     activeClass: "",
                     dark: hover,
                     link: true,
-                    ...this.$attrs
-                  }
+                    ...this.$attrs,
+                  },
                 },
                 this.$slots.default
               );
-            }
-          }
+            },
+          },
         });
-      }
-    }
+      },
+    },
   },
 
   props: {
     value: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data: () => ({
@@ -122,18 +122,18 @@ export default {
       "You have 5 new tasks",
       "You're now friends with Andrew",
       "Another Notification",
-      "Another one"
-    ]
+      "Another one",
+    ],
   }),
 
   computed: {
-    ...mapState(["drawer"])
+    ...mapState(["drawer"]),
   },
 
   methods: {
     ...mapMutations({
-      setDrawer: "SET_DRAWER"
-    })
-  }
+      setDrawer: "SET_DRAWER",
+    }),
+  },
 };
 </script>
