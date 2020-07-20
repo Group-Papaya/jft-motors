@@ -1,6 +1,6 @@
 type Handler = (error: Error) => any;
 
-export const logValue = <Value>(value: Value, warn?: boolean) => {
+export const orLog = <Value>(value: Value, warn?: boolean) => {
   if (value instanceof Error) {
     console.error(value);
   } else {
@@ -11,7 +11,7 @@ export const logValue = <Value>(value: Value, warn?: boolean) => {
 export function tryCatch(handler: Handler): any {
   return (target: any, key: string, descriptor: PropertyDescriptor) => {
     const method = descriptor.value;
-    descriptor.value = function(...args: any[]) {
+    descriptor.value = function (...args: any[]) {
       try {
         const result = method.apply(this, args);
 
