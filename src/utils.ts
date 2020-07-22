@@ -1,6 +1,6 @@
-type Handler = (error: Error) => any;
+type Handler = (error: Error) => void;
 
-export const orLog = <Value>(value: Value, warn?: boolean) => {
+export const orLog = <Value>(value: Value, warn?: boolean): void => {
   if (value instanceof Error) {
     console.error(value);
   } else {
@@ -8,16 +8,20 @@ export const orLog = <Value>(value: Value, warn?: boolean) => {
   }
 };
 
-export function tryCatch(handler: Handler): any {
-  return (target: any, key: string, descriptor: PropertyDescriptor) => {
+export function tryCatch(handler: Handler) {
+  return (
+    _target: any,
+    _key: string,
+    descriptor: PropertyDescriptor
+  ): PropertyDescriptor => {
     const method = descriptor.value;
-    descriptor.value = function (...args: any[]) {
+    descriptor.value = function (...args: []) {
       try {
         const result = method.apply(this, args);
 
         // Handle async errors
         if (result && result instanceof Promise) {
-          return result.catch((error: any) => {
+          return result.catch((error: Error) => {
             onError(error, handler);
           });
         }
@@ -32,7 +36,7 @@ export function tryCatch(handler: Handler): any {
   };
 }
 
-export function onError(error: Error, handler: Handler) {
+export function onError(error: Error, handler: Handler): void | Error {
   if (typeof handler === "function") {
     handler(error);
   } else {
