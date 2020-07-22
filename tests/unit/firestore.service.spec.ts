@@ -1,11 +1,11 @@
 import { Client, Discount, LineItem, Quotation, Record, User } from "@/models";
 import { PRODUCT } from "@/models/LineItem";
 import { ADMIN_ROLE, BASE_ROLE } from "@/models/User";
-import FireService from "@/services/firestore.service";
-import { assertSucceeds, firestore } from "@firebase/testing";
+import FirestoreService from "@/services/firestore.service";
+import { assertSucceeds } from "@firebase/testing";
 import { initialize, setup } from "./firebase-testing";
 
-const db = new FireService();
+const db = new FirestoreService();
 
 const admin: User = {
   role: ADMIN_ROLE,
@@ -51,23 +51,24 @@ const draft: Quotation = {
   client: "",
 };
 
-const setId = async (
-  doc: firebase.firestore.DocumentReference,
-  obj: Record
-) => {
-  await db.firestore.collection("added").add({ doc });
-  obj.id = doc.id;
-  return doc;
+const add = async (path: string, obj: Record) => {
+  return db.add(obj, path).then((doc) => {
+    obj.id = doc.id;
+    db.firestore.collection("added").add({ document: doc.path });
+    return doc;
+  });
 };
 
-const addObj = async (obj: Record, path: string) => {
-  const doc = await db.add(obj, path);
-  return await setId(doc, obj);
-};
-
-const removeObj = async (obj: Record, path: string) => {
-  await db.delete(path, obj.id);
-  if (obj.id) await db.firestore.collection("deleted").add(obj);
+const remove = async (path: string, obj?: Record) => {
+  if (obj === undefined) {
+    db.delete(path).then(() => {
+      db.firestore.collection("deleted").add({ document: path });
+    });
+  } else {
+    db.delete(path, obj.id).then(() => {
+      db.firestore.collection("deleted").add({ document: `${path}/${obj.id}` });
+    });
+  }
 };
 
 initialize();
@@ -76,47 +77,52 @@ describe("Firebase Service", () => {
   beforeAll(async () => (db.firestore = await setup()));
 
   it("can add simple record object", async () => {
-    await assertSucceeds(addObj(admin, "users"));
-    await assertSucceeds(addObj(client, "clients"));
+    const test_add = Promise.all([
+      add("users", user),
+      add("users", admin),
+      add("clients", client),
+    ]);
+    await assertSucceeds(test_add);
   });
 
   it("can delete simple record object", async () => {
-    await assertSucceeds(
-      Promise.all([removeObj(admin, "users"), addObj(user, "users")])
-    );
-
-    await assertSucceeds(
-      db.delete(`users/${user.id}`).then(async () => {
-        if (user.id) await db.firestore.collection("deleted").add(user);
-      })
-    );
+    const test_remove = Promise.all([
+      remove("users", admin),
+      remove(`users/${user.id}`),
+    ]);
+    await assertSucceeds(test_remove);
   });
 
   it("can add complex/record object with ref objects", async () => {
-    const addDiscount = addObj(discount, "discounts").then(async (ref) => {
+    const _discount = add("discounts", discount).then((ref) => {
       item.discount = ref;
     });
 
     await Promise.all([
+      _discount,
       db.update(admin, `users/${admin.id}`),
       db.update(client, `clients/${client.id}`),
-      addDiscount,
     ]);
 
     const items = Promise.all([
-      addObj(item, "line-items"),
-      addObj(item, "line-items"),
-    ]).then(async (refs) => {
+      add("line-items", item),
+      add("line-items", item),
+    ]).then(() => {
       if (admin.id && client.id) {
-        draft.user = admin.id;
-        draft.client = client.id;
+        draft.user = db.firestore.doc(`users/${admin.id}`);
+        draft.client = db.firestore.doc(`clients/${client.id}`);
       }
-      draft.items = refs;
-      draft.created_at = firestore.Timestamp.now();
-      draft.updated_at = firestore.Timestamp.now();
-      return await addObj(draft, "quotations");
+
+      draft.created_at = db.currentTime();
+      draft.updated_at = db.currentTime();
     });
 
     await assertSucceeds(items);
+    await assertSucceeds(
+      add("quotations", draft).then((ref) => {
+        db.firestore.collection(`${ref.path}/items`).doc(item.id).set(item);
+        draft.updated_at = db.currentTime();
+      })
+    );
   });
 });

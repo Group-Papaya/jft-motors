@@ -9,11 +9,11 @@ export async function setup(): Promise<firebase.firestore.Firestore> {
   return app.firestore();
 }
 
-async function teardown() {
+async function teardown(): Promise<void> {
   await Promise.all(firebase.apps().map((app) => app.delete()));
 }
 
-export function initialize() {
+export function initialize(): void {
   afterAll(async () => {
     await teardown();
   });
