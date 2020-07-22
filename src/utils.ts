@@ -8,6 +8,7 @@ export const orLog = <Value>(value: Value, warn?: boolean): void => {
   }
 };
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function tryCatch(handler: Handler) {
   return (
     _target: any,
