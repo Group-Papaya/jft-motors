@@ -10,7 +10,7 @@ export async function setup(): Promise<firebase.firestore.Firestore> {
 }
 
 async function teardown(): Promise<void> {
-  await Promise.all(firebase.apps().map((app) => app.delete()));
+  await Promise.all(firebase.apps().map(app => app.delete()));
 }
 
 export function initialize(): void {

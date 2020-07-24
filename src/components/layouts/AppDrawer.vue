@@ -55,8 +55,8 @@ export default {
   props: {
     expandOnHover: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
 
   data: () => ({
@@ -64,10 +64,10 @@ export default {
       {
         title: "Dashboard",
         icon: "mdi-view-dashboard",
-        to: "/",
-      },
+        to: "/"
+      }
     ],
-    logo: logo,
+    logo: logo
   }),
 
   computed: {
@@ -78,25 +78,25 @@ export default {
       },
       set(val) {
         this.$store.commit("SET_DRAWER", val);
-      },
+      }
     },
     computedItems() {
       return this.items.map(this.mapItem);
     },
     profile() {
       return {
-        avatar: true,
+        avatar: true
       };
-    },
+    }
   },
 
   methods: {
     mapItem(item) {
       return {
         ...item,
-        children: item.children ? item.children.map(this.mapItem) : undefined,
+        children: item.children ? item.children.map(this.mapItem) : undefined
       };
-    },
-  },
+    }
+  }
 };
 </script>

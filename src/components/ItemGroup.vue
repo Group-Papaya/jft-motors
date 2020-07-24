@@ -62,25 +62,25 @@ export default {
         avatar: undefined,
         group: undefined,
         title: undefined,
-        children: [],
-      }),
+        children: []
+      })
     },
     subGroup: {
       type: Boolean,
-      default: false,
+      default: false
     },
     text: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
 
   computed: {
     ...mapState(["barColor"]),
     children() {
-      return this.item.children.map((item) => ({
+      return this.item.children.map(item => ({
         ...item,
-        to: !item.to ? undefined : `${this.item.group}/${item.to}`,
+        to: !item.to ? undefined : `${this.item.group}/${item.to}`
       }));
     },
     computedText() {
@@ -88,7 +88,7 @@ export default {
 
       let text = "";
 
-      this.item.title.split(" ").forEach((val) => {
+      this.item.title.split(" ").forEach(val => {
         text += val.substring(0, 1);
       });
 
@@ -96,14 +96,14 @@ export default {
     },
     group() {
       return this.genGroup(this.item.children);
-    },
+    }
   },
 
   methods: {
     genGroup(children) {
       return children
-        .filter((item) => item.to)
-        .map((item) => {
+        .filter(item => item.to)
+        .map(item => {
           const parent = item.group || this.item.group;
           let group = `${parent}/${kebabCase(item.to)}`;
 
@@ -114,8 +114,8 @@ export default {
           return group;
         })
         .join("|");
-    },
-  },
+    }
+  }
 };
 </script>
 

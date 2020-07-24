@@ -14,14 +14,14 @@ export default new Router({
         {
           name: "Dashboard",
           path: "",
-          component: () => import("./views/Dashboard.vue"),
+          component: () => import("./views/Dashboard.vue")
         },
         {
           name: "User Profile",
           path: "profile",
-          component: () => import("./views/UserProfile.vue"),
-        },
-      ],
-    },
-  ],
+          component: () => import("./views/UserProfile.vue")
+        }
+      ]
+    }
+  ]
 });
