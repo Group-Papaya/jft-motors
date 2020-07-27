@@ -1,4 +1,5 @@
-import firebase from "firebase/app";
+import * as firebase from "firebase/app";
+import 'firebase/auth';
 
 const configOptions = {
     apiKey: "AIzaSyB1MvKFeYVIqnRBAmWIOrAbiiNFVl5kU1s",
@@ -11,5 +12,6 @@ const configOptions = {
     measurementId: "G-MQPC5KC6LV"
   };
 
-  firebase.initializeApp(configOptions);
-  firebase.analytics()
+ const db = firebase.initializeApp(configOptions);
+ export default db;
+//   fb.analytics()
