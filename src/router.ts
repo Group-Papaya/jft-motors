@@ -21,6 +21,21 @@ export default new Router({
           path: "profile",
           component: () => import("./views/UserProfile.vue"),
         },
+        {
+          name: "Login",
+          path: "login",
+          component: () => import("./views/Login.vue"),
+        },
+        {
+          name: "Register",
+          path: "register",
+          component: () => import("./views/Register.vue"),
+        },
+        {
+          name: "Forgot Password",
+          path: "forgotPassword",
+          component: () => import("./views/ForgotPassword.vue"),
+        },
       ],
     },
   ],

@@ -1,27 +1,27 @@
-import { orLog } from './../utils';
+import { orLog } from "./../utils";
 import * as firebase from "firebase/app";
-import { tryCatch } from '@/utils';
-
-
+import { tryCatch } from "@/utils";
 
 export default class AuthService {
-    auth!: firebase.auth.Auth;
-    // provider!: firebase.auth.AuthProvider;
+  auth!: firebase.auth.Auth;
+  // provider!: firebase.auth.AuthProvider;
 
-    constructor() {
-        this.auth = firebase.auth()
-        // this.provider = new firebase.auth.EmailAuthProvider()
-    }
+  constructor() {
+    this.auth = firebase.auth();
+    // this.provider = new firebase.auth.EmailAuthProvider()
+  }
 
-    @tryCatch(orLog)
-    async register(email: string, password: string) {
-        return await firebase.auth().createUserWithEmailAndPassword(email, password)
-    }
+  @tryCatch(orLog)
+  async register(email: string, password: string) {
+    return await firebase
+      .auth()
+      .createUserWithEmailAndPassword(email, password);
+  }
 
-    @tryCatch(orLog)
-    async login(email: string, password: string) {
+  @tryCatch(orLog)
+  async login(email: string, password: string) {
     //   const provider = new firebase.auth.GoogleAuthProvider();
-        return await firebase.auth().signInWithEmailAndPassword(email, password)
+    return await firebase.auth().signInWithEmailAndPassword(email, password);
     //   .then(function(result) {
     //     console.log(result);
     //   })
@@ -32,16 +32,16 @@ export default class AuthService {
     //     const credential = error.credential;
     //     console.log(errorCode, errorMessage, email, credential);
     //     })
-    } 
-    
-    @tryCatch(orLog)
-    async logout() {
-      await firebase.auth().signOut()
-    }
+  }
 
-    @tryCatch(orLog)
-    async resetPassword(email: string) {
-        let result = await firebase.auth().sendPasswordResetEmail(email);
-        console.log(result)
-    }
+  @tryCatch(orLog)
+  async logout() {
+    await firebase.auth().signOut();
+  }
+
+  @tryCatch(orLog)
+  async resetPassword(email: string) {
+    const result = await firebase.auth().sendPasswordResetEmail(email);
+    console.log(result);
+  }
 }
