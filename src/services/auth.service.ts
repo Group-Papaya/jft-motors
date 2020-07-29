@@ -20,23 +20,16 @@ export default class AuthService {
 
   @tryCatch(orLog)
   async login(email: string, password: string) {
-    //   const provider = new firebase.auth.GoogleAuthProvider();
-    return await firebase.auth().signInWithEmailAndPassword(email, password);
-    //   .then(function(result) {
-    //     console.log(result);
-    //   })
-    //   .catch(function(error){
-    //     const errorCode = error.code;
-    //     const errorMessage = error.message;
-    //     const email = error.email;
-    //     const credential = error.credential;
-    //     console.log(errorCode, errorMessage, email, credential);
-    //     })
+    return await firebase
+    .auth()
+    .signInWithEmailAndPassword(email, password);
   }
 
   @tryCatch(orLog)
   async logout() {
-    await firebase.auth().signOut();
+    await firebase
+    .auth()
+    .signOut();
   }
 
   @tryCatch(orLog)
