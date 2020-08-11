@@ -13,6 +13,14 @@ export default class AuthService {
 
   @tryCatch(orLog)
   async register(email: string, password: string) {
+
+    // return new Promise(async(resolve, reject) => {
+    //   let result = await firebase
+    //   .auth()
+    //   .createUserWithEmailAndPassword(email, password);
+      
+    //   resolve(result)
+    // })
     return await firebase
       .auth()
       .createUserWithEmailAndPassword(email, password);
@@ -20,16 +28,12 @@ export default class AuthService {
 
   @tryCatch(orLog)
   async login(email: string, password: string) {
-    return await firebase
-    .auth()
-    .signInWithEmailAndPassword(email, password);
+    return await firebase.auth().signInWithEmailAndPassword(email, password);
   }
 
   @tryCatch(orLog)
   async logout() {
-    await firebase
-    .auth()
-    .signOut();
+    await firebase.auth().signOut();
   }
 
   @tryCatch(orLog)

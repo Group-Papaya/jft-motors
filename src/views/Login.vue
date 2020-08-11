@@ -27,11 +27,12 @@
         <v-col class="col-12 text-center">
           <v-btn @click="loginUser()" color="success" class="mr-0">Login</v-btn>
         </v-col>
+        {{ error }}
+        <!-- <div v-if="error">{{ error.message }}</div> -->
       </v-row>
     </app-material-card>
   </v-container>
 </template>
-
 <script>
 import AuthService from "@/services/auth.service";
 
@@ -44,7 +45,7 @@ export default {
         email: "test@gmail.com",
         password: "123456",
       },
-      eror: null,
+      error: null,
     };
   },
   methods: {
@@ -55,7 +56,8 @@ export default {
           console.log(res);
         })
         .catch((err) => {
-          console.log(err);
+          this.error = err;
+          console.log(err.message);
         });
     },
   },
