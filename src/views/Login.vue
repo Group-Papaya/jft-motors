@@ -1,10 +1,6 @@
 <template>
-  <v-container id="login" fluid tag="section" class="pt-5">
-    <app-material-card
-      icon="mdi-account"
-      title="Login"
-      class="px-5 py-3 col-8 mx-auto"
-    >
+  <v-container id="login" fluid tag="section">
+    <app-material-card icon="mdi-account" title="Login" class="px-5 py-3 col-8">
       <v-row class="px-5">
         <v-col class="col-12">
           <v-text-field
@@ -23,7 +19,7 @@
         </v-col>
 
         <v-col class="col-12">
-          <p class="text-right">
+          <p class="text-center">
             Forgot your password?
             <a>Click here to reset</a>
           </p>
@@ -38,25 +34,26 @@
   </v-container>
 </template>
 <script>
-import { auth } from "@/services/auth.service";
+import AuthService from "@/services/auth.service";
 
+const authService = new AuthService();
 export default {
   name: "Register",
   data() {
     return {
       form: {
-        email: "test@gmail.com",
-        password: "123456"
+        email: "",
+        password: ""
       },
       error: null
     };
   },
   methods: {
     loginUser() {
-      auth
+      authService
         .login(this.form.email, this.form.password)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .then(res => {
-          console.log(res);
           this.$router.replace("/");
         })
         .catch(err => {
@@ -67,3 +64,12 @@ export default {
   }
 };
 </script>
+
+<style lang="css">
+#login {
+  position: relative;
+  margin-top: 150px;
+  margin-left: 500px;
+  width: 800px;
+}
+</style>
