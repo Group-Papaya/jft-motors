@@ -59,6 +59,7 @@
 </template>
 
 <script>
+import { VCard } from "vuetify/lib";
 export default {
   name: "MaterialCard",
 

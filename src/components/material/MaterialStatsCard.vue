@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import Card from "./Card";
+import { VCard } from "vuetify/lib";
 
 export default {
   name: "MaterialStatsCard",
@@ -40,7 +40,7 @@ export default {
   inheritAttrs: false,
 
   props: {
-    ...Card.props,
+    ...VCard.props,
     icon: {
       type: String,
       required: true

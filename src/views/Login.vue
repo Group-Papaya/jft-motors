@@ -1,6 +1,10 @@
 <template>
-  <v-container id="login" fluid tag="section">
-    <app-material-card icon="mdi-account" title="Login" class="px-5 py-3 col-8">
+  <v-container id="login" fluid tag="section" class="pt-5">
+    <app-material-card
+      icon="mdi-account"
+      title="Login"
+      class="px-5 py-3 col-8 mx-auto"
+    >
       <v-row class="px-5">
         <v-col class="col-12">
           <v-text-field
@@ -34,7 +38,32 @@
   </v-container>
 </template>
 <script>
+import AuthService from "@/services/auth.service";
+
+const authService = new AuthService();
 export default {
-  name: "Register"
+  name: "Register",
+  data() {
+    return {
+      form: {
+        email: "test@gmail.com",
+        password: "123456"
+      },
+      error: null
+    };
+  },
+  methods: {
+    loginUser() {
+      authService
+        .login(this.form.email, this.form.password)
+        .then(res => {
+          console.log(res);
+        })
+        .catch(err => {
+          this.error = err;
+          console.log(err.message);
+        });
+    }
+  }
 };
 </script>

@@ -14,27 +14,33 @@ export default new Router({
         {
           name: "Dashboard",
           path: "",
-          component: () => import("./views/Dashboard.vue")
+          component: () => import("@/views/Dashboard.vue")
         },
         {
           name: "User Profile",
           path: "profile",
-          component: () => import("./views/UserProfile.vue")
-        },
+          component: () => import("@/views/UserProfile.vue")
+        }
+      ]
+    },
+    {
+      path: "/auth/",
+      component: () => import("@/components/layouts/AppMain.vue"),
+      children: [
         {
           name: "Login",
           path: "login",
-          component: () => import("./views/Login.vue")
+          component: () => import("@/views/Login.vue")
         },
         {
           name: "Register",
           path: "register",
-          component: () => import("./views/Register.vue")
+          component: () => import("@/views/Register.vue")
         },
         {
           name: "Forgot Password",
-          path: "forgotPassword",
-          component: () => import("./views/ForgotPassword.vue")
+          path: "forgot-password",
+          component: () => import("@/views/ForgotPassword.vue")
         }
       ]
     }
