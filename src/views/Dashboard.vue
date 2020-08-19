@@ -2,6 +2,7 @@
   <v-container id="dashboard" fluid tag="section">
     <v-row class="my-5">
       <v-col cols="12" md="6">
+        <!-- quotation card -->
         <app-material-card color="warning" class="px-5 py-3">
           <template v-slot:heading>
             <div class="display-2 font-weight-light">Quotations</div>
@@ -9,8 +10,10 @@
               Quotations for month of {{ currentMonth }}
             </div>
           </template>
-          <!--          TODO: add quotation button-->
+
+          <!-- TODO: add quotation button-->
           <v-card-text>
+            <!-- quotation list -->
             <v-data-table
               :headers="quotationTableHeaders"
               :items="quotationItems"
@@ -20,6 +23,7 @@
       </v-col>
 
       <v-col cols="12" md="6">
+        <!-- invoice card -->
         <app-material-card color="success" class="px-5 py-3">
           <template v-slot:heading>
             <div class="display-2 font-weight-light">Invoices</div>
@@ -27,8 +31,10 @@
               Invoices for month of {{ currentMonth }}
             </div>
           </template>
+
           <v-card-text>
             <!--  TODO: change to invoice headers and invoice buttons -->
+            <!-- invoice list -->
             <v-data-table
               :headers="quotationTableHeaders"
               :items="quotationItems"
@@ -48,7 +54,7 @@ import firebase from "firebase";
 
 @Component
 export default class Dashboard extends Vue {
-  //
+  // quotation table header
   quotationTableHeaders = [
     {
       sortable: false,
@@ -71,6 +77,8 @@ export default class Dashboard extends Vue {
       value: "total"
     }
   ];
+
+  // invoice items
   quotationItems: any[] = [];
 
   // get current  month
@@ -103,14 +111,17 @@ export default class Dashboard extends Vue {
 h3 {
   margin: 40px 0 0;
 }
+
 ul {
   list-style-type: none;
   padding: 0;
 }
+
 li {
   display: inline-block;
   margin: 0 10px;
 }
+
 a {
   color: #42b983;
 }

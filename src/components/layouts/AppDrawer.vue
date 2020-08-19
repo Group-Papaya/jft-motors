@@ -65,6 +65,36 @@ export default {
         title: "Dashboard",
         icon: "mdi-view-dashboard",
         to: "/"
+      },
+      {
+        title: "Quotations",
+        icon: "mdi-note",
+        to: "/quotations",
+      },
+      {
+        title: "Invoices",
+        icon: "mdi-note-text",
+        to: "/invoices"
+      },
+      {
+        title: "Clients",
+        icon: "mdi-account",
+        to: "/clients"
+      },
+      {
+        title: "Line Items",
+        icon: "mdi-database",
+        to: "/line-items"
+      },
+      {
+        title: "Discounts",
+        icon: "mdi-tag-text-outline",
+        to: "/discounts"
+      },
+      {
+        title: "Users",
+        icon: "mdi-account",
+        to: "/users"
       }
     ],
     logo: logo
