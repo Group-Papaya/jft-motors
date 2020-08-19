@@ -1,5 +1,5 @@
 <template>
-  <v-container id="login" fluid tag="section">
+  <v-container id="forgotPassword" fluid tag="section">
     <app-material-card
       icon="mdi-account"
       title="Reset Password"
@@ -44,3 +44,12 @@ export default {
   }
 };
 </script>
+
+<style lang="css">
+#forgotPassword {
+  position: relative;
+  margin-top: 250px;
+  margin-left: 500px;
+  width: 800px;
+}
+</style>

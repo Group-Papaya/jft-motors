@@ -37,12 +37,11 @@
         </v-col>
 
         <v-col class="col-12">
-          <p class="text-right">
+          <p class="text-center">
             Already have an account?
             <a>Click here to log in</a>
           </p>
         </v-col>
-        {{ form }}
 
         <v-col class="col-12 text-center">
           <v-btn color="success" class="mr-0" @click="register(form)"
@@ -81,3 +80,12 @@ export default {
   }
 };
 </script>
+
+<style lang="css">
+#register {
+  position: relative;
+  margin-top: 75px;
+  margin-left: 375px;
+  width: 800px;
+}
+</style>
