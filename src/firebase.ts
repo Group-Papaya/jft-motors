@@ -9,7 +9,7 @@ const configOptions = {
   storageBucket: "jft-motors.appspot.com",
   messagingSenderId: "831362152534",
   appId: "1:831362152534:web:1c8eff64629aefae07e3f7",
-  measurementId: "G-MQPC5KC6LV",
+  measurementId: "G-MQPC5KC6LV"
 };
 
 const db = firebase.initializeApp(configOptions);

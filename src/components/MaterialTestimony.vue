@@ -30,22 +30,22 @@ export default {
   props: {
     author: {
       type: String,
-      default: "",
+      default: ""
     },
     avatar: {
       type: String,
       default:
-        "https://demos.creative-tim.com/material-dashboard/assets/img/faces/card-profile1-square.jpg",
+        "https://demos.creative-tim.com/material-dashboard/assets/img/faces/card-profile1-square.jpg"
     },
     blurb: {
       type: String,
-      default: "",
+      default: ""
     },
     handle: {
       type: String,
-      default: "",
-    },
-  },
+      default: ""
+    }
+  }
 };
 </script>
 

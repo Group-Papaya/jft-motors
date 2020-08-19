@@ -27,7 +27,7 @@
 
 <script>
 export default {
-  name: "MaterialAlert",
+  name: "MaterialAlert"
 };
 </script>
 

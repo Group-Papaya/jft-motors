@@ -4,6 +4,6 @@ import { VCard } from "vuetify/lib";
 export default {
   name: "Card",
 
-  extends: VCard,
+  extends: VCard
 };
 </script>

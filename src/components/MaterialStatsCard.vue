@@ -43,37 +43,37 @@ export default {
     ...Card.props,
     icon: {
       type: String,
-      required: true,
+      required: true
     },
     subIcon: {
       type: String,
-      default: undefined,
+      default: undefined
     },
     subIconColor: {
       type: String,
-      default: undefined,
+      default: undefined
     },
     subTextColor: {
       type: String,
-      default: undefined,
+      default: undefined
     },
     subText: {
       type: String,
-      default: undefined,
+      default: undefined
     },
     title: {
       type: String,
-      default: undefined,
+      default: undefined
     },
     value: {
       type: String,
-      default: undefined,
+      default: undefined
     },
     smallValue: {
       type: String,
-      default: undefined,
-    },
-  },
+      default: undefined
+    }
+  }
 };
 </script>
 
