@@ -1,6 +1,6 @@
 import { tryCatch } from "@/utils";
 import * as firebase from "firebase/app";
-import { orLog } from "./../utils";
+import { Logger } from "./../utils";
 
 export default class AuthService {
   user!: firebase.User | null;
@@ -11,31 +11,34 @@ export default class AuthService {
     });
   }
 
-  authenticated() {
+  isAuthenticated() {
     return this.user && !this.user.isAnonymous;
   }
 
-  @tryCatch(orLog)
+  @tryCatch(Logger)
   async register(email: string, password: string) {
     return await firebase
       .auth()
-      .createUserWithEmailAndPassword(email, password);
+      .createUserWithEmailAndPassword(email, password)
+      .then(result => {
+        Logger(result);
+      });
   }
 
-  @tryCatch(orLog)
+  @tryCatch(Logger)
   async login(email: string, password: string) {
     return await firebase.auth().signInWithEmailAndPassword(email, password);
   }
 
-  @tryCatch(orLog)
+  @tryCatch(Logger)
   async logout() {
     await firebase.auth().signOut();
   }
 
-  @tryCatch(orLog)
+  @tryCatch(Logger)
   async resetPassword(email: string) {
     const result = await firebase.auth().sendPasswordResetEmail(email);
-    console.log(result);
+    Logger(result);
   }
 }
 

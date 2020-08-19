@@ -57,7 +57,7 @@ export default {
         .login(this.form.email, this.form.password)
         .then(res => {
           console.log(res);
-          this.$router.push("/");
+          this.$router.replace("/");
         })
         .catch(err => {
           this.error = err;

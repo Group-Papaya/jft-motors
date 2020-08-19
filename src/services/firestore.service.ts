@@ -1,6 +1,6 @@
 import { LineItem, Quotation, Record } from "@/models";
 import { DocumentRef } from "@/models/Record";
-import { orLog, tryCatch } from "@/utils";
+import { Logger, tryCatch } from "@/utils";
 import { firestore } from "firebase/app";
 import { Timestamp } from "./../models/Record";
 
@@ -13,12 +13,12 @@ export default class FirestoreService {
     return firestore.Timestamp.now();
   }
 
-  @tryCatch(orLog)
+  @tryCatch(Logger)
   async add<T = Record>(doc: T, path: string) {
     return this.firestore.collection(path).add(doc);
   }
 
-  @tryCatch(orLog)
+  @tryCatch(Logger)
   async addWithRef<T = Record>(doc: T, ref: Ref[] | string) {
     if (doc instanceof LineItem && typeof ref === "string") {
       doc.discount = ref;
@@ -27,7 +27,7 @@ export default class FirestoreService {
     }
   }
 
-  @tryCatch(orLog)
+  @tryCatch(Logger)
   async getSnapshot(path: string, ref?: Ref) {
     if (path.includes("/") || ref === undefined) {
       return this.firestore.doc(path).get();
@@ -40,7 +40,7 @@ export default class FirestoreService {
   }
 
   // Deletes path if the ref is not undefined
-  @tryCatch(orLog)
+  @tryCatch(Logger)
   async delete(path: string, ref?: string) {
     if (ref) {
       return this.firestore
@@ -52,7 +52,7 @@ export default class FirestoreService {
     }
   }
 
-  @tryCatch(orLog)
+  @tryCatch(Logger)
   async update<T = Record>(doc: T, path: string) {
     return this.firestore.doc(path).set(doc);
   }

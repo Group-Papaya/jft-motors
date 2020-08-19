@@ -58,7 +58,7 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  if (!to.meta.allowAnonymous && !auth.authenticated()) {
+  if (!to.meta.allowAnonymous && !auth.isAuthenticated()) {
     next({
       path: "/auth/login",
       query: { redirect: to.fullPath },

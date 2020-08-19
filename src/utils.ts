@@ -1,6 +1,6 @@
 type Handler = (error: Error) => void;
 
-export const orLog = <Value>(value: Value, warn?: boolean): void => {
+export const Logger = <Value>(value: Value, warn?: boolean): void => {
   if (value instanceof Error) {
     console.error(value);
   } else {
