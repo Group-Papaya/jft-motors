@@ -76,12 +76,3 @@ export default {
   }
 };
 </script>
-
-<style lang="css">
-#register {
-  position: relative;
-  margin-top: 75px;
-  margin-left: 375px;
-  width: 800px;
-}
-</style>
