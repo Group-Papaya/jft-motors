@@ -18,6 +18,7 @@ export default class FirestoreService {
     return this.firestore.collection(path).add(doc);
   }
 
+  @tryCatch(orLog)
   async addWithRef<T = Record>(doc: T, ref: Ref[] | string) {
     if (doc instanceof LineItem && typeof ref === "string") {
       doc.discount = ref;
@@ -26,6 +27,7 @@ export default class FirestoreService {
     }
   }
 
+  @tryCatch(orLog)
   async getSnapshot(path: string, ref?: Ref) {
     if (path.includes("/") || ref === undefined) {
       return this.firestore.doc(path).get();

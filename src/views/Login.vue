@@ -38,9 +38,8 @@
   </v-container>
 </template>
 <script>
-import AuthService from "@/services/auth.service";
+import { auth } from "@/services/auth.service";
 
-const authService = new AuthService();
 export default {
   name: "Register",
   data() {
@@ -54,10 +53,11 @@ export default {
   },
   methods: {
     loginUser() {
-      authService
+      auth
         .login(this.form.email, this.form.password)
         .then(res => {
           console.log(res);
+          this.$router.push("/");
         })
         .catch(err => {
           this.error = err;

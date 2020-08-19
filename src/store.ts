@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import { vuexfireMutations } from "vuexfire";
+import { auth } from "./services/auth.service";
 
 Vue.use(Vuex);
 
@@ -8,7 +9,8 @@ export default new Vuex.Store({
   state: {
     barColor: "rgba(0, 0, 0, .75), rgba(0, 0, 0, .75)",
     barImage: require("@/assets/background.jpg"),
-    drawer: null
+    drawer: null,
+    user: auth.user
   },
   mutations: {
     SET_BAR_IMAGE(state, payload) {

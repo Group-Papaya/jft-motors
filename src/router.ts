@@ -1,9 +1,10 @@
 import Vue from "vue";
 import Router from "vue-router";
+import { auth } from './services/auth.service';
 
 Vue.use(Router);
 
-export default new Router({
+const router = new Router({
   mode: "history",
   base: process.env.BASE_URL,
   routes: [
@@ -14,14 +15,14 @@ export default new Router({
         {
           name: "Dashboard",
           path: "",
-          component: () => import("@/views/Dashboard.vue")
+          component: () => import("@/views/Dashboard.vue"),
         },
         {
           name: "User Profile",
           path: "profile",
-          component: () => import("@/views/UserProfile.vue")
-        }
-      ]
+          component: () => import("@/views/UserProfile.vue"),
+        },
+      ],
     },
     {
       path: "/auth/",
@@ -30,19 +31,41 @@ export default new Router({
         {
           name: "Login",
           path: "login",
-          component: () => import("@/views/Login.vue")
+          component: () => import("@/views/Login.vue"),
+          meta: {
+            allowAnonymous: true,
+          },
         },
         {
           name: "Register",
           path: "register",
-          component: () => import("@/views/Register.vue")
+          component: () => import("@/views/Register.vue"),
+          meta: {
+            allowAnonymous: true,
+          },
         },
         {
           name: "Forgot Password",
           path: "forgot-password",
-          component: () => import("@/views/ForgotPassword.vue")
-        }
-      ]
-    }
-  ]
+          component: () => import("@/views/ForgotPassword.vue"),
+          meta: {
+            allowAnonymous: true,
+          },
+        },
+      ],
+    },
+  ],
 });
+
+router.beforeEach((to, from, next) => {
+  if (!to.meta.allowAnonymous && !auth.authenticated()) {
+    next({
+      path: "/auth/login",
+      query: { redirect: to.fullPath },
+    });
+  } else {
+    next();
+  }
+});
+
+export default router;

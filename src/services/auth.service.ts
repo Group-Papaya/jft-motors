@@ -1,25 +1,22 @@
-import { orLog } from "./../utils";
-import * as firebase from "firebase/app";
 import { tryCatch } from "@/utils";
+import * as firebase from "firebase/app";
+import { orLog } from "./../utils";
 
 export default class AuthService {
-  auth!: firebase.auth.Auth;
-  // provider!: firebase.auth.AuthProvider;
+  user!: firebase.User | null;
 
   constructor() {
-    this.auth = firebase.auth();
-    // this.provider = new firebase.auth.EmailAuthProvider()
+    firebase.auth().onAuthStateChanged(user => {
+      this.user = user;
+    });
+  }
+
+  authenticated() {
+    return this.user && !this.user.isAnonymous;
   }
 
   @tryCatch(orLog)
   async register(email: string, password: string) {
-    // return new Promise(async(resolve, reject) => {
-    //   let result = await firebase
-    //   .auth()
-    //   .createUserWithEmailAndPassword(email, password);
-
-    //   resolve(result)
-    // })
     return await firebase
       .auth()
       .createUserWithEmailAndPassword(email, password);
@@ -41,3 +38,5 @@ export default class AuthService {
     console.log(result);
   }
 }
+
+export const auth = new AuthService();
