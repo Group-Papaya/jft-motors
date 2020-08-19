@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Router from "vue-router";
-import { auth } from './services/auth.service';
+import { auth } from "./services/auth.service";
 
 Vue.use(Router);
 
@@ -15,14 +15,14 @@ const router = new Router({
         {
           name: "Dashboard",
           path: "",
-          component: () => import("@/views/Dashboard.vue"),
+          component: () => import("@/views/Dashboard.vue")
         },
         {
           name: "User Profile",
           path: "profile",
-          component: () => import("@/views/UserProfile.vue"),
-        },
-      ],
+          component: () => import("@/views/UserProfile.vue")
+        }
+      ]
     },
     {
       path: "/auth/",
@@ -33,35 +33,35 @@ const router = new Router({
           path: "login",
           component: () => import("@/views/Login.vue"),
           meta: {
-            allowAnonymous: true,
-          },
+            allowAnonymous: true
+          }
         },
         {
           name: "Register",
           path: "register",
           component: () => import("@/views/Register.vue"),
           meta: {
-            allowAnonymous: true,
-          },
+            allowAnonymous: true
+          }
         },
         {
           name: "Forgot Password",
           path: "forgot-password",
           component: () => import("@/views/ForgotPassword.vue"),
           meta: {
-            allowAnonymous: true,
-          },
-        },
-      ],
-    },
-  ],
+            allowAnonymous: true
+          }
+        }
+      ]
+    }
+  ]
 });
 
 router.beforeEach((to, from, next) => {
   if (!to.meta.allowAnonymous && !auth.isAuthenticated()) {
     next({
       path: "/auth/login",
-      query: { redirect: to.fullPath },
+      query: { redirect: to.fullPath }
     });
   } else {
     next();

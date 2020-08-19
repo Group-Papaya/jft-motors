@@ -27,7 +27,7 @@
             class="purple-input"
           />
         </v-col>
-        <!-- 
+
         <v-col class="col-12">
           <v-text-field
             v-model="form.password"
@@ -35,14 +35,6 @@
             class="purple-input"
           />
         </v-col>
-
-                <v-col class="col-12">
-          <v-text-field
-            v-model="form.passwordRepeat"
-            label="Repeat Password"
-            class="purple-input"
-          />
-        </v-col> -->
 
         <v-col class="col-12">
           <p class="text-right">
@@ -53,7 +45,9 @@
         {{ form }}
 
         <v-col class="col-12 text-center">
-          <v-btn color="success" class="mr-0">Register</v-btn>
+          <v-btn color="success" class="mr-0" @click="register(form)"
+            >Register</v-btn
+          >
         </v-col>
       </v-row>
     </app-material-card>
@@ -61,20 +55,29 @@
 </template>
 
 <script>
+import { auth } from "@/services/auth.service";
+
 export default {
   name: "Register",
   data() {
     return {
       form: {
-        firstname: "",
         email: "",
-        password: ""
+        password: "",
+        firstname: "",
+        lastname: ""
       },
       rules: {
         required: value => !!value || "Required.",
         min: v => v.length >= 8 || "Min 8 characters"
       }
     };
+  },
+  methods: {
+    register: async form => {
+      await auth.register(form.email, form.password);
+      //  this.$router.replace("/");
+    }
   }
 };
 </script>

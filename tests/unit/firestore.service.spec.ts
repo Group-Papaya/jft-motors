@@ -5,7 +5,7 @@ import FirestoreService from "@/services/firestore.service";
 import { assertSucceeds } from "@firebase/testing";
 import { initialize, setup } from "./firebase-testing";
 
-const db = new FirestoreService();
+let testService: FirestoreService;
 
 const admin: User = {
   role: ADMIN_ROLE,
@@ -52,21 +52,30 @@ const draft: Quotation = {
 };
 
 const add = async (path: string, obj: Record) => {
-  return db.add(obj, path).then(doc => {
+  return testService.add(obj, path).then(doc => {
     obj.id = doc.id;
-    db.firestore.collection("added").add({ document: doc.path });
+    testService
+      .getDb()
+      .collection("added")
+      .add({ document: doc.path });
     return doc;
   });
 };
 
 const remove = async (path: string, obj?: Record) => {
   if (obj === undefined) {
-    db.delete(path).then(() => {
-      db.firestore.collection("deleted").add({ document: path });
+    testService.delete(path).then(() => {
+      testService
+        .getDb()
+        .collection("deleted")
+        .add({ document: path });
     });
   } else {
-    db.delete(path, obj.id).then(() => {
-      db.firestore.collection("deleted").add({ document: `${path}/${obj.id}` });
+    testService.delete(path, obj.id).then(() => {
+      testService
+        .getDb()
+        .collection("deleted")
+        .add({ document: `${path}/${obj.id}` });
     });
   }
 };
@@ -74,7 +83,12 @@ const remove = async (path: string, obj?: Record) => {
 initialize();
 
 describe("Firebase Service", () => {
-  beforeAll(async () => (db.firestore = await setup()));
+  beforeAll(
+    async () =>
+      await setup().then(
+        firestore => (testService = new FirestoreService(firestore))
+      )
+  );
 
   it("can add simple record object", async () => {
     const adding = Promise.all([
@@ -100,8 +114,8 @@ describe("Firebase Service", () => {
 
     await Promise.all([
       _discount,
-      db.update(admin, `users/${admin.id}`),
-      db.update(client, `clients/${client.id}`)
+      testService.update(admin, `users/${admin.id}`),
+      testService.update(client, `clients/${client.id}`)
     ]);
 
     const items = Promise.all([
@@ -109,22 +123,23 @@ describe("Firebase Service", () => {
       add("line-items", item)
     ]).then(() => {
       if (admin.id && client.id) {
-        draft.user = db.firestore.doc(`users/${admin.id}`);
-        draft.client = db.firestore.doc(`clients/${client.id}`);
+        draft.user = testService.getDb().doc(`users/${admin.id}`);
+        draft.client = testService.getDb().doc(`clients/${client.id}`);
       }
 
-      draft.created = db.currentTime();
-      draft.updated = db.currentTime();
+      draft.created = testService.currentTime();
+      draft.updated = testService.currentTime();
     });
 
     await assertSucceeds(items);
     await assertSucceeds(
       add("quotations", draft).then(ref => {
-        db.firestore
+        testService
+          .getDb()
           .collection(`${ref.path}/items`)
           .doc(item.id)
           .set(item);
-        draft.updated = db.currentTime();
+        draft.updated = testService.currentTime();
       })
     );
   });
