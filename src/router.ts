@@ -17,6 +17,36 @@ export default new Router({
           component: () => import("@/views/Dashboard.vue")
         },
         {
+          name: "Quotations",
+          path: "quotations",
+          component: () => import("@/views/Quotations.vue")
+        },
+        {
+          name: "Invoices",
+          path: "invoices",
+          component: () => import("@/views/Invoices.vue")
+        },
+        {
+          name: "Clients",
+          path: "clients",
+          component: () => import("@/views/Clients.vue")
+        },
+        {
+          name: "Discounts",
+          path: "discounts",
+          component: () => import("@/views/Discounts.vue")
+        },
+        {
+          name: "LineItems",
+          path: "line-items",
+          component: () => import("@/views/LineItems.vue")
+        },
+        {
+          name: "Users",
+          path: "users",
+          component: () => import("@/views/Users.vue")
+        },
+        {
           name: "User Profile",
           path: "profile",
           component: () => import("@/views/UserProfile.vue")

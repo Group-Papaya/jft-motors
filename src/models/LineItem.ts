@@ -1,6 +1,7 @@
 import Record, { DocumentRef } from "./Record";
 
 export default class LineItem extends Record {
+  name!: string;
   type!: string;
   cost!: number;
   units!: number;

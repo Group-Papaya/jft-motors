@@ -78,7 +78,7 @@ export default {
       },
       {
         title: "Clients",
-        icon: "mdi-account",
+        icon: "mdi-account-box-outline",
         to: "/clients"
       },
       {
@@ -93,7 +93,7 @@ export default {
       },
       {
         title: "Users",
-        icon: "mdi-account",
+        icon: "mdi-account-multiple",
         to: "/users"
       }
     ],

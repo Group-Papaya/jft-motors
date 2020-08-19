@@ -49,8 +49,6 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import moment from "moment";
-import { Quotation } from "@/models";
-import firebase from "firebase";
 
 @Component
 export default class Dashboard extends Vue {

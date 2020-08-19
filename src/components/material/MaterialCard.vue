@@ -37,8 +37,11 @@
         <div v-if="text" class="headline font-weight-thin" v-text="text" />
       </v-sheet>
 
-      <div v-if="$slots['after-heading']" class="ml-6">
-        <slot name="after-heading" />
+      <div v-if="$slots['after-heading'] && title" class="ml-6 flex-fill">
+        <v-row>
+          <v-col class="justify-center">{{ title }}</v-col>
+          <v-col><slot name="after-heading"/></v-col>
+        </v-row>
       </div>
 
       <div v-else-if="icon && title" class="ml-4">
