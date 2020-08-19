@@ -1,9 +1,9 @@
 <template>
-  <v-container id="forgotPassword" fluid tag="section">
+  <v-container id="auth-layout" fluid tag="section">
     <app-material-card
       icon="mdi-account"
-      title="Reset Password"
-      class="px-5 py-3 col-8 mx-auto mt-3"
+      title="Forgot Password"
+      class="mx-auto"
     >
       <v-row class="px-5">
         <v-col class="col-12">

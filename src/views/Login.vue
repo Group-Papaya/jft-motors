@@ -1,6 +1,6 @@
 <template>
-  <v-container id="login" fluid tag="section">
-    <app-material-card icon="mdi-account" title="Login" class="px-5 py-3 col-8">
+  <v-container id="auth-layout" fluid tag="section">
+    <app-material-card icon="mdi-account" title="Login" class="mx-auto">
       <v-row class="px-5">
         <v-col class="col-12">
           <v-text-field
@@ -27,16 +27,13 @@
         <v-col class="col-12 text-center">
           <v-btn @click="loginUser()" color="success" class="mr-0">Login</v-btn>
         </v-col>
-        {{ error }}
-        <!-- <div v-if="error">{{ error.message }}</div> -->
       </v-row>
     </app-material-card>
   </v-container>
 </template>
 <script>
-import AuthService from "@/services/auth.service";
+import { auth } from "@/services/auth.service";
 
-const authService = new AuthService();
 export default {
   name: "Register",
   data() {
@@ -50,9 +47,9 @@ export default {
   },
   methods: {
     loginUser() {
-      authService
+      auth
         .login(this.form.email, this.form.password)
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        // eslint-disable-next-line
         .then(res => {
           this.$router.replace("/");
         })
@@ -66,10 +63,9 @@ export default {
 </script>
 
 <style lang="css">
-#login {
-  position: relative;
-  margin-top: 150px;
-  margin-left: 500px;
-  width: 800px;
+#auth-layout {
+  max-width: 480px;
+  min-width: 300px;
+  margin-top: 10%;
 }
 </style>

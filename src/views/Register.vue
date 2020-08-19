@@ -1,10 +1,6 @@
 <template>
-  <v-container id="register" fluid tag="section">
-    <app-material-card
-      icon="mdi-account"
-      title="Register"
-      class="px-5 py-3 col-8 mx-auto"
-    >
+  <v-container id="auth-layout" fluid tag="section">
+    <app-material-card icon="mdi-account" title="Register" class="mx-auto">
       <v-row class="px-5">
         <v-col class="col-12">
           <v-text-field
