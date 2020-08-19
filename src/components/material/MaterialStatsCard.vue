@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import Card from "./Card";
+import { VCard } from "vuetify/lib";
 
 export default {
   name: "MaterialStatsCard",
@@ -40,40 +40,40 @@ export default {
   inheritAttrs: false,
 
   props: {
-    ...Card.props,
+    ...VCard.props,
     icon: {
       type: String,
-      required: true,
+      required: true
     },
     subIcon: {
       type: String,
-      default: undefined,
+      default: undefined
     },
     subIconColor: {
       type: String,
-      default: undefined,
+      default: undefined
     },
     subTextColor: {
       type: String,
-      default: undefined,
+      default: undefined
     },
     subText: {
       type: String,
-      default: undefined,
+      default: undefined
     },
     title: {
       type: String,
-      default: undefined,
+      default: undefined
     },
     value: {
       type: String,
-      default: undefined,
+      default: undefined
     },
     smallValue: {
       type: String,
-      default: undefined,
-    },
-  },
+      default: undefined
+    }
+  }
 };
 </script>
 

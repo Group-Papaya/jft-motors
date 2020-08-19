@@ -13,7 +13,7 @@
       <v-sheet
         v-else
         :class="{
-          'pa-7': !$slots.image,
+          'pa-7': !$slots.image
         }"
         :color="color"
         :max-height="icon ? 90 : undefined"
@@ -59,40 +59,41 @@
 </template>
 
 <script>
+import { VCard } from "vuetify/lib";
 export default {
   name: "MaterialCard",
 
   props: {
     avatar: {
       type: String,
-      default: "",
+      default: ""
     },
     color: {
       type: String,
-      default: "success",
+      default: "success"
     },
     icon: {
       type: String,
-      default: undefined,
+      default: undefined
     },
     image: {
       type: Boolean,
-      default: false,
+      default: false
     },
     text: {
       type: String,
-      default: "",
+      default: ""
     },
     title: {
       type: String,
-      default: "",
-    },
+      default: ""
+    }
   },
 
   computed: {
     classes() {
       return {
-        "v-card--material--has-heading": this.hasHeading,
+        "v-card--material--has-heading": this.hasHeading
       };
     },
     hasHeading() {
@@ -100,8 +101,8 @@ export default {
     },
     hasAltHeading() {
       return Boolean(this.$slots.heading || (this.title && this.icon));
-    },
-  },
+    }
+  }
 };
 </script>
 

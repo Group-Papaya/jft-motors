@@ -4,7 +4,7 @@
     class="v-snackbar--material"
     v-bind="{
       ...$attrs,
-      color: 'transparent',
+      color: 'transparent'
     }"
   >
     <base-material-alert
@@ -26,18 +26,18 @@ export default {
   props: {
     dismissible: {
       type: Boolean,
-      default: true,
+      default: true
     },
     type: {
       type: String,
-      default: "",
+      default: ""
     },
-    value: Boolean,
+    value: Boolean
   },
 
   data() {
     return {
-      internalValue: this.value,
+      internalValue: this.value
     };
   },
 
@@ -51,8 +51,8 @@ export default {
       if (val === oldVal) return;
 
       this.internalValue = val;
-    },
-  },
+    }
+  }
 };
 </script>
 

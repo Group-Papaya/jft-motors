@@ -22,12 +22,12 @@ export default {
   props: {
     subheading: {
       type: String,
-      default: "",
+      default: ""
     },
     text: {
       type: String,
-      default: "",
-    },
-  },
+      default: ""
+    }
+  }
 };
 </script>
