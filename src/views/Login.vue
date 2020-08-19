@@ -34,32 +34,7 @@
   </v-container>
 </template>
 <script>
-import AuthService from "@/services/auth.service";
-
-const authService = new AuthService();
 export default {
-  name: "Register",
-  data() {
-    return {
-      form: {
-        email: "test@gmail.com",
-        password: "123456",
-      },
-      error: null,
-    };
-  },
-  methods: {
-    loginUser() {
-      authService
-        .login(this.form.email, this.form.password)
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((err) => {
-          this.error = err;
-          console.log(err.message);
-        });
-    },
-  },
+  name: "Register"
 };
 </script>

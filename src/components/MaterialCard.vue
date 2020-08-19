@@ -13,7 +13,7 @@
       <v-sheet
         v-else
         :class="{
-          'pa-7': !$slots.image,
+          'pa-7': !$slots.image
         }"
         :color="color"
         :max-height="icon ? 90 : undefined"
@@ -65,34 +65,34 @@ export default {
   props: {
     avatar: {
       type: String,
-      default: "",
+      default: ""
     },
     color: {
       type: String,
-      default: "success",
+      default: "success"
     },
     icon: {
       type: String,
-      default: undefined,
+      default: undefined
     },
     image: {
       type: Boolean,
-      default: false,
+      default: false
     },
     text: {
       type: String,
-      default: "",
+      default: ""
     },
     title: {
       type: String,
-      default: "",
-    },
+      default: ""
+    }
   },
 
   computed: {
     classes() {
       return {
-        "v-card--material--has-heading": this.hasHeading,
+        "v-card--material--has-heading": this.hasHeading
       };
     },
     hasHeading() {
@@ -100,21 +100,21 @@ export default {
     },
     hasAltHeading() {
       return Boolean(this.$slots.heading || (this.title && this.icon));
-    },
-  },
+    }
+  }
 };
 </script>
 
 <style lang="sass">
 .v-card--material
-  &__avatar
-    position: relative
-    top: -64px
-    margin-bottom: -32px
+    &__avatar
+        position: relative
+        top: -64px
+        margin-bottom: -32px
 
-  &__heading
-    position: relative
-    top: -40px
-    transition: .3s ease
-    z-index: 1
+    &__heading
+        position: relative
+        top: -40px
+        transition: .3s ease
+        z-index: 1
 </style>
