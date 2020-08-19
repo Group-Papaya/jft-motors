@@ -6,14 +6,14 @@
       class="px-5 py-3 col-8"
     >
       <v-row class="px-5">
-                <v-col class="col-12">
+        <v-col class="col-12">
           <v-text-field
             v-model="form.firstname"
             label="First Name"
             class="purple-input"
           />
         </v-col>
-                <v-col class="col-12">
+        <v-col class="col-12">
           <v-text-field
             v-model="form.lastname"
             label="Last Name"
@@ -27,7 +27,7 @@
             class="purple-input"
           />
         </v-col>
-<!-- 
+        <!-- 
         <v-col class="col-12">
           <v-text-field
             v-model="form.password"
