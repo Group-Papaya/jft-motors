@@ -3,7 +3,7 @@
     <app-material-card
       icon="mdi-account"
       title="Register"
-      class="px-5 py-3 col-8"
+      class="px-5 py-3 col-8 mx-auto"
     >
       <v-row class="px-5">
         <v-col class="col-12">
@@ -68,13 +68,13 @@ export default {
       form: {
         firstname: "",
         email: "",
-        password: "",
+        password: ""
       },
       rules: {
-        required: (value) => !!value || "Required.",
-        min: (v) => v.length >= 8 || "Min 8 characters",
-      },
+        required: value => !!value || "Required.",
+        min: v => v.length >= 8 || "Min 8 characters"
+      }
     };
-  },
+  }
 };
 </script>
