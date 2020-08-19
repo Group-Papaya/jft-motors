@@ -5,7 +5,7 @@ export default class Quotation extends Record {
   client!: DocumentRef; // Client doc ref
   items?: firebase.firestore.CollectionReference; // Array of LineItem doc ref
   total?: number = 0.0;
+  created?: Timestamp;
+  updated?: Timestamp;
   completed?: boolean = false;
-  created_at?: Timestamp;
-  updated_at?: Timestamp;
 }

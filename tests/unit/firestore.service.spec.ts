@@ -13,7 +13,7 @@ const admin: User = {
   password: "test-password",
   firstname: "test-admin",
   phone: "021-458-7131",
-  lastname: "example",
+  lastname: "example"
 };
 
 const user: User = {
@@ -22,20 +22,20 @@ const user: User = {
   password: "test-password",
   firstname: "test-user",
   phone: "083-218-2182",
-  lastname: "example",
+  lastname: "example"
 };
 
 const client: Client = {
   firstname: "test-client",
   lastname: "example",
   email: "test-client@gmail.com",
-  phone: "081-234-5746",
+  phone: "081-234-5746"
 };
 
 const discount: Discount = {
   amount: 0.15,
   details: "VAT Discount",
-  percentage: true,
+  percentage: true
 };
 
 const item: LineItem = {
@@ -43,16 +43,16 @@ const item: LineItem = {
   cost: 1250,
   units: 1,
   details: "GoodYear 16in",
-  quantity: 1,
+  quantity: 1
 };
 
 const draft: Quotation = {
   user: "",
-  client: "",
+  client: ""
 };
 
 const add = async (path: string, obj: Record) => {
-  return db.add(obj, path).then((doc) => {
+  return db.add(obj, path).then(doc => {
     obj.id = doc.id;
     db.firestore.collection("added").add({ document: doc.path });
     return doc;
@@ -77,51 +77,54 @@ describe("Firebase Service", () => {
   beforeAll(async () => (db.firestore = await setup()));
 
   it("can add simple record object", async () => {
-    const test_add = Promise.all([
+    const adding = Promise.all([
       add("users", user),
       add("users", admin),
-      add("clients", client),
+      add("clients", client)
     ]);
-    await assertSucceeds(test_add);
+    await assertSucceeds(adding);
   });
 
   it("can delete simple record object", async () => {
-    const test_remove = Promise.all([
+    const removing = Promise.all([
       remove("users", admin),
-      remove(`users/${user.id}`),
+      remove(`users/${user.id}`)
     ]);
-    await assertSucceeds(test_remove);
+    await assertSucceeds(removing);
   });
 
   it("can add complex/record object with ref objects", async () => {
-    const _discount = add("discounts", discount).then((ref) => {
+    const _discount = add("discounts", discount).then(ref => {
       item.discount = ref;
     });
 
     await Promise.all([
       _discount,
       db.update(admin, `users/${admin.id}`),
-      db.update(client, `clients/${client.id}`),
+      db.update(client, `clients/${client.id}`)
     ]);
 
     const items = Promise.all([
       add("line-items", item),
-      add("line-items", item),
+      add("line-items", item)
     ]).then(() => {
       if (admin.id && client.id) {
         draft.user = db.firestore.doc(`users/${admin.id}`);
         draft.client = db.firestore.doc(`clients/${client.id}`);
       }
 
-      draft.created_at = db.currentTime();
-      draft.updated_at = db.currentTime();
+      draft.created = db.currentTime();
+      draft.updated = db.currentTime();
     });
 
     await assertSucceeds(items);
     await assertSucceeds(
-      add("quotations", draft).then((ref) => {
-        db.firestore.collection(`${ref.path}/items`).doc(item.id).set(item);
-        draft.updated_at = db.currentTime();
+      add("quotations", draft).then(ref => {
+        db.firestore
+          .collection(`${ref.path}/items`)
+          .doc(item.id)
+          .set(item);
+        draft.updated = db.currentTime();
       })
     );
   });

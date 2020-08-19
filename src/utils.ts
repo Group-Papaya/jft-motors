@@ -8,6 +8,14 @@ export const orLog = <Value>(value: Value, warn?: boolean): void => {
   }
 };
 
+export function onError(error: Error, handler: Handler): void | Error {
+  if (typeof handler === "function") {
+    handler(error);
+  } else {
+    throw error;
+  }
+}
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function tryCatch(handler: Handler) {
   return (
@@ -16,7 +24,7 @@ export function tryCatch(handler: Handler) {
     descriptor: PropertyDescriptor
   ): PropertyDescriptor => {
     const method = descriptor.value;
-    descriptor.value = function (...args: []) {
+    descriptor.value = function(...args: []) {
       try {
         const result = method.apply(this, args);
 
@@ -35,12 +43,4 @@ export function tryCatch(handler: Handler) {
 
     return descriptor;
   };
-}
-
-export function onError(error: Error, handler: Handler): void | Error {
-  if (typeof handler === "function") {
-    handler(error);
-  } else {
-    throw error;
-  }
 }

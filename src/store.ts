@@ -8,7 +8,7 @@ export default new Vuex.Store({
   state: {
     barColor: "rgba(0, 0, 0, .75), rgba(0, 0, 0, .75)",
     barImage: require("@/assets/background.jpg"),
-    drawer: null,
+    drawer: null
   },
   mutations: {
     SET_BAR_IMAGE(state, payload) {
@@ -17,7 +17,7 @@ export default new Vuex.Store({
     SET_DRAWER(state, payload) {
       state.drawer = payload;
     },
-    ...vuexfireMutations,
+    ...vuexfireMutations
   },
-  actions: {},
+  actions: {}
 });

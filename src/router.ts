@@ -14,7 +14,7 @@ export default new Router({
         {
           name: "Dashboard",
           path: "",
-          component: () => import("./views/Dashboard.vue"),
+          component: () => import("./views/Dashboard.vue")
         },
         {
           name: "User Profile",

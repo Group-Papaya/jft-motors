@@ -30,7 +30,10 @@ export default class FirestoreService {
     if (path.includes("/") || ref === undefined) {
       return this.firestore.doc(path).get();
     } else {
-      return this.firestore.collection(path).doc(ref.toString()).get();
+      return this.firestore
+        .collection(path)
+        .doc(ref.toString())
+        .get();
     }
   }
 
@@ -38,7 +41,10 @@ export default class FirestoreService {
   @tryCatch(orLog)
   async delete(path: string, ref?: string) {
     if (ref) {
-      return this.firestore.collection(path).doc(ref).delete();
+      return this.firestore
+        .collection(path)
+        .doc(ref)
+        .delete();
     } else {
       return this.firestore.doc(path).delete();
     }
