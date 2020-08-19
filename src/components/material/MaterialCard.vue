@@ -64,6 +64,7 @@ export default {
   name: "MaterialCard",
 
   props: {
+    ...VCard,
     avatar: {
       type: String,
       default: ""
