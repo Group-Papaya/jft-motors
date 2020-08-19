@@ -69,7 +69,7 @@ export default {
       {
         title: "Quotations",
         icon: "mdi-note",
-        to: "/quotations",
+        to: "/quotations"
       },
       {
         title: "Invoices",
@@ -83,7 +83,7 @@ export default {
       },
       {
         title: "Line Items",
-        icon: "mdi-database",
+        icon: "mdi-format-list-bulleted",
         to: "/line-items"
       },
       {
