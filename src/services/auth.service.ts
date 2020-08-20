@@ -1,26 +1,21 @@
 import { app } from "@/firebase";
+import store from "@/store";
 import { Logger, tryCatch } from "@/utils";
 import * as firebase from "firebase/app";
 import { dbService } from "./firestore.service";
 
 export default class AuthService {
   user!: firebase.User | null;
-  private auth!: firebase.auth.Auth;
+  firebaseAuth!: firebase.auth.Auth;
 
   constructor(app: firebase.app.App) {
-    this.auth = app.auth();
-    this.auth.onAuthStateChanged(user => {
-      this.user = user;
-    });
-  }
-
-  isAuthenticated() {
-    return this.user && !this.user.isAnonymous;
+    this.firebaseAuth = app.auth();
+    this.user = app.auth().currentUser;
   }
 
   @tryCatch(Logger)
   async register(email: string, password: string) {
-    return await this.auth
+    return await this.firebaseAuth
       .createUserWithEmailAndPassword(email, password)
       .then(result => {
         dbService.add(
@@ -34,17 +29,29 @@ export default class AuthService {
 
   @tryCatch(Logger)
   async login(email: string, password: string) {
-    return await this.auth.signInWithEmailAndPassword(email, password);
+    return await this.firebaseAuth
+      .signInWithEmailAndPassword(email, password)
+      .then(credentials => {
+        store.commit("SET_AUTH_STATE", {
+          user: credentials.user,
+          authenticated: true
+        });
+      });
   }
 
   @tryCatch(Logger)
   async logout() {
-    await this.auth.signOut();
+    await this.firebaseAuth.signOut().then(() => {
+      store.commit("SET_AUTH_STATE", {
+        user: null,
+        authenticated: null
+      });
+    });
   }
 
   @tryCatch(Logger)
   async resetPassword(email: string) {
-    const result = await this.auth.sendPasswordResetEmail(email);
+    const result = await this.firebaseAuth.sendPasswordResetEmail(email);
     Logger(result);
   }
 }

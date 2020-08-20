@@ -8,8 +8,7 @@
             label="First Name"
             class="purple-input"
           />
-        </v-col>
-        <v-col class="col-12">
+
           <v-text-field
             v-model="form.lastname"
             label="Last Name"
@@ -27,6 +26,7 @@
         <v-col class="col-12">
           <v-text-field
             v-model="form.password"
+            type="password"
             label="Password"
             class="purple-input"
           />
@@ -76,12 +76,10 @@ export default {
   }
 };
 </script>
-
-<style lang="css">
-#register {
-  position: relative;
-  margin-top: 75px;
-  margin-left: 375px;
-  width: 800px;
+<style>
+#auth-layout {
+  max-width: 480px;
+  min-width: 300px;
+  margin-top: 10%;
 }
 </style>

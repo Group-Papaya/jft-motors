@@ -1,8 +1,10 @@
-import { auth } from "@/services/auth.service";
 import Vue from "vue";
 import Router from "vue-router";
+import store from "./store";
 
 Vue.use(Router);
+
+const isAuthenticated = () => store.getters.isAuthenticated;
 
 const router = new Router({
   mode: "history",
@@ -11,6 +13,16 @@ const router = new Router({
     {
       path: "/",
       component: () => import("@/components/layouts/AppLayout.vue"),
+      meta: {
+        requiresAuth: true
+      },
+      beforeEnter(to, from, next) {
+        if (isAuthenticated()) {
+          next();
+        } else {
+          next("/auth/login");
+        }
+      },
       children: [
         {
           name: "Dashboard",
@@ -27,45 +39,33 @@ const router = new Router({
     {
       path: "/auth/",
       component: () => import("@/components/layouts/AppMain.vue"),
+      beforeEnter(to, from, next) {
+        if (isAuthenticated()) {
+          if (to.fullPath.includes("forgot-password")) next();
+          else next("/");
+        } else {
+          next();
+        }
+      },
       children: [
         {
           name: "Login",
           path: "login",
-          component: () => import("@/views/Login.vue"),
-          meta: {
-            allowAnonymous: true
-          }
+          component: () => import("@/views/Login.vue")
         },
         {
           name: "Register",
           path: "register",
-          component: () => import("@/views/Register.vue"),
-          meta: {
-            allowAnonymous: true
-          }
+          component: () => import("@/views/Register.vue")
         },
         {
           name: "Forgot Password",
           path: "forgot-password",
-          component: () => import("@/views/ForgotPassword.vue"),
-          meta: {
-            allowAnonymous: true
-          }
+          component: () => import("@/views/ForgotPassword.vue")
         }
       ]
     }
   ]
-});
-
-router.beforeEach((to, from, next) => {
-  if (!to.meta.allowAnonymous && !auth.isAuthenticated()) {
-    next({
-      path: "/auth/login",
-      query: { redirect: to.fullPath }
-    });
-  } else {
-    next();
-  }
 });
 
 export default router;

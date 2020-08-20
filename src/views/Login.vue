@@ -13,11 +13,11 @@
         <v-col class="col-12">
           <v-text-field
             v-model="form.password"
+            type="password"
             label="Password"
             class="purple-input"
           />
         </v-col>
-
         <v-col class="col-12">
           <p class="text-center">
             Forgot your password?
@@ -49,8 +49,7 @@ export default {
     loginUser() {
       auth
         .login(this.form.email, this.form.password)
-        // eslint-disable-next-line
-        .then(res => {
+        .then(() => {
           this.$router.replace("/");
         })
         .catch(err => {
@@ -62,7 +61,7 @@ export default {
 };
 </script>
 
-<style lang="css">
+<style>
 #auth-layout {
   max-width: 480px;
   min-width: 300px;

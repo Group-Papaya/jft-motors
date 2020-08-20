@@ -1,7 +1,8 @@
+import { auth } from "@/services/auth.service";
 import Vue from "vue";
 import Vuex from "vuex";
+import createPersistedState from "vuex-persistedstate";
 import { vuexfireMutations } from "vuexfire";
-import { auth } from "./services/auth.service";
 
 Vue.use(Vuex);
 
@@ -10,9 +11,20 @@ export default new Vuex.Store({
     barColor: "rgba(0, 0, 0, .75), rgba(0, 0, 0, .75)",
     barImage: require("@/assets/background.jpg"),
     drawer: null,
-    user: auth.user
+    auth: {
+      user: auth.user,
+      authenticated: auth.user ? !auth.user.isAnonymous : false
+    }
+  },
+  getters: {
+    isAuthenticated: state => {
+      return state.auth.authenticated;
+    }
   },
   mutations: {
+    SET_AUTH_STATE(state, payload) {
+      state.auth = payload;
+    },
     SET_BAR_IMAGE(state, payload) {
       state.barImage = payload;
     },
@@ -21,5 +33,6 @@ export default new Vuex.Store({
     },
     ...vuexfireMutations
   },
-  actions: {}
+  actions: {},
+  plugins: [createPersistedState()]
 });
