@@ -1,44 +1,17 @@
 <template>
-  <v-container id="quotations" fluid tag="section" class="my-5">
-    <app-material-card
-      color="warning"
-      icon="mdi-note"
-      title="Quotations"
-      class="px-5 py-3"
-    >
-      <template v-slot:after-heading>
-        <div class="ml-auto text-right">
-          <v-btn fab top right small color="warning">
-            <v-icon>mdi-plus</v-icon>
-          </v-btn>
-          <span class="body-3 ml-2 hidden-sm-and-down text-subtitle-2"
-            >Add Quotation</span
-          >
-        </div>
-      </template>
-
-      <!--           quotation list -->
-      <v-data-table :headers="headers" :items="items">
-        <template v-slot:item.actions="{ item }">
-          <v-icon small class="mr-2" @click="editItem(item)">
-            mdi-pencil
-          </v-icon>
-          <v-icon small @click="deleteItem(item)">
-            mdi-delete
-          </v-icon>
-        </template>
-      </v-data-table>
-    </app-material-card>
-  </v-container>
+  <AppEditor :title="name" icon="mdi-note" :items="items" :headers="headers" />
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import moment from "moment";
+import AppEditor from "@/components/layouts/AppEditor.vue";
 
-@Component
+@Component({
+  components: { AppEditor }
+})
 export default class Quotations extends Vue {
-  title = "Quotations are not what I means";
+  name = "Quotations";
   headers = [
     {
       sortable: false,
@@ -90,14 +63,6 @@ export default class Quotations extends Vue {
 
       this.items.push(quotation);
     }
-  }
-
-  editItem(id: string) {
-    console.log(id);
-  }
-
-  deleteItem(id: string) {
-    console.log(id);
   }
 }
 </script>

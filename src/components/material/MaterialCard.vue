@@ -37,10 +37,24 @@
         <div v-if="text" class="headline font-weight-thin" v-text="text" />
       </v-sheet>
 
-      <div v-if="$slots['after-heading'] && title" class="ml-6 flex-fill">
-        <v-row>
-          <v-col class="justify-center">{{ title }}</v-col>
-          <v-col><slot name="after-heading"/></v-col>
+      <div v-if="button" class="ml-6 flex-fill">
+        <v-row class="mr-2">
+          <div class="card-title font-weight-light" v-text="title" />
+          <div class="ml-auto text-right">
+            <v-btn
+              fab
+              top
+              right
+              x-small
+              color="warning"
+              @click="addItem(title)"
+            >
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
+            <span class="card-title  ml-2 hidden-sm-and-down font-weight-light"
+              >Add {{ title.slice(0, title.length - 1) }}</span
+            >
+          </div>
         </v-row>
       </div>
 
@@ -51,9 +65,9 @@
 
     <slot />
 
+    <!--  action buttons -->
     <template v-if="$slots.actions">
       <v-divider class="mt-2" />
-
       <v-card-actions class="pb-0">
         <slot name="actions" />
       </v-card-actions>
@@ -63,6 +77,7 @@
 
 <script>
 import { VCard } from "vuetify/lib";
+
 export default {
   name: "MaterialCard",
 
@@ -90,9 +105,17 @@ export default {
     title: {
       type: String,
       default: ""
+    },
+    button: {
+      type: Boolean,
+      default: false
     }
   },
-
+  methods: {
+    addItem: title => {
+      console.log(title);
+    }
+  },
   computed: {
     classes() {
       return {
