@@ -1,22 +1,22 @@
 <template>
-  <v-container id="invoices" fluid tag="section" class="my-5">
-    <app-material-card
-      color="success"
-      icon="mdi-note-text"
-      title="Invoices"
-      class="px-5 py-3"
-    >
-      <!--           invoice list -->
-      <v-data-table :headers="headers" :items="items"> </v-data-table>
-    </app-material-card>
-  </v-container>
+  <AppManager
+    title="Invoices"
+    icon="mdi-note-text"
+    :items="items"
+    :button="false"
+    color="primary"
+    :headers="headers"
+  />
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import moment from "moment";
+import AppManager from "@/components/layouts/AppManager.vue";
 
-@Component
+@Component({
+  components: { AppManager }
+})
 export default class Invoices extends Vue {
   headers = [
     {

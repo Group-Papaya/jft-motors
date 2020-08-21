@@ -1,6 +1,6 @@
 <template>
   <v-container id="dashboard" fluid tag="section">
-    <v-row class="my-5">
+    <v-row>
       <v-col cols="12" md="6">
         <!-- quotation card -->
         <AppManager
@@ -11,8 +11,7 @@
           :addHandler="addQuotation"
           :items="items"
           :headers="headers"
-        >
-        </AppManager>
+        />
       </v-col>
 
       <v-col cols="12" md="6">
@@ -27,8 +26,7 @@
           :button="false"
           color="primary"
           :headers="headers"
-        >
-        </AppManager>
+        />
       </v-col>
     </v-row>
   </v-container>
