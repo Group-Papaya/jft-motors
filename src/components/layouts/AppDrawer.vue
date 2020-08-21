@@ -18,9 +18,11 @@
 
     <v-list dense nav>
       <v-list-item>
-        <v-list-item-avatar class="align-self-center" color="white" contain>
-          <v-img :src="logo" max-width="60" />
-        </v-list-item-avatar>
+        <v-list-item-title>
+          <v-row align="center" justify="center">
+            <v-img :src="logo" max-width="180" />
+          </v-row>
+        </v-list-item-title>
 
         <v-list-item-content>
           <v-list-item-title class="display-1" v-text="profile.title" />
@@ -46,7 +48,7 @@
 
 <script>
 import { mapState } from "vuex";
-import logo from "@/assets/logo.svg";
+import logo from "@/assets/logo.png";
 
 export default {
   name: "AppDrawer",
