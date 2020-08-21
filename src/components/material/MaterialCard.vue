@@ -37,8 +37,25 @@
         <div v-if="text" class="headline font-weight-thin" v-text="text" />
       </v-sheet>
 
-      <div v-if="$slots['after-heading']" class="ml-6">
-        <slot name="after-heading" />
+      <div v-if="button" class="ml-6 flex-fill">
+        <v-row class="mr-2">
+          <div class="card-title font-weight-light" v-text="title" />
+          <div class="ml-auto text-right">
+            <v-btn
+              fab
+              top
+              right
+              x-small
+              color="warning"
+              @click="addItem(title)"
+            >
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
+            <span class="card-title  ml-2 hidden-sm-and-down font-weight-light"
+              >Add {{ itemName }}</span
+            >
+          </div>
+        </v-row>
       </div>
 
       <div v-else-if="icon && title" class="ml-4">
@@ -48,9 +65,9 @@
 
     <slot />
 
+    <!--  action buttons -->
     <template v-if="$slots.actions">
       <v-divider class="mt-2" />
-
       <v-card-actions class="pb-0">
         <slot name="actions" />
       </v-card-actions>
@@ -60,6 +77,7 @@
 
 <script>
 import { VCard } from "vuetify/lib";
+
 export default {
   name: "MaterialCard",
 
@@ -88,9 +106,17 @@ export default {
     title: {
       type: String,
       default: ""
+    },
+    button: {
+      type: Boolean,
+      default: false
     }
   },
-
+  methods: {
+    addItem: function() {
+      this.$emit("openDialog", true);
+    }
+  },
   computed: {
     classes() {
       return {
@@ -102,6 +128,9 @@ export default {
     },
     hasAltHeading() {
       return Boolean(this.$slots.heading || (this.title && this.icon));
+    },
+    itemName() {
+      return this.title.slice(0, this.title.length - 1);
     }
   }
 };
@@ -109,14 +138,14 @@ export default {
 
 <style lang="sass">
 .v-card--material
-  &__avatar
-    position: relative
-    top: -64px
-    margin-bottom: -32px
+    &__avatar
+        position: relative
+        top: -64px
+        margin-bottom: -32px
 
-  &__heading
-    position: relative
-    top: -40px
-    transition: .3s ease
-    z-index: 1
+    &__heading
+        position: relative
+        top: -40px
+        transition: .3s ease
+        z-index: 1
 </style>

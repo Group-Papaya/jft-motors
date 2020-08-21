@@ -1,97 +1,103 @@
 <template>
   <v-container id="dashboard" fluid tag="section">
-    <v-row>
-      <v-col cols="12" class="hello">
-        <img src="@/assets/vuetify.svg" width="280px" />
-        <p>
-          For guide and recipes on how to configure / customize this project,<br />
-          check out the
-          <a href="https://cli.vuejs.org" target="_blank"
-            >vue-cli documentation</a
-          >.
-        </p>
-        <h3>Installed CLI Plugins</h3>
-        <ul>
-          <li>
-            <a
-              href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel"
-              target="_blank"
-              >babel</a
-            >
-          </li>
-          <li>
-            <a
-              href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-pwa"
-              target="_blank"
-              >pwa</a
-            >
-          </li>
-          <li>
-            <a
-              href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint"
-              target="_blank"
-              >eslint</a
-            >
-          </li>
-          <li>
-            <a
-              href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-unit-jest"
-              target="_blank"
-              >unit-jest</a
-            >
-          </li>
-          <li>
-            <a
-              href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-e2e-nightwatch"
-              target="_blank"
-              >e2e-nightwatch</a
-            >
-          </li>
-        </ul>
-        <h3>Essential Links</h3>
-        <ul>
-          <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
-          <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
-          <li>
-            <a href="https://chat.vuejs.org" target="_blank">Community Chat</a>
-          </li>
-          <li>
-            <a href="https://twitter.com/vuejs" target="_blank">Twitter</a>
-          </li>
-        </ul>
-        <h3>Ecosystem</h3>
-        <ul>
-          <li>
-            <a href="https://router.vuejs.org" target="_blank">vue-router</a>
-          </li>
-          <li><a href="https://vuex.vuejs.org" target="_blank">vuex</a></li>
-          <li>
-            <a
-              href="https://github.com/vuejs/vue-devtools#vue-devtools"
-              target="_blank"
-              >vue-devtools</a
-            >
-          </li>
-          <li>
-            <a href="https://vue-loader.vuejs.org" target="_blank"
-              >vue-loader</a
-            >
-          </li>
-          <li>
-            <a href="https://github.com/vuejs/awesome-vue" target="_blank"
-              >awesome-vue</a
-            >
-          </li>
-        </ul>
+    <v-row class="my-5">
+      <v-col cols="12" md="6">
+        <!-- quotation card -->
+        <app-material-card color="warning" class="px-5 py-3">
+          <template v-slot:heading>
+            <div class="display-2 font-weight-light">Quotations</div>
+            <div class="subtitle-1 font-weight-light">
+              Quotations for month of {{ currentMonth }}
+            </div>
+          </template>
+
+          <v-card-text>
+            <!-- quotation list -->
+            <v-data-table
+              :headers="quotationTableHeaders"
+              :items="quotationItems"
+            ></v-data-table>
+          </v-card-text>
+        </app-material-card>
+      </v-col>
+
+      <v-col cols="12" md="6">
+        <!-- invoice card -->
+        <app-material-card color="success" class="px-5 py-3">
+          <template v-slot:heading>
+            <div class="display-2 font-weight-light">Invoices</div>
+            <div class="subtitle-1 font-weight-light">
+              Invoices for month of {{ currentMonth }}
+            </div>
+          </template>
+
+          <v-card-text>
+            <!--  TODO: change to invoice headers and invoice buttons -->
+            <!-- invoice list -->
+            <v-data-table
+              :headers="quotationTableHeaders"
+              :items="quotationItems"
+            ></v-data-table>
+          </v-card-text>
+        </app-material-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
-<script>
-export default {
-  name: "Dashboard"
-};
+<script lang="ts">
+import { Component, Vue } from "vue-property-decorator";
+import moment from "moment";
+
+@Component
+export default class Dashboard extends Vue {
+  // quotation table header
+  quotationTableHeaders = [
+    {
+      sortable: false,
+      text: "ID",
+      value: "id"
+    },
+    {
+      sortable: false,
+      text: "client",
+      value: "client"
+    },
+    {
+      sortable: false,
+      text: "created",
+      value: "created"
+    },
+    {
+      sortable: false,
+      text: "total",
+      value: "total"
+    }
+  ];
+
+  // invoice items
+  quotationItems: any[] = [];
+
+  // get current  month
+  currentMonth = moment().format("MMMM");
+
+  mounted() {
+    this.getDemoData();
+  }
+
+  getDemoData() {
+    for (let x = 1; x < 11; x++) {
+      const quotation = {
+        id: `${x}`,
+        client: `client ${x}`,
+        created: moment().format("MMMM Do YYYY"),
+        total: x * 1000
+      };
+
+      this.quotationItems.push(quotation);
+    }
+  }
+}
 </script>
 
 <style scoped lang="scss">
@@ -102,14 +108,17 @@ export default {
 h3 {
   margin: 40px 0 0;
 }
+
 ul {
   list-style-type: none;
   padding: 0;
 }
+
 li {
   display: inline-block;
   margin: 0 10px;
 }
+
 a {
   color: #42b983;
 }

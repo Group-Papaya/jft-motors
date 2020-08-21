@@ -36,6 +36,44 @@ const router = new Router({
             )
         },
         {
+          name: "Quotations",
+          path: "quotations",
+          component: () => import("@/views/Quotations.vue")
+        },
+        {
+          path: "quotations/:id",
+          component: () => import("@/views/QuotationEditor.vue")
+        },
+        {
+          name: "Invoices",
+          path: "invoices",
+          component: () => import("@/views/Invoices.vue")
+        },
+        {
+          path: "invoices/:id",
+          component: () => import("@/views/InvoiceViewer.vue")
+        },
+        {
+          name: "Clients",
+          path: "clients",
+          component: () => import("@/views/Clients.vue")
+        },
+        {
+          name: "Discounts",
+          path: "discounts",
+          component: () => import("@/views/Discounts.vue")
+        },
+        {
+          name: "LineItems",
+          path: "line-items",
+          component: () => import("@/views/LineItems.vue")
+        },
+        {
+          name: "Users",
+          path: "users",
+          component: () => import("@/views/Users.vue")
+        },
+        {
           name: "User Profile",
           path: "profile",
           component: () =>

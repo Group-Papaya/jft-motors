@@ -39,6 +39,7 @@ const discount: Discount = {
 };
 
 const item: LineItem = {
+  name: "line item",
   type: PRODUCT,
   cost: 1250,
   units: 1,
