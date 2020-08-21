@@ -22,7 +22,7 @@
     </app-material-card>
 
     <!-- modal component -->
-    <ItemDialog
+    <AppManagerDialog
       ref="itemDialog"
       :model="model"
       :schema="schema"
@@ -33,15 +33,15 @@
 </template>
 
 <script lang="ts">
-import ItemDialog from "@/components/ItemDialog.vue";
+import AppManagerDialog from "@/components/layouts/AppManagerDialog.vue";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import router from "@/router";
 
 @Component({
-  components: { ItemDialog }
+  components: { AppManagerDialog }
 })
 export default class AppEditor extends Vue {
-  name = "AppEditor";
+  name = "AppManager.vue";
 
   @Prop({ type: String, default: undefined }) readonly title:
     | string

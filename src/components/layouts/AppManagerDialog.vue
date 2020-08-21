@@ -7,10 +7,10 @@
       <v-card-text>
         <v-form>
           <v-form-base
-                  :row="rowAttribute"
-                  :col="12"
-                  :model="create ? model : item"
-                  :schema="schema"
+            :row="rowAttribute"
+            :col="12"
+            :model="create ? model : item"
+            :schema="schema"
           />
         </v-form>
       </v-card-text>
@@ -28,7 +28,7 @@
 import VFormBase from 'vuetify-form-base'
 
 export default {
-    name: "ItemDialog",
+    name: "AppManagerDialog",
     components: {VFormBase},
     props: {
         name: {

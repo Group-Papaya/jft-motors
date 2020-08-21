@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import AppEditor from "@/components/layouts/AppEditor.vue";
+import AppEditor from "@/components/layouts/AppManager.vue";
 import LineItem, { JOB, PRODUCT, WORKER } from "@/models/LineItem";
 
 @Component({

@@ -14,7 +14,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { JOB, PRODUCT, WORKER } from "@/models/LineItem";
-import AppEditor from "@/components/layouts/AppEditor.vue";
+import AppEditor from "@/components/layouts/AppManager.vue";
 import Discount from "@/models/Discount";
 
 @Component({

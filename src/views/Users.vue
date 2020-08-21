@@ -14,7 +14,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import User, { ADMIN_ROLE, BASE_ROLE } from "@/models/User";
-import AppEditor from "@/components/layouts/AppEditor.vue";
+import AppEditor from "@/components/layouts/AppManager.vue";
 
 @Component({
   components: { AppEditor }
