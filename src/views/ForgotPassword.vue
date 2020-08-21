@@ -1,54 +1,50 @@
 <template>
-  <v-container id="auth-layout" fluid tag="section">
-    <app-material-card
-      icon="mdi-account"
-      title="Forgot Password"
-      class="mx-auto"
-    >
-      <v-row class="px-5">
-        <v-col class="col-12">
-          <v-text-field
-            v-model="form.email"
-            label="Email"
-            class="purple-input"
-          />
-        </v-col>
-
-        <v-col class="col-12 text-center">
-          <v-btn @click="resetPassword()" color="success" class="mr-0"
-            >Reset Password</v-btn
-          >
-        </v-col>
-        {{ error }}
-      </v-row>
-    </app-material-card>
-  </v-container>
+  <app-auth
+    title="Forgot Password"
+    :form-error="error"
+    :form-submit="resetPassword"
+    button-text="Reset Password"
+  >
+    <v-col class="col-12">
+      <v-text-field
+        required
+        type="email"
+        label="Email"
+        class="purple-input"
+        :rules="rules.email"
+        v-model="form.email"
+        @focusin="error = null"
+      />
+    </v-col>
+  </app-auth>
 </template>
 <script>
 import { auth } from "@/services/auth.service";
+import AppAuth from "@/components/layouts/AppAuth";
 
 export default {
   name: "Register",
+  components: { AppAuth },
   data() {
     return {
       form: {
         email: ""
       },
+      rules: {
+        email: [
+          v => !!v || "E-mail is required",
+          v => /.+@.+\..+/.test(v) || "E-mail must be valid"
+        ]
+      },
       error: null
     };
   },
   methods: {
-    resetPassword() {
-      auth.resetPassword(this.form.email);
+    async resetPassword() {
+      await auth.resetPassword(this.form.email).then(value => {
+        if (value.error) this.error = value.error.message;
+      });
     }
   }
 };
 </script>
-
-<style>
-#auth-layout {
-  max-width: 480px;
-  min-width: 300px;
-  margin-top: 10%;
-}
-</style>

@@ -1,40 +1,46 @@
 <template>
-  <v-container id="auth-layout" fluid tag="section">
-    <app-material-card icon="mdi-account" title="Login" class="mx-auto">
-      <v-row class="px-5">
-        <v-col class="col-12">
-          <v-text-field
-            v-model="form.email"
-            label="Email"
-            class="purple-input"
-          />
-        </v-col>
+  <app-auth title="Login" :form-submit="loginUser" :form-error="error">
+    <v-col class="col-12">
+      <v-text-field
+        required
+        type="email"
+        label="Email"
+        class="purple-input"
+        @focusin="error = null"
+        :rules="rules.email"
+        v-model="form.email"
+      />
+    </v-col>
 
-        <v-col class="col-12">
-          <v-text-field
-            v-model="form.password"
-            type="password"
-            label="Password"
-            class="purple-input"
-          />
-        </v-col>
-        <v-col class="col-12">
-          <p class="text-center">
-            Forgot your password?
-            <a>Click here to reset</a>
-          </p>
-        </v-col>
-        <v-col class="col-12 text-center">
-          <v-btn @click="loginUser()" color="success" class="mr-0">Login</v-btn>
-        </v-col>
-      </v-row>
-    </app-material-card>
-  </v-container>
+    <v-col class="col-12">
+      <v-text-field
+        required
+        type="password"
+        label="Password"
+        class="purple-input"
+        @focusin="error = null"
+        :rules="rules.password"
+        v-model="form.password"
+      />
+    </v-col>
+    <v-col class="col-12">
+      <p class="text-center">
+        Forgot your password?
+        <router-link :to="{ path: 'forgot-password' }"
+          >Click here to reset
+        </router-link>
+      </p>
+    </v-col>
+  </app-auth>
 </template>
 <script>
+import AppAuth from "@/components/layouts/AppAuth";
 import { auth } from "@/services/auth.service";
 
 export default {
+  components: {
+    AppAuth
+  },
   name: "Register",
   data() {
     return {
@@ -42,29 +48,27 @@ export default {
         email: "",
         password: ""
       },
+      rules: {
+        email: [
+          v => !!v || "E-mail is required",
+          v => /.+@.+\..+/.test(v) || "E-mail must be valid"
+        ],
+        password: [
+          v => !!v || "Password is required",
+          v =>
+            (v && v.length >= 8) || "Password must be greater than 8 characters"
+        ]
+      },
       error: null
     };
   },
   methods: {
-    loginUser() {
-      auth
-        .login(this.form.email, this.form.password)
-        .then(() => {
-          this.$router.replace("/");
-        })
-        .catch(err => {
-          this.error = err;
-          console.log(err.message);
-        });
+    async loginUser() {
+      await auth.login(this.form.email, this.form.password).then(value => {
+        if (value.error) this.error = value.error.message;
+        else this.$router.replace("/");
+      });
     }
   }
 };
 </script>
-
-<style>
-#auth-layout {
-  max-width: 480px;
-  min-width: 300px;
-  margin-top: 10%;
-}
-</style>
