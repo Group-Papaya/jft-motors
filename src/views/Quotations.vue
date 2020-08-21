@@ -1,5 +1,5 @@
 <template>
-  <AppEditor
+  <AppManager
     title="Quotations"
     :model="model"
     :schema="schema"
@@ -13,11 +13,11 @@
 <script lang="ts">
 import moment from "moment";
 import { Component, Vue } from "vue-property-decorator";
-import AppEditor from "@/components/layouts/AppManager.vue";
+import AppManager from "@/components/layouts/AppManager.vue";
 import Quotation from "@/models/Quotation";
 
 @Component({
-  components: { AppEditor }
+  components: { AppManager }
 })
 export default class Quotations extends Vue {
   headers = [

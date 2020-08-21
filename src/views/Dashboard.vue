@@ -3,43 +3,32 @@
     <v-row class="my-5">
       <v-col cols="12" md="6">
         <!-- quotation card -->
-        <app-material-card color="warning" class="px-5 py-3">
-          <template v-slot:heading>
-            <div class="display-2 font-weight-light">Quotations</div>
-            <div class="subtitle-1 font-weight-light">
-              Quotations for month of {{ currentMonth }}
-            </div>
-          </template>
-
-          <v-card-text>
-            <!-- quotation list -->
-            <v-data-table
-              :headers="quotationTableHeaders"
-              :items="quotationItems"
-            ></v-data-table>
-          </v-card-text>
-        </app-material-card>
+        <AppManager
+          title="Quotations"
+          :subtitle="'Quotations ' + subtitle"
+          :model="model"
+          :schema="schema"
+          :addHandler="addQuotation"
+          :items="items"
+          :headers="headers"
+        >
+        </AppManager>
       </v-col>
 
       <v-col cols="12" md="6">
         <!-- invoice card -->
-        <app-material-card color="success" class="px-5 py-3">
-          <template v-slot:heading>
-            <div class="display-2 font-weight-light">Invoices</div>
-            <div class="subtitle-1 font-weight-light">
-              Invoices for month of {{ currentMonth }}
-            </div>
-          </template>
-
-          <v-card-text>
-            <!--  TODO: change to invoice headers and invoice buttons -->
-            <!-- invoice list -->
-            <v-data-table
-              :headers="quotationTableHeaders"
-              :items="quotationItems"
-            ></v-data-table>
-          </v-card-text>
-        </app-material-card>
+        <AppManager
+          title="Invoices"
+          :subtitle="'Invoices ' + subtitle"
+          :model="model"
+          :schema="schema"
+          :addHandler="addQuotation"
+          :items="items"
+          :button="false"
+          color="primary"
+          :headers="headers"
+        >
+        </AppManager>
       </v-col>
     </v-row>
   </v-container>
@@ -48,11 +37,15 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import moment from "moment";
+import Quotation from "@/models/Quotation";
+import AppManager from "@/components/layouts/AppManager.vue";
 
-@Component
+@Component({
+  components: { AppManager }
+})
 export default class Dashboard extends Vue {
   // quotation table header
-  quotationTableHeaders = [
+  headers = [
     {
       sortable: false,
       text: "ID",
@@ -76,13 +69,31 @@ export default class Dashboard extends Vue {
   ];
 
   // invoice items
-  quotationItems: any[] = [];
+  items: any[] = [];
+
+  model = {
+    client: ""
+  };
+
+  schema = {
+    client: {
+      type: "select",
+      label: "Client",
+      items: ["Tesla", "Jobs", "Taleb"]
+    }
+  };
 
   // get current  month
   currentMonth = moment().format("MMMM");
 
   mounted() {
     this.getDemoData();
+  }
+
+  addQuotation(quotation: Quotation) {
+    // write to firebase
+    console.log(quotation);
+    // route to quotation editor
   }
 
   getDemoData() {
@@ -94,8 +105,12 @@ export default class Dashboard extends Vue {
         total: x * 1000
       };
 
-      this.quotationItems.push(quotation);
+      this.items.push(quotation);
     }
+  }
+
+  get subtitle() {
+    return `for month of ${this.currentMonth}`;
   }
 }
 </script>
