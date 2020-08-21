@@ -1,30 +1,24 @@
 <template>
-  <v-container id="invoices" fluid tag="section" class="my-5">
-    <app-material-card
-      color="warning"
-      icon="mdi-format-list-bulleted"
-      title="Line Items"
-      class="px-5 py-3"
-    >
-      <!--           line items list -->
-      <v-data-table :headers="headers" :items="items">
-        <template v-slot:item.actions="{ item }">
-          <v-icon small class="mr-2" @click="editItem(item)">
-            mdi-pencil
-          </v-icon>
-          <v-icon small @click="deleteItem(item)">
-            mdi-delete
-          </v-icon>
-        </template>
-      </v-data-table>
-    </app-material-card>
-  </v-container>
+  <AppEditor
+    title="LineItems"
+    :model="model"
+    :schema="schema"
+    :addHandler="addLineItem"
+    :editHandler="editItem"
+    icon="mdi-format-list-bulleted"
+    :items="items"
+    :headers="headers"
+  />
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import AppEditor from "@/components/layouts/AppEditor.vue";
+import LineItem, { JOB, PRODUCT, WORKER } from "@/models/LineItem";
 
-@Component
+@Component({
+  components: { AppEditor }
+})
 export default class LineItems extends Vue {
   headers = [
     {
@@ -66,6 +60,33 @@ export default class LineItems extends Vue {
 
   items: any[] = [];
 
+  model = {
+    name: "",
+    type: "",
+    cost: 0,
+    units: 0
+  };
+
+  schema = {
+    name: {
+      type: "text",
+      label: "Line item name"
+    },
+    type: {
+      type: "select",
+      label: "Type",
+      items: [JOB, WORKER, PRODUCT]
+    },
+    cost: {
+      type: "number",
+      label: "Cost"
+    },
+    units: {
+      type: "number",
+      label: "Units"
+    }
+  };
+
   mounted() {
     this.getDemoData();
   }
@@ -75,7 +96,7 @@ export default class LineItems extends Vue {
       const lineItem = {
         id: `${x}`,
         name: `line item-${x}`,
-        type: `client ${x}`,
+        type: x % 2 ? WORKER : PRODUCT,
         cost: x * Math.random(),
         units: x * 1000,
         discounted: false
@@ -85,12 +106,12 @@ export default class LineItems extends Vue {
     }
   }
 
-  editItem(id: string) {
-    console.log(id);
+  editItem(lineItem: LineItem) {
+    console.log(lineItem);
   }
 
-  deleteItem(id: string) {
-    console.log(id);
+  addLineItem(lineItem: LineItem) {
+    console.log(lineItem);
   }
 }
 </script>

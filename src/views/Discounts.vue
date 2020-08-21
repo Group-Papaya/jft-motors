@@ -1,30 +1,25 @@
 <template>
-  <v-container id="invoices" fluid tag="section" class="my-5">
-    <app-material-card
-      color="warning"
-      icon="mdi-tag-text-outline"
-      title="Discounts"
-      class="px-5 py-3"
-    >
-      <!--           discount list -->
-      <v-data-table :headers="headers" :items="items">
-        <template v-slot:item.actions="{ item }">
-          <v-icon small class="mr-2" @click="editItem(item)">
-            mdi-pencil
-          </v-icon>
-          <v-icon small color="red" @click="deleteItem(item)">
-            mdi-delete
-          </v-icon>
-        </template>
-      </v-data-table>
-    </app-material-card>
-  </v-container>
+  <AppEditor
+    title="Discounts"
+    :model="model"
+    :schema="schema"
+    :addHandler="addDiscount"
+    :editHandler="editItem"
+    icon="mdi-tag-text-outline"
+    :items="items"
+    :headers="headers"
+  />
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import { JOB, PRODUCT, WORKER } from "@/models/LineItem";
+import AppEditor from "@/components/layouts/AppEditor.vue";
+import Discount from "@/models/Discount";
 
-@Component
+@Component({
+  components: { AppEditor }
+})
 export default class Discounts extends Vue {
   headers = [
     {
@@ -56,6 +51,27 @@ export default class Discounts extends Vue {
 
   items: any[] = [];
 
+  model = {
+    name: "",
+    amount: 0,
+    percentage: 0
+  };
+
+  schema = {
+    name: {
+      type: "text",
+      label: "Discount name"
+    },
+    amount: {
+      type: "number",
+      label: "Amount"
+    },
+    percentage: {
+      type: "number",
+      label: "Percentage"
+    }
+  };
+
   mounted() {
     this.getDemoData();
   }
@@ -73,12 +89,12 @@ export default class Discounts extends Vue {
     }
   }
 
-  editItem(id: string) {
-    console.log(id);
+  editItem(discount: Discount) {
+    console.log(discount);
   }
 
-  deleteItem(id: string) {
-    console.log(id);
+  addDiscount(discount: Discount) {
+    console.log(discount);
   }
 }
 </script>

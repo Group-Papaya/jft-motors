@@ -11,7 +11,6 @@
             </div>
           </template>
 
-          <!-- TODO: add quotation button-->
           <v-card-text>
             <!-- quotation list -->
             <v-data-table

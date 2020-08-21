@@ -1,17 +1,25 @@
 <template>
-  <AppEditor :title="name" icon="mdi-note" :items="items" :headers="headers" />
+  <AppEditor
+    title="Quotations"
+    :model="model"
+    :schema="schema"
+    :addHandler="addQuotation"
+    icon="mdi-note"
+    :items="items"
+    :headers="headers"
+  />
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
 import moment from "moment";
+import { Component, Vue } from "vue-property-decorator";
 import AppEditor from "@/components/layouts/AppEditor.vue";
+import Quotation from "@/models/Quotation";
 
 @Component({
   components: { AppEditor }
 })
 export default class Quotations extends Vue {
-  name = "Quotations";
   headers = [
     {
       sortable: false,
@@ -45,10 +53,28 @@ export default class Quotations extends Vue {
     }
   ];
 
+  model = {
+    client: ""
+  };
+
+  schema = {
+    client: {
+      type: "select",
+      label: "Client",
+      items: ["Tesla", "Jobs", "Taleb"]
+    }
+  };
+
   items: any[] = [];
 
   mounted() {
     this.getDemoData();
+  }
+
+  addQuotation(quotation: Quotation) {
+    // write to firebase
+    console.log(quotation);
+    // route to quotation editor
   }
 
   getDemoData() {

@@ -52,7 +52,7 @@
               <v-icon>mdi-plus</v-icon>
             </v-btn>
             <span class="card-title  ml-2 hidden-sm-and-down font-weight-light"
-              >Add {{ title.slice(0, title.length - 1) }}</span
+              >Add {{ itemName }}</span
             >
           </div>
         </v-row>
@@ -112,8 +112,8 @@ export default {
     }
   },
   methods: {
-    addItem: title => {
-      console.log(title);
+    addItem: function() {
+      this.$emit("openDialog", true);
     }
   },
   computed: {
@@ -127,6 +127,9 @@ export default {
     },
     hasAltHeading() {
       return Boolean(this.$slots.heading || (this.title && this.icon));
+    },
+    itemName() {
+      return this.title.slice(0, this.title.length - 1);
     }
   }
 };

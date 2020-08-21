@@ -20,7 +20,9 @@
     "vue-class-component": "^7.2.3",
     "vue-property-decorator": "^8.4.2",
     "vue-router": "^3.2.0",
+    "vue-the-mask": "^0.11.1",
     "vuetify": "^2.3.6",
+    "vuetify-form-base": "^0.2.4",
     "vuex": "^3.4.0",
     "vuexfire": "^3.2.3"
   },
@@ -71,7 +73,11 @@
     "parserOptions": {
       "ecmaVersion": 2020
     },
-    "rules": {},
+    "rules": {
+      "@typescript-eslint/no-explicit-any": 0,
+      "@typescript-eslint/no-this-alias)": 0,
+      "@typescript-eslint/no-unused-vars": 0
+    },
     "overrides": [
       {
         "files": [

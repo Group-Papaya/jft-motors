@@ -22,9 +22,17 @@ export default new Router({
           component: () => import("@/views/Quotations.vue")
         },
         {
+          path: "quotations/:id",
+          component: () => import("@/views/QuotationEditor.vue")
+        },
+        {
           name: "Invoices",
           path: "invoices",
           component: () => import("@/views/Invoices.vue")
+        },
+        {
+          path: "invoices/:id",
+          component: () => import("@/views/InvoiceViewer.vue")
         },
         {
           name: "Clients",

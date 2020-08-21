@@ -1,31 +1,24 @@
 <template>
-  <v-container id="invoices" fluid tag="section" class="my-5">
-    <app-material-card
-      color="warning"
-      icon="mdi-account-box-outline"
-      title="Clients"
-      class="px-5 py-3"
-    >
-      <!--           client list -->
-      <v-data-table :headers="headers" :items="items">
-        <template v-slot:item.actions="{ item }">
-          <v-icon small class="mr-2" @click="editItem(item)">
-            mdi-pencil
-          </v-icon>
-          <v-icon small @click="deleteItem(item)">
-            mdi-delete
-          </v-icon>
-        </template>
-      </v-data-table>
-    </app-material-card>
-  </v-container>
+  <AppEditor
+    title="Clients"
+    :model="model"
+    :schema="schema"
+    :addHandler="addClient"
+    :editHandler="editItem"
+    icon="mdi-account-box-outline"
+    :items="items"
+    :headers="headers"
+  />
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import moment from "moment";
+import AppEditor from "@/components/layouts/AppEditor.vue";
+import Client from "@/models/Client";
 
-@Component
+@Component({
+  components: { AppEditor }
+})
 export default class Clients extends Vue {
   headers = [
     {
@@ -59,8 +52,33 @@ export default class Clients extends Vue {
       value: "actions"
     }
   ];
-
   items: any[] = [];
+
+  model = {
+    fistname: "",
+    lastname: "",
+    phone: "",
+    email: ""
+  };
+
+  schema = {
+    firstname: {
+      type: "text",
+      label: "First Name"
+    },
+    lastname: {
+      type: "text",
+      label: "Last Name"
+    },
+    phone: {
+      type: "text",
+      label: "Phone Number"
+    },
+    email: {
+      type: "email",
+      label: "Email Address"
+    }
+  };
 
   mounted() {
     this.getDemoData();
@@ -71,7 +89,7 @@ export default class Clients extends Vue {
       const client = {
         id: `${x}`,
         firstname: `client ${x}`,
-        lastname: moment().format("MMMM Do YYYY"),
+        lastname: "test" + x,
         phone: x * 1000,
         email: "test@email.com"
       };
@@ -80,12 +98,12 @@ export default class Clients extends Vue {
     }
   }
 
-  editItem(id: string) {
-    console.log(id);
+  editItem(client: Client) {
+    console.log(client);
   }
 
-  deleteItem(id: string) {
-    console.log(id);
+  addClient(client: Client) {
+    console.log(client);
   }
 }
 </script>

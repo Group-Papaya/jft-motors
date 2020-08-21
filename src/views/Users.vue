@@ -1,32 +1,24 @@
 <template>
-  <v-container id="invoices" fluid tag="section" class="my-5">
-    <app-material-card
-      color="warning"
-      icon="mdi-account-multiple"
-      title="Users"
-      class="px-5 py-3"
-    >
-      <!--           client list -->
-      <v-data-table :headers="headers" :items="items">
-        <template v-slot:item.actions="{ item }">
-          <v-icon small class="mr-2" @click="editItem(item)">
-            mdi-pencil
-          </v-icon>
-          <v-icon v-if="item.role" small @click="deleteItem(item)">
-            mdi-delete
-          </v-icon>
-        </template>
-      </v-data-table>
-    </app-material-card>
-  </v-container>
+  <AppEditor
+    title="Users"
+    :model="model"
+    :schema="schema"
+    :addHandler="addUser"
+    :editHandler="editItem"
+    icon="mdi-account-multiple"
+    :items="items"
+    :headers="headers"
+  />
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import moment from "moment";
-import { ADMIN_ROLE, BASE_ROLE } from "@/models/User";
+import User, { ADMIN_ROLE, BASE_ROLE } from "@/models/User";
+import AppEditor from "@/components/layouts/AppEditor.vue";
 
-@Component
+@Component({
+  components: { AppEditor }
+})
 export default class Users extends Vue {
   headers = [
     {
@@ -68,6 +60,38 @@ export default class Users extends Vue {
 
   items: any[] = [];
 
+  model = {
+    fistname: "",
+    lastname: "",
+    phone: "",
+    email: "",
+    role: ADMIN_ROLE
+  };
+
+  schema = {
+    firstname: {
+      type: "text",
+      label: "First Name"
+    },
+    lastname: {
+      type: "text",
+      label: "Last Name"
+    },
+    phone: {
+      type: "text",
+      label: "Phone Number"
+    },
+    email: {
+      type: "email",
+      label: "Email Address"
+    },
+    role: {
+      type: "select",
+      label: "Role",
+      items: [ADMIN_ROLE, BASE_ROLE]
+    }
+  };
+
   mounted() {
     this.getDemoData();
   }
@@ -76,23 +100,23 @@ export default class Users extends Vue {
     for (let x = 1; x < 11; x++) {
       const client = {
         id: `${x}`,
-        firstname: `client ${x}`,
-        lastname: moment().format("MMMM Do YYYY"),
+        firstname: `user ${x}`,
+        lastname: `surname ${x}`,
         phone: x * 1000,
         email: "test@email.com",
-        role: x % 2 > 0 ? ADMIN_ROLE : BASE_ROLE
+        role: x % 2 ? ADMIN_ROLE : BASE_ROLE
       };
 
       this.items.push(client);
     }
   }
 
-  editItem(id: string) {
-    console.log(id);
+  editItem(user: User) {
+    console.log(user);
   }
 
-  deleteItem(id: string) {
-    console.log(id);
+  addUser(user: User) {
+    console.log(user);
   }
 }
 </script>
