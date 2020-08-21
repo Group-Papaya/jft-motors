@@ -1,11 +1,13 @@
-type Handler = (error: Error) => void;
+type Callback = (...args: []) => void;
+type Handler = (error: Error, cb?: Callback) => void;
 
-export const Logger = <Value>(value: Value, warn?: boolean): void => {
+export const Logger = <Value>(value: Value, warn?: boolean): Value => {
   if (value instanceof Error) {
-    console.error(value);
+    console.log("Error not Handled:", value);
   } else {
-    warn ? console.warn(value) : console.log(value);
+    warn ? console.warn("Handle:", value) : console.log(value);
   }
+  return value;
 };
 
 export function onError(error: Error, handler: Handler): void | Error {
@@ -17,7 +19,7 @@ export function onError(error: Error, handler: Handler): void | Error {
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export function tryCatch(handler: Handler) {
+export function tryCatch(handler: Handler | Callback | any) {
   return (
     _target: any,
     _key: string,

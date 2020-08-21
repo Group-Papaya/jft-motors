@@ -4,6 +4,11 @@ import { Logger, tryCatch } from "@/utils";
 import * as firebase from "firebase/app";
 import { dbService } from "./firestore.service";
 
+interface AuthResponse {
+  error?: any;
+  result?: any;
+}
+
 export default class AuthService {
   user!: firebase.User | null;
   firebaseAuth!: firebase.auth.Auth;
@@ -14,21 +19,24 @@ export default class AuthService {
   }
 
   @tryCatch(Logger)
-  async register(email: string, password: string) {
+  async register(email: string, password: string): Promise<AuthResponse> {
     return await this.firebaseAuth
       .createUserWithEmailAndPassword(email, password)
-      .then(result => {
+      .then(value => {
         dbService.add(
-          { id: result.user?.uid, email, password },
+          { id: value.user?.uid, email, password },
           "users",
-          result.user?.uid
+          value.user?.uid
         );
-        Logger(result);
+        return { result: value };
+      })
+      .catch(reason => {
+        return { error: reason.message };
       });
   }
 
   @tryCatch(Logger)
-  async login(email: string, password: string) {
+  async login(email: string, password: string): Promise<AuthResponse> {
     return await this.firebaseAuth
       .signInWithEmailAndPassword(email, password)
       .then(credentials => {
@@ -36,6 +44,10 @@ export default class AuthService {
           user: credentials.user,
           authenticated: true
         });
+        return { result: credentials };
+      })
+      .catch(reason => {
+        return { error: reason };
       });
   }
 
@@ -50,9 +62,15 @@ export default class AuthService {
   }
 
   @tryCatch(Logger)
-  async resetPassword(email: string) {
-    const result = await this.firebaseAuth.sendPasswordResetEmail(email);
-    Logger(result);
+  async resetPassword(email: string): Promise<AuthResponse> {
+    return await this.firebaseAuth
+      .sendPasswordResetEmail(email)
+      .then(() => {
+        return { result: "Password reset email sent" };
+      })
+      .catch(reason => {
+        return { error: "Email required" };
+      });
   }
 }
 

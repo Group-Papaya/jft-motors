@@ -2,12 +2,15 @@ import { db } from "@/firebase";
 import { LineItem, Quotation, Record } from "@/models";
 import { DocumentRef, Timestamp } from "@/models/Record";
 import { Logger, tryCatch } from "@/utils";
-import { firestore } from "firebase/app";
+import firebase, { firestore } from "firebase/app";
 
 type Ref = DocumentRef;
+interface FirestoreResponse {
+  result: any;
+}
 
 export default class FirestoreService {
-  private db!: firebase.firestore.Firestore;
+  private readonly db!: firebase.firestore.Firestore;
 
   constructor(firestore: firebase.firestore.Firestore) {
     this.db = firestore;
@@ -25,7 +28,7 @@ export default class FirestoreService {
   async add<T = Record>(record: T, path: string, ref?: string) {
     if (ref !== undefined) {
       const doc = this.db.collection(path).doc(ref);
-      doc.set(record);
+      await doc.set(record);
       return doc;
     } else {
       return this.db.collection(path).add(record);
