@@ -66,6 +66,14 @@
         <v-list-item v-for="n in 5" :key="n" @click="() => {}">
           <v-list-item-title>Option {{ n }}</v-list-item-title>
         </v-list-item>
+        <v-list-item v-if="auth.authenticated" @click="logout()">
+          <v-list-item-icon>
+            <v-icon>mdi-account</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Sign out</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
       </v-list>
     </v-menu>
   </v-app-bar>
@@ -74,7 +82,8 @@
 <script>
 import { VHover, VListItem } from "vuetify/lib";
 
-import { mapState, mapMutations } from "vuex";
+import { mapMutations, mapState } from "vuex";
+import { auth } from "@/services/auth.service";
 
 export default {
   name: "AppBar",
@@ -127,13 +136,18 @@ export default {
   }),
 
   computed: {
-    ...mapState(["drawer"])
+    ...mapState(["drawer", "auth"])
   },
 
   methods: {
     ...mapMutations({
       setDrawer: "SET_DRAWER"
-    })
+    }),
+    logout() {
+      auth.logout().then(() => {
+        this.$router.replace("/auth/login");
+      });
+    }
   }
 };
 </script>

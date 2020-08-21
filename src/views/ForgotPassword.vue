@@ -45,11 +45,10 @@ export default {
 };
 </script>
 
-<style lang="css">
-#forgotPassword {
-  position: relative;
-  margin-top: 250px;
-  margin-left: 500px;
-  width: 800px;
+<style>
+#auth-layout {
+  max-width: 480px;
+  min-width: 300px;
+  margin-top: 10%;
 }
 </style>

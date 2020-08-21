@@ -8,8 +8,7 @@
             label="First Name"
             class="purple-input"
           />
-        </v-col>
-        <v-col class="col-12">
+
           <v-text-field
             v-model="form.lastname"
             label="Last Name"
@@ -27,6 +26,7 @@
         <v-col class="col-12">
           <v-text-field
             v-model="form.password"
+            type="password"
             label="Password"
             class="purple-input"
           />

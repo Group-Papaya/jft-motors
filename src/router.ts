@@ -1,8 +1,10 @@
-import { auth } from "@/services/auth.service";
 import Vue from "vue";
 import Router from "vue-router";
+import store from "./store";
 
 Vue.use(Router);
+
+const isAuthenticated = () => store.getters.isAuthenticated;
 
 const router = new Router({
   mode: "history",
@@ -10,62 +12,79 @@ const router = new Router({
   routes: [
     {
       path: "/",
-      component: () => import("@/components/layouts/AppLayout.vue"),
+      component: () =>
+        import(
+          /* webpackChunkName: "app-layout" */ "@/components/layouts/AppLayout.vue"
+        ),
+      meta: {
+        requiresAuth: true
+      },
+      beforeEnter(to, from, next) {
+        if (isAuthenticated()) {
+          next();
+        } else {
+          next("/auth/login");
+        }
+      },
       children: [
         {
           name: "Dashboard",
           path: "",
-          component: () => import("@/views/Dashboard.vue")
+          component: () =>
+            import(
+              /* webpackChunkName: "app-dashboard" */ "@/views/Dashboard.vue"
+            )
         },
         {
           name: "User Profile",
           path: "profile",
-          component: () => import("@/views/UserProfile.vue")
+          component: () =>
+            import(
+              /* webpackChunkName: "app-profile" */ "@/views/UserProfile.vue"
+            )
         }
       ]
     },
     {
       path: "/auth/",
-      component: () => import("@/components/layouts/AppMain.vue"),
+      component: () =>
+        import(
+          /* webpackChunkName: "app-main" */ "@/components/layouts/AppMain.vue"
+        ),
+      beforeEnter(to, from, next) {
+        if (isAuthenticated()) {
+          if (to.fullPath.includes("forgot-password")) next();
+          else next("/");
+        } else {
+          next();
+        }
+      },
       children: [
         {
           name: "Login",
           path: "login",
-          component: () => import("@/views/Login.vue"),
-          meta: {
-            allowAnonymous: true
-          }
+          component: () =>
+            import(/* webpackChunkName: "auth-login" */ "@/views/Login.vue")
         },
         {
           name: "Register",
           path: "register",
-          component: () => import("@/views/Register.vue"),
-          meta: {
-            allowAnonymous: true
-          }
+          component: () =>
+            import(
+              /* webpackChunkName: "auth-register" */ "@/views/Register.vue"
+            )
         },
         {
           name: "Forgot Password",
           path: "forgot-password",
-          component: () => import("@/views/ForgotPassword.vue"),
-          meta: {
-            allowAnonymous: true
-          }
+          component: () =>
+            import(
+              /* webpackChunkName: "auth-forgot" */ "@/views/ForgotPassword.vue"
+            )
         }
       ]
     }
   ]
-});
-
-router.beforeEach((to, from, next) => {
-  if (!to.meta.allowAnonymous && !auth.isAuthenticated()) {
-    next({
-      path: "/auth/login",
-      query: { redirect: to.fullPath }
-    });
-  } else {
-    next();
-  }
 });
 
 export default router;
