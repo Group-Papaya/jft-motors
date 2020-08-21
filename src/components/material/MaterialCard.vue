@@ -123,7 +123,7 @@ export default {
     },
     button: {
       type: Boolean,
-      default: true
+      default: false
     }
   },
   methods: {
