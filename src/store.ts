@@ -6,7 +6,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    barColor: "rgba(0, 0, 0, .75), rgba(0, 0, 0, .75)",
+    barColor: "rgba(0, 0, 0)",
     barImage: require("@/assets/background.jpg"),
     drawer: null
   },

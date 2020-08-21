@@ -5,12 +5,14 @@
         <span class="headline">{{ create ? "Add" : "Edit" }} {{ name }}</span>
       </v-card-title>
       <v-card-text>
-        <v-form-base
-          :row="rowAttribute"
-          :col="12"
-          :model="create ? model : item"
-          :schema="schema"
-        />
+        <v-form>
+          <v-form-base
+                  :row="rowAttribute"
+                  :col="12"
+                  :model="create ? model : item"
+                  :schema="schema"
+          />
+        </v-form>
       </v-card-text>
       <v-card-actions>
         <v-btn large color="success" @click="handleInput(create ? model : item)"
