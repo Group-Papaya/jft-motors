@@ -30,6 +30,10 @@
           >Click here to reset
         </router-link>
       </p>
+      <p class="text-center">
+        Don't have an account?
+        <router-link :to="{ path: 'register' }">Register here </router-link>
+      </p>
     </v-col>
   </app-auth>
 </template>

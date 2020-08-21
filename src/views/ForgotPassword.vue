@@ -43,6 +43,7 @@ export default {
     async resetPassword() {
       await auth.resetPassword(this.form.email).then(value => {
         if (value.error) this.error = value.error.message;
+        else this.$router.replace("/");
       });
     }
   }
