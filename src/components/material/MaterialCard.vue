@@ -17,7 +17,7 @@
         }"
         :color="color"
         :max-height="icon ? 90 : undefined"
-        :width="icon ? 'auto' : '100%'"
+        width="auto"
         elevation="6"
         class="text-start v-card--material__heading mb-n6"
         dark
@@ -31,6 +31,11 @@
           class="display-1 font-weight-light"
           v-text="title"
         />
+        <div
+          v-if="subtitle"
+          class="subtitle-1 font-weight-light"
+          v-text="subtitle"
+        ></div>
 
         <v-icon v-else-if="icon" size="32" v-text="icon" />
 
@@ -39,7 +44,12 @@
 
       <div v-if="button" class="ml-6 flex-fill">
         <v-row class="mr-2">
-          <div class="card-title font-weight-light" v-text="title" />
+          <div
+            v-if="!subtitle"
+            class="card-title font-weight-light"
+            v-text="title"
+          />
+
           <div class="ml-auto text-right">
             <v-btn
               fab
@@ -107,9 +117,13 @@ export default {
       type: String,
       default: ""
     },
+    subtitle: {
+      type: String,
+      default: ""
+    },
     button: {
       type: Boolean,
-      default: false
+      default: true
     }
   },
   methods: {
