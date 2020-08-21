@@ -14,7 +14,7 @@
         required
         type="text"
         label="Lastname"
-        :rules="[v => !!v || `Firstname is required`]"
+        :rules="[v => !!v || `Lastname is required`]"
         class="purple-input"
         v-model="form.lastname"
       />
