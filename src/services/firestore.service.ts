@@ -1,23 +1,41 @@
+import { db } from "@/firebase";
 import { LineItem, Quotation, Record } from "@/models";
-import { DocumentRef } from "@/models/Record";
-import { orLog, tryCatch } from "@/utils";
-import { firestore } from "firebase/app";
-import { Timestamp } from "./../models/Record";
+import { DocumentRef, Timestamp } from "@/models/Record";
+import { Logger, tryCatch } from "@/utils";
+import firebase, { firestore } from "firebase/app";
 
 type Ref = DocumentRef;
+interface FirestoreResponse {
+  result: any;
+}
 
 export default class FirestoreService {
-  firestore!: firebase.firestore.Firestore;
+  private readonly db!: firebase.firestore.Firestore;
+
+  constructor(firestore: firebase.firestore.Firestore) {
+    this.db = firestore;
+  }
+
+  getDb() {
+    return this.db;
+  }
 
   currentTime(): Timestamp {
     return firestore.Timestamp.now();
   }
 
-  @tryCatch(orLog)
-  async add<T = Record>(doc: T, path: string) {
-    return this.firestore.collection(path).add(doc);
+  @tryCatch(Logger)
+  async add<T = Record>(record: T, path: string, ref?: string) {
+    if (ref !== undefined) {
+      const doc = this.db.collection(path).doc(ref);
+      await doc.set(record);
+      return doc;
+    } else {
+      return this.db.collection(path).add(record);
+    }
   }
 
+  @tryCatch(Logger)
   async addWithRef<T = Record>(doc: T, ref: Ref[] | string) {
     if (doc instanceof LineItem && typeof ref === "string") {
       doc.discount = ref;
@@ -26,11 +44,12 @@ export default class FirestoreService {
     }
   }
 
+  @tryCatch(Logger)
   async getSnapshot(path: string, ref?: Ref) {
     if (path.includes("/") || ref === undefined) {
-      return this.firestore.doc(path).get();
+      return this.db.doc(path).get();
     } else {
-      return this.firestore
+      return this.db
         .collection(path)
         .doc(ref.toString())
         .get();
@@ -38,20 +57,22 @@ export default class FirestoreService {
   }
 
   // Deletes path if the ref is not undefined
-  @tryCatch(orLog)
+  @tryCatch(Logger)
   async delete(path: string, ref?: string) {
     if (ref) {
-      return this.firestore
+      return this.db
         .collection(path)
         .doc(ref)
         .delete();
     } else {
-      return this.firestore.doc(path).delete();
+      return this.db.doc(path).delete();
     }
   }
 
-  @tryCatch(orLog)
+  @tryCatch(Logger)
   async update<T = Record>(doc: T, path: string) {
-    return this.firestore.doc(path).set(doc);
+    return this.db.doc(path).set(doc);
   }
 }
+
+export const dbService = new FirestoreService(db);

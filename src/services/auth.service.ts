@@ -1,43 +1,77 @@
-import { orLog } from "./../utils";
+import { app } from "@/firebase";
+import store from "@/store";
+import { Logger, tryCatch } from "@/utils";
 import * as firebase from "firebase/app";
-import { tryCatch } from "@/utils";
+import { dbService } from "./firestore.service";
+
+interface AuthResponse {
+  error?: any;
+  result?: any;
+}
 
 export default class AuthService {
-  auth!: firebase.auth.Auth;
-  // provider!: firebase.auth.AuthProvider;
+  user!: firebase.User | null;
+  firebaseAuth!: firebase.auth.Auth;
 
-  constructor() {
-    this.auth = firebase.auth();
-    // this.provider = new firebase.auth.EmailAuthProvider()
+  constructor(app: firebase.app.App) {
+    this.firebaseAuth = app.auth();
+    this.user = app.auth().currentUser;
   }
 
-  @tryCatch(orLog)
-  async register(email: string, password: string) {
-    // return new Promise(async(resolve, reject) => {
-    //   let result = await firebase
-    //   .auth()
-    //   .createUserWithEmailAndPassword(email, password);
-
-    //   resolve(result)
-    // })
-    return await firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password);
+  @tryCatch(Logger)
+  async register(email: string, password: string): Promise<AuthResponse> {
+    return await this.firebaseAuth
+      .createUserWithEmailAndPassword(email, password)
+      .then(value => {
+        dbService.add(
+          { id: value.user?.uid, email, password },
+          "users",
+          value.user?.uid
+        );
+        return { result: value };
+      })
+      .catch(reason => {
+        return { error: reason.message };
+      });
   }
 
-  @tryCatch(orLog)
-  async login(email: string, password: string) {
-    return await firebase.auth().signInWithEmailAndPassword(email, password);
+  @tryCatch(Logger)
+  async login(email: string, password: string): Promise<AuthResponse> {
+    return await this.firebaseAuth
+      .signInWithEmailAndPassword(email, password)
+      .then(credentials => {
+        store.commit("SET_AUTH_STATE", {
+          user: credentials.user,
+          authenticated: true
+        });
+        return { result: credentials };
+      })
+      .catch(reason => {
+        return { error: reason };
+      });
   }
 
-  @tryCatch(orLog)
+  @tryCatch(Logger)
   async logout() {
-    await firebase.auth().signOut();
+    await this.firebaseAuth.signOut().then(() => {
+      store.commit("SET_AUTH_STATE", {
+        user: null,
+        authenticated: null
+      });
+    });
   }
 
-  @tryCatch(orLog)
-  async resetPassword(email: string) {
-    const result = await firebase.auth().sendPasswordResetEmail(email);
-    console.log(result);
+  @tryCatch(Logger)
+  async resetPassword(email: string): Promise<AuthResponse> {
+    return await this.firebaseAuth
+      .sendPasswordResetEmail(email)
+      .then(() => {
+        return { result: "Password reset email sent" };
+      })
+      .catch(reason => {
+        return { error: "Email required" };
+      });
   }
 }
+
+export const auth = new AuthService(app);

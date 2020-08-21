@@ -1,80 +1,93 @@
 <template>
-  <v-container id="register" fluid tag="section">
-    <app-material-card
-      icon="mdi-account"
-      title="Register"
-      class="px-5 py-3 col-8 mx-auto"
-    >
-      <v-row class="px-5">
-        <v-col class="col-12">
-          <v-text-field
-            v-model="form.firstname"
-            label="First Name"
-            class="purple-input"
-          />
-        </v-col>
-        <v-col class="col-12">
-          <v-text-field
-            v-model="form.lastname"
-            label="Last Name"
-            class="purple-input"
-          />
-        </v-col>
-        <v-col class="col-12">
-          <v-text-field
-            v-model="form.email"
-            label="Email"
-            class="purple-input"
-          />
-        </v-col>
-        <!-- 
-        <v-col class="col-12">
-          <v-text-field
-            v-model="form.password"
-            label="Password"
-            class="purple-input"
-          />
-        </v-col>
+  <app-auth title="Register" :form-submit="register" :form-error="error">
+    <v-col class="col-12">
+      <v-text-field
+        required
+        type="text"
+        :rules="[v => !!v || `Firstname is required`]"
+        label="Firstname"
+        class="purple-input"
+        v-model="form.firstname"
+      />
 
-                <v-col class="col-12">
-          <v-text-field
-            v-model="form.passwordRepeat"
-            label="Repeat Password"
-            class="purple-input"
-          />
-        </v-col> -->
+      <v-text-field
+        required
+        type="text"
+        label="Lastname"
+        :rules="[v => !!v || `Lastname is required`]"
+        class="purple-input"
+        v-model="form.lastname"
+      />
+    </v-col>
+    <v-col class="col-12">
+      <v-text-field
+        required
+        type="email"
+        label="Email"
+        class="purple-input"
+        :rules="rules.email"
+        v-model="form.email"
+        @focusin="error = null"
+      />
+    </v-col>
 
-        <v-col class="col-12">
-          <p class="text-right">
-            Already have an account?
-            <a>Click here to log in</a>
-          </p>
-        </v-col>
-        {{ form }}
+    <v-col class="col-12">
+      <v-text-field
+        required
+        type="password"
+        label="Password"
+        class="purple-input"
+        :rules="rules.password"
+        v-model="form.password"
+        @focusin="error = null"
+      />
+    </v-col>
 
-        <v-col class="col-12 text-center">
-          <v-btn color="success" class="mr-0">Register</v-btn>
-        </v-col>
-      </v-row>
-    </app-material-card>
-  </v-container>
+    <v-col class="col-12">
+      <p class="text-center">
+        Already have an account?
+        <router-link :to="{ path: 'login' }">Click here to log in</router-link>
+      </p>
+    </v-col>
+  </app-auth>
 </template>
 
 <script>
+import { auth } from "@/services/auth.service";
+import AppAuth from "@/components/layouts/AppAuth";
+
 export default {
   name: "Register",
+  components: { AppAuth },
   data() {
     return {
       form: {
-        firstname: "",
         email: "",
-        password: ""
+        password: "",
+        firstname: "",
+        lastname: ""
       },
       rules: {
-        required: value => !!value || "Required.",
-        min: v => v.length >= 8 || "Min 8 characters"
-      }
+        email: [
+          v => !!v || "E-mail is required",
+          v => /.+@.+\..+/.test(v) || "E-mail must be valid"
+        ],
+        password: [
+          v => !!v || "Password is required",
+          v =>
+            (v && v.length >= 8) || "Password must be greater than 8 characters"
+        ]
+      },
+      error: null
     };
+  },
+  methods: {
+    async register() {
+      await auth.register(this.form.email, this.form.password).then(value => {
+        if (value.error) this.error = value.error;
+        else this.$router.replace("/");
+      });
+    }
   }
 };
 </script>
