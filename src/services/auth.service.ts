@@ -1,7 +1,8 @@
 import { app } from "@/firebase";
 import store from "@/store";
 import { Logger, tryCatch } from "@/utils";
-import * as firebase from "firebase/app";
+import bcrypt from "bcryptjs";
+import firebase from "firebase/app";
 import { dbService } from "./firestore.service";
 
 interface AuthResponse {
@@ -23,11 +24,10 @@ export default class AuthService {
     return await this.firebaseAuth
       .createUserWithEmailAndPassword(email, password)
       .then(value => {
-        dbService.add(
-          { id: value.user?.uid, email, password },
-          "users",
-          value.user?.uid
-        );
+        bcrypt.hash(password, 2).then(hash => {
+          const user = { id: value.user?.uid, email, password: hash };
+          dbService.add(user, "users", value.user?.uid);
+        });
         return { result: value };
       })
       .catch(reason => {
@@ -69,7 +69,7 @@ export default class AuthService {
         return { result: "Password reset email sent" };
       })
       .catch(reason => {
-        return { error: "Email required" };
+        return { error: `Email required; [error: ${reason.message}` };
       });
   }
 }
