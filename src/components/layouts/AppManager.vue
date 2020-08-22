@@ -10,7 +10,11 @@
       class="px-5 py-3"
     >
       <!-- data list -->
-      <v-data-table :headers="headers" :items="items" @click:row="openEditDialog">
+      <v-data-table
+        :headers="headers"
+        :items="items"
+        @click:row="openEditDialog"
+      >
         <template v-slot:item.actions="{ item }">
           <v-icon small class="mr-2" @click.stop="openEditDialog(item)">
             mdi-pencil
@@ -48,12 +52,14 @@ export default class AppEditor extends Vue {
     | string
     | undefined;
   @Prop({ type: String, default: undefined }) readonly subtitle:
-          | string
-          | undefined;
+    | string
+    | undefined;
 
   @Prop({ type: Boolean, default: true }) readonly button: boolean | undefined;
 
-  @Prop({ type: String, default: 'warning' }) readonly color: string | undefined;
+  @Prop({ type: String, default: "warning" }) readonly color:
+    | string
+    | undefined;
 
   @Prop({ type: Array, default: () => [] }) items: any[] | undefined;
 
@@ -70,7 +76,8 @@ export default class AppEditor extends Vue {
     | undefined;
 
   @Prop({ type: Function, default: undefined }) readonly editHandler:
-          Function | undefined
+    | Function
+    | undefined;
 
   openAddDialog(event: any) {
     this.dialogRef.showDialog(true);
