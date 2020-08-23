@@ -1,23 +1,14 @@
 import { db } from "@/firebase";
-import { LineItem, Quotation, Record } from "@/models";
-import { DocumentRef, Timestamp } from "@/models/Record";
+import { Record } from "@/models";
+import { Timestamp } from "@/models/Record";
 import { Logger, tryCatch } from "@/utils";
 import firebase, { firestore } from "firebase/app";
 
-type Ref = DocumentRef;
-interface FirestoreResponse {
-  result: any;
-}
-
 export default class FirestoreService {
-  private readonly db!: firebase.firestore.Firestore;
+  public readonly db!: firebase.firestore.Firestore;
 
   constructor(firestore: firebase.firestore.Firestore) {
     this.db = firestore;
-  }
-
-  getDb() {
-    return this.db;
   }
 
   currentTime(): Timestamp {
@@ -25,53 +16,56 @@ export default class FirestoreService {
   }
 
   @tryCatch(Logger)
+  // The path is to a root collection or sub-collection
+  // e.g `users | products/:id/line-items`
+  getCollection(path: string) {
+    return this.db.collection(path);
+  }
+
+  @tryCatch(Logger)
+  /**
+   *
+   * @param path Can be the path to a root collection
+   * or sub-collection e.g `users | products/:id/line-items`
+   * if the ref is undefined then the path is to a
+   * document e.g `users/:id | products/:id`
+   * @param ref The id for a given document
+   * @return DocumentReference
+   */
+  getDocument(path: string, ref?: string) {
+    return ref === undefined
+      ? this.db.doc(path)
+      : this.db.doc(`${path}/${ref}`);
+  }
+
+  async setDocument<T = Record>(
+    record: T,
+    document: firebase.firestore.DocumentReference
+  ) {
+    return document.set(record).then(() => document);
+  }
+
+  @tryCatch(Logger)
   async add<T = Record>(record: T, path: string, ref?: string) {
-    if (ref !== undefined) {
-      const doc = this.db.collection(path).doc(ref);
-      await doc.set(record);
-      return doc;
-    } else {
-      return this.db.collection(path).add(record);
-    }
+    return ref !== undefined
+      ? this.setDocument(record, this.getDocument(path, ref))
+      : this.getCollection(path).add(record);
   }
 
   @tryCatch(Logger)
-  async addWithRef<T = Record>(doc: T, ref: Ref[] | string) {
-    if (doc instanceof LineItem && typeof ref === "string") {
-      doc.discount = ref;
-    } else if (doc instanceof Quotation && Array.isArray(ref)) {
-      console.log("not error");
-    }
-  }
-
-  @tryCatch(Logger)
-  async getSnapshot(path: string, ref?: Ref) {
-    if (path.includes("/") || ref === undefined) {
-      return this.db.doc(path).get();
-    } else {
-      return this.db
-        .collection(path)
-        .doc(ref.toString())
-        .get();
-    }
+  async getSnapshot(path: string, ref?: string) {
+    return this.getDocument(path, ref).get();
   }
 
   // Deletes path if the ref is not undefined
   @tryCatch(Logger)
   async delete(path: string, ref?: string) {
-    if (ref) {
-      return this.db
-        .collection(path)
-        .doc(ref)
-        .delete();
-    } else {
-      return this.db.doc(path).delete();
-    }
+    return this.getDocument(path, ref).delete();
   }
 
   @tryCatch(Logger)
-  async update<T = Record>(doc: T, path: string) {
-    return this.db.doc(path).set(doc);
+  async update<T = Record>(record: T, path: string, ref?: string) {
+    return this.setDocument(record, this.getDocument(path, ref));
   }
 }
 
