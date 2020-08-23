@@ -52,31 +52,24 @@ const draft: Quotation = {
   client: ""
 };
 
-const add = async (path: string, obj: Record) => {
-  return testService.add(obj, path).then(doc => {
-    obj.id = doc.id;
-    testService
-      .getDb()
-      .collection("added")
-      .add({ document: doc.path });
+const add = async (record: Record, to: string) => {
+  return testService.add(record, to).then(doc => {
+    record.id = doc.id;
+    testService.getCollection("added").add({ document: doc.path });
     return doc;
   });
 };
 
-const remove = async (path: string, obj?: Record) => {
-  if (obj === undefined) {
+const remove = async (path: string, record?: Record) => {
+  if (record === undefined) {
     testService.delete(path).then(() => {
-      testService
-        .getDb()
-        .collection("deleted")
-        .add({ document: path });
+      testService.getCollection("deleted").add({ document: path });
     });
   } else {
-    testService.delete(path, obj.id).then(() => {
+    testService.delete(path, record.id).then(() => {
       testService
-        .getDb()
-        .collection("deleted")
-        .add({ document: `${path}/${obj.id}` });
+        .getCollection("deleted")
+        .add({ document: `${path}/${record.id}` });
     });
   }
 };
@@ -93,9 +86,9 @@ describe("Firebase Service", () => {
 
   it("can add simple record object", async () => {
     const adding = Promise.all([
-      add("users", user),
-      add("users", admin),
-      add("clients", client)
+      add(user, "users"),
+      add(admin, "users"),
+      add(client, "clients")
     ]);
     await assertSucceeds(adding);
   });
@@ -109,7 +102,7 @@ describe("Firebase Service", () => {
   });
 
   it("can add complex/record object with ref objects", async () => {
-    const _discount = add("discounts", discount).then(ref => {
+    const _discount = add(discount, "discounts").then(ref => {
       item.discount = ref;
     });
 
@@ -120,12 +113,12 @@ describe("Firebase Service", () => {
     ]);
 
     const items = Promise.all([
-      add("line-items", item),
-      add("line-items", item)
+      add(item, "line-items"),
+      add(item, "line-items")
     ]).then(() => {
       if (admin.id && client.id) {
-        draft.user = testService.getDb().doc(`users/${admin.id}`);
-        draft.client = testService.getDb().doc(`clients/${client.id}`);
+        draft.user = testService.getDocument(`users/${admin.id}`);
+        draft.client = testService.getDocument(`clients/${client.id}`);
       }
 
       draft.created = testService.currentTime();
@@ -134,12 +127,9 @@ describe("Firebase Service", () => {
 
     await assertSucceeds(items);
     await assertSucceeds(
-      add("quotations", draft).then(ref => {
-        testService
-          .getDb()
-          .collection(`${ref.path}/items`)
-          .doc(item.id)
-          .set(item);
+      add(draft, "quotations").then(ref => {
+        const it = testService.getDocument(`${ref.path}/items/${item.id}`);
+        testService.setDocument(item, it);
         draft.updated = testService.currentTime();
       })
     );
