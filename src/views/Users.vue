@@ -6,15 +6,17 @@
     :addHandler="addUser"
     :editHandler="editItem"
     icon="mdi-account-multiple"
-    :items="items"
+    :items="users"
     :headers="headers"
   />
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import User, { ADMIN_ROLE, BASE_ROLE } from "@/models/User";
+import User, { ADMIN_ROLE, BASE_ROLE, ROLES } from "@/models/User";
 import AppEditor from "@/components/layouts/AppManager.vue";
+import { dbService } from "@/services/firestore.service";
+import curdService, { curd } from "@/services/curd.service";
 
 @Component({
   components: { AppEditor }
@@ -58,14 +60,16 @@ export default class Users extends Vue {
     }
   ];
 
-  items: any[] = [];
+  get users() {
+    return this.$store.state.users;
+  }
 
   model = {
-    fistname: "",
+    firstname: "",
     lastname: "",
     phone: "",
     email: "",
-    role: ADMIN_ROLE
+    role: ROLES[ADMIN_ROLE]
   };
 
   schema = {
@@ -88,35 +92,22 @@ export default class Users extends Vue {
     role: {
       type: "select",
       label: "Role",
-      items: [ADMIN_ROLE, BASE_ROLE]
+      items: [ROLES[ADMIN_ROLE], ROLES[BASE_ROLE]]
     }
   };
 
-  mounted() {
-    this.getDemoData();
-  }
-
-  getDemoData() {
-    for (let x = 1; x < 11; x++) {
-      const client = {
-        id: `${x}`,
-        firstname: `user ${x}`,
-        lastname: `surname ${x}`,
-        phone: x * 1000,
-        email: "test@email.com",
-        role: x % 2 ? ADMIN_ROLE : BASE_ROLE
-      };
-
-      this.items.push(client);
-    }
+  created() {
+    curdService.watchCollection(data => {
+      this.$store.commit("SET_USERS", data);
+    }, "users");
   }
 
   editItem(user: User) {
-    console.log(user);
+    this.$store.dispatch("setUser", user);
   }
 
   addUser(user: User) {
-    console.log(user);
+    this.$store.dispatch("addUser", user);
   }
 }
 </script>
