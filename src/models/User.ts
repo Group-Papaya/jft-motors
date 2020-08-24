@@ -7,8 +7,8 @@ export default class User extends Record {
   lastname!: string;
   password?: string;
 }
-
 const BASE_ROLE = 0;
 const ADMIN_ROLE = 1;
+const ROLES = ["Admin", "Basic"];
 
-export { ADMIN_ROLE, BASE_ROLE };
+export { ADMIN_ROLE, BASE_ROLE, ROLES };
