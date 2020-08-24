@@ -70,7 +70,7 @@ export default {
           } else {
             this.editHandler(val)
           }
-           this.dialog = true
+           this.dialog = false
         }
     },
 }
