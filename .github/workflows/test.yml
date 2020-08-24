@@ -36,4 +36,4 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
       - run: sudo chmod +x ./tests/unit.sh
-      - run: npm run test:firestore
+      - run: npm run test:firestore:unit
