@@ -7,10 +7,10 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "start": "firebase emulators:start",
-    "test:firestore": "firebase emulators:exec --only firestore ./tests/unit.sh",
     "test:firestore:unit": "firebase emulators:exec --only firestore \"npm run test:unit\"",
-    "test:unit": "vue-cli-service test:unit --detectOpenHandles --watch",
-    "test:e2e": "vue-cli-service test:e2e --headless",
+    "test:firestore:dev": "firebase emulators:exec --only firestore \"npm run test:dev\"",
+    "test:unit": "vue-cli-service test:unit --detectOpenHandles",
+    "test:dev": "vue-cli-service test:unit --detectOpenHandles --watch",
     "lint": "vue-cli-service lint --fix"
   },
   "dependencies": {
@@ -38,7 +38,6 @@
     "@typescript-eslint/eslint-plugin": "^2.33.0",
     "@typescript-eslint/parser": "^2.33.0",
     "@vue/cli-plugin-babel": "~4.4.0",
-    "@vue/cli-plugin-e2e-cypress": "~4.4.0",
     "@vue/cli-plugin-eslint": "~4.4.0",
     "@vue/cli-plugin-pwa": "~4.4.0",
     "@vue/cli-plugin-router": "~4.4.0",
