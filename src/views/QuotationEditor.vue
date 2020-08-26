@@ -1,5 +1,21 @@
 <template>
     <v-container :id="name" fluid tag="section" class="my-5">
+        <!--  quotation menu      -->
+        <v-row class="mb-8 flex-row flex-sx-column">
+            <v-col cols="9">
+                <v-row col="12" class="justify-center">
+                    <v-btn color="warning" class="justify-self-center">Draft</v-btn>
+                    <v-btn color="light" class="justify-self-center">Complete</v-btn>
+                </v-row>
+            </v-col>
+            <v-col cols="3">
+                <v-row col="12" class="justify-end mr-1">
+                    <v-btn color="warning">Delete Quotation</v-btn>
+                </v-row>
+            </v-col>
+        </v-row>
+
+        <!--  page   -->
         <app-material-card
                 color="warning"
                 icon="mdi-note"
@@ -11,15 +27,15 @@
                 <v-row>
                     <v-col>
                         <div class="text-caption font-weight-bold">Quotation #</div>
-                        <div class="text-subtitle-1" v-text="$route.params.id"></div>
+                        <div class="text-subtitle-1" v-text="quotation.id"></div>
                     </v-col>
                     <v-col>
                         <div class="text-caption font-weight-bold">Client</div>
-                        <div class="text-subtitle-1" v-text="$route.params.id"></div>
+                        <div class="text-subtitle-1" v-text="quotation.client"></div>
                     </v-col>
                     <v-col>
                         <div class="text-caption font-weight-bold">Prepared By</div>
-                        <div class="text-subtitle-1" v-text="$route.params.id"></div>
+                        <div class="text-subtitle-1" v-text="quotation.user"></div>
                     </v-col>
                 </v-row>
                 <v-row>
@@ -60,58 +76,92 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr v-for="(item, index) in lineItems" :key="item.id">
+                    <tr v-for="(item, index) in quotation.items" :key="item.id">
                         <td>{{ index + 1 }}</td>
                         <td>{{ item.name }}</td>
                         <td>{{ item.quantity }}</td>
-                        <td>R {{ item.discounted ? item.discount : '0' }}</td>
-                        <td>R {{ item.cost }}</td>
+                        <td>{{ (item.discounted ? item.discount : '0') | currency('R',2 ) }}</td>
+                        <td>{{ item.cost | currency('R',2) }}</td>
+                    </tr>
+                    <tr>
+                        <td class="font-weight-bold">Sub Total</td>
+                        <td></td>
+                        <td></td>
+                        <td class="font-weight-bold red--text">-{{ discountTotal | currency('R', 2) }}</td>
+                        <td class="font-weight-bold">{{ total | currency('R') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="font-weight-bold">Discount</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="font-weight-bold red--text">-{{ quotationDiscount | currency('R', 2) }}</td>
                     </tr>
                     <tr>
                         <td class="font-weight-bold">Total</td>
                         <td></td>
                         <td></td>
-                        <td class="font-weight-bold">R TOTAL_DISCOUNT</td>
-                        <td class="font-weight-bold">R SUB_TOTAL</td>
+                        <td></td>
+                        <td class="font-weight-bold">{{ ((total - discountTotal) - quotationDiscount) | currency('R', 2)
+                            }}
+                        </td>
                     </tr>
                     </tbody>
                 </template>
             </v-simple-table>
-
-
         </app-material-card>
 
     </v-container>
 </template>
 
 <script lang="ts">
-    import {Component, Vue, Watch} from "vue-property-decorator";
+    import {Component, Mixins, Vue, Watch} from "vue-property-decorator";
     import AppEditor from "@/components/layouts/AppManager.vue";
     import {LineItem, Quotation, Client, User} from '@/models';
     import {PRODUCT, WORKER} from "@/models/LineItem";
+    import Vue2Filters from 'vue2-filters'
 
     @Component({
         components: {}
     })
-    export default class QuotationEditor extends Vue {
+    export default class QuotationEditor extends Mixins(Vue2Filters.mixin) {
         name = "QuotationEditor"
         quotationId = ""
-        quotation: Quotation | undefined;
+        quotation = new Quotation();
+        quotationDiscount = 10
         lineItems: any[] = [];
 
         mounted() {
             this.quotationId = this.$route.params.id;
+
+            this.getDemoData()
             this.getQuotation();
-            this.getDemoData();
         }
 
-        @Watch('quotation')
         getQuotation() {
-            console.log(this.quotationId)
+            this.quotation = new Quotation();
+            this.quotation.id = "1";
+            this.quotation.user = "Admin";
+            this.quotation.client = "Test Client";
+            this.quotation.items = this.lineItems
+            this.quotation.total = 9000;
+            this.quotation.completed = false;
+            this.quotation.created = "";
+            this.quotation.updated = "";
         }
 
         addLineItem() {
             console.log("open modal")
+        }
+
+        get discountTotal() {
+            return 12;
+        }
+
+        get total() {
+            return this.lineItems.reduce((total, curr) => {
+                return total + (Number.parseFloat(curr.cost) * curr.quantity);
+            }, 0)
         }
 
         getDemoData() {
@@ -125,11 +175,10 @@
                     units: x * 1000,
                     discounted: false
                 };
-                console.log(typeof lineItem.cost)
-                // lineItem.cost = Number(Number(lineItem.cost) * Number(lineItem.quantity));
-
                 this.lineItems.push(lineItem);
             }
+
+
         }
     }
 </script>

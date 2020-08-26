@@ -91,8 +91,6 @@ export default class LineItems extends Vue {
     this.getDemoData();
   }
 
-
-
   getDemoData() {
     for (let x = 1; x < 11; x++) {
       const lineItem = {
