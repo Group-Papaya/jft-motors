@@ -3,9 +3,9 @@
         <!--  quotation menu      -->
         <v-row class="mb-8 flex-row flex-sx-column">
             <v-col cols="9">
-                <v-row col="12" class="justify-center">
-                    <v-btn color="warning" class="justify-self-center">Draft</v-btn>
-                    <v-btn color="light" class="justify-self-center">Complete</v-btn>
+                <v-row col="12" class="justify-md-center ml-1">
+                    <v-btn width="100" color="warning">Draft</v-btn>
+                    <v-btn width="100">Complete</v-btn>
                 </v-row>
             </v-col>
             <v-col cols="3">
@@ -20,95 +20,100 @@
                 color="warning"
                 icon="mdi-note"
                 :title="'Quotation ' + quotationId"
+                subtitle="Client"
                 class="px-5 py-3">
 
-            <!-- quotation header     -->
-            <v-col col="12">
-                <v-row>
-                    <v-col>
-                        <div class="text-caption font-weight-bold">Quotation #</div>
-                        <div class="text-subtitle-1" v-text="quotation.id"></div>
-                    </v-col>
-                    <v-col>
-                        <div class="text-caption font-weight-bold">Client</div>
-                        <div class="text-subtitle-1" v-text="quotation.client"></div>
-                    </v-col>
-                    <v-col>
-                        <div class="text-caption font-weight-bold">Prepared By</div>
-                        <div class="text-subtitle-1" v-text="quotation.user"></div>
-                    </v-col>
+
+            <div class="px-md-16">
+                <!-- quotation header     -->
+                <v-col col="12">
+                    <v-row>
+                        <v-col>
+                            <div class="text-caption font-weight-bold">Quotation #</div>
+                            <div class="text-subtitle-1" v-text="quotation.id"></div>
+                        </v-col>
+                        <v-col>
+                            <div class="text-caption font-weight-bold">Client</div>
+                            <div class="text-subtitle-1" v-text="quotation.client"></div>
+                        </v-col>
+                        <v-col>
+                            <div class="text-caption font-weight-bold">Prepared By</div>
+                            <div class="text-subtitle-1" v-text="quotation.user"></div>
+                        </v-col>
+                    </v-row>
+                    <v-row>
+                        <v-col>
+                            <div class="text-caption font-weight-bold">Created</div>
+                            <div class="text-subtitle-1" v-text="quotation.created"></div>
+                        </v-col>
+                        <v-col>
+                            <div class="text-caption font-weight-bold">Modified</div>
+                            <div class="text-subtitle-1" v-text="quotation.updated"></div>
+                        </v-col>
+                        <v-col>
+                            <div class="text-caption font-weight-bold"></div>
+                            <div class="text-subtitle-1"></div>
+                        </v-col>
+                    </v-row>
+                </v-col>
+
+
+                <hr class="my-3">
+
+                <v-row col="12" class="justify-end align-center">
+                    <v-btn @click="addLineItem()" color="warning">Add Line Item</v-btn>
                 </v-row>
-                <v-row>
-                    <v-col>
-                        <div class="text-caption font-weight-bold">Date</div>
-                        <div class="text-subtitle-1" v-text="$route.params.id"></div>
-                    </v-col>
-                    <v-col>
-                        <div class="text-caption font-weight-bold">Modified</div>
-                        <div class="text-subtitle-1" v-text="$route.params.id"></div>
-                    </v-col>
-                    <v-col>
-                        <div class="text-caption font-weight-bold">Created</div>
-                        <div class="text-subtitle-1" v-text="$route.params.id"></div>
-                    </v-col>
-                </v-row>
-            </v-col>
 
+                <hr class="my-3">
 
-            <hr class="my-3">
+                <!-- quotation line items -->
+                <v-simple-table>
+                    <template v-slot:default>
+                        <thead>
+                        <tr>
+                            <th class="text-left">#</th>
+                            <th class="text-left">Name</th>
+                            <th class="text-left">Qty</th>
+                            <th class="text-left">Discount</th>
+                            <th class="text-left">Cost</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(item, index) in quotation.items" :key="item.id">
+                            <td>{{ index + 1 }}</td>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ (item.discounted ? item.discount : '0') | currency('R',2 ) }}</td>
+                            <td>{{ item.cost | currency('R',2) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="font-weight-bold">Sub Total</td>
+                            <td></td>
+                            <td></td>
+                            <td class="font-weight-bold red--text">-{{ discountTotal | currency('R', 2) }}</td>
+                            <td class="font-weight-bold">{{ total | currency('R') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="font-weight-bold">Discount</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td class="font-weight-bold red--text">-{{ quotationDiscount | currency('R', 2) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="font-weight-bold">Total</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td class="font-weight-bold">{{ ((total - discountTotal) - quotationDiscount) | currency('R', 2)
+                                }}
+                            </td>
+                        </tr>
+                        </tbody>
+                    </template>
+                </v-simple-table>
+            </div>
 
-            <v-row col="12" class="justify-end align-center">
-                <v-btn @click="addLineItem()" color="warning">Add Line Item</v-btn>
-            </v-row>
-
-            <hr class="my-3">
-
-            <!-- quotation line items -->
-            <v-simple-table>
-                <template v-slot:default>
-                    <thead>
-                    <tr>
-                        <th class="text-left">#</th>
-                        <th class="text-left">Name</th>
-                        <th class="text-left">Qty</th>
-                        <th class="text-left">Discount</th>
-                        <th class="text-left">Cost</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr v-for="(item, index) in quotation.items" :key="item.id">
-                        <td>{{ index + 1 }}</td>
-                        <td>{{ item.name }}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td>{{ (item.discounted ? item.discount : '0') | currency('R',2 ) }}</td>
-                        <td>{{ item.cost | currency('R',2) }}</td>
-                    </tr>
-                    <tr>
-                        <td class="font-weight-bold">Sub Total</td>
-                        <td></td>
-                        <td></td>
-                        <td class="font-weight-bold red--text">-{{ discountTotal | currency('R', 2) }}</td>
-                        <td class="font-weight-bold">{{ total | currency('R') }}</td>
-                    </tr>
-                    <tr>
-                        <td class="font-weight-bold">Discount</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="font-weight-bold red--text">-{{ quotationDiscount | currency('R', 2) }}</td>
-                    </tr>
-                    <tr>
-                        <td class="font-weight-bold">Total</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="font-weight-bold">{{ ((total - discountTotal) - quotationDiscount) | currency('R', 2)
-                            }}
-                        </td>
-                    </tr>
-                    </tbody>
-                </template>
-            </v-simple-table>
         </app-material-card>
 
     </v-container>
@@ -146,8 +151,8 @@
             this.quotation.items = this.lineItems
             this.quotation.total = 9000;
             this.quotation.completed = false;
-            this.quotation.created = "";
-            this.quotation.updated = "";
+            this.quotation.created = new Date().toLocaleString()
+            this.quotation.updated = new Date().toLocaleString();
         }
 
         addLineItem() {
