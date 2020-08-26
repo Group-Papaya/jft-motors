@@ -91,13 +91,15 @@ export default class LineItems extends Vue {
     this.getDemoData();
   }
 
+
+
   getDemoData() {
     for (let x = 1; x < 11; x++) {
       const lineItem = {
         id: `${x}`,
         name: `line item-${x}`,
         type: x % 2 ? WORKER : PRODUCT,
-        cost: x * Math.random(),
+        cost: x * 2 * Math.random(),
         units: x * 1000,
         discounted: false
       };
