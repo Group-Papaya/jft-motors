@@ -19,7 +19,7 @@
           <v-icon small class="mr-2" @click.stop="openEditDialog(item)">
             mdi-pencil
           </v-icon>
-          <v-icon small @click="deleteItem(item)" color="red">
+          <v-icon small @click.stop="deleteItem(item)" color="red">
             mdi-delete
           </v-icon>
         </template>
@@ -48,9 +48,7 @@ import router from "@/router";
 export default class AppEditor extends Vue {
   name = "AppManager.vue";
 
-  @Prop({ type: String, default: undefined }) readonly title:
-    | string
-    | undefined;
+  @Prop({ type: String, default: undefined }) readonly title: string | undefined;
   @Prop({ type: String, default: undefined }) readonly subtitle:
     | string
     | undefined;
@@ -96,7 +94,7 @@ export default class AppEditor extends Vue {
 
   deleteItem(item: any) {
     // delete item from firebase
-    console.log(item.id);
+    console.log(item);
   }
 
   get dialogRef() {
