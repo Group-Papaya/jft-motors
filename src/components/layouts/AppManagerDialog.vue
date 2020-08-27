@@ -15,10 +15,10 @@
         </v-form>
       </v-card-text>
       <v-card-actions>
-        <v-btn large color="success" @click="handleInput(create ? model : item)"
+        <v-btn color="success" @click="handleInput(create ? model : item)"
           >Submit</v-btn
         >
-        <v-btn large color="error" @click="dialog = false">Cancel</v-btn>
+        <v-btn color="error" @click="dialog = false">Cancel</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

@@ -48,7 +48,9 @@ import router from "@/router";
 export default class AppEditor extends Vue {
   name = "AppManager.vue";
 
-  @Prop({ type: String, default: undefined }) readonly title: string | undefined;
+  @Prop({ type: String, default: undefined }) readonly title:
+    | string
+    | undefined;
   @Prop({ type: String, default: undefined }) readonly subtitle:
     | string
     | undefined;
