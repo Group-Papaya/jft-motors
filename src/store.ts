@@ -20,7 +20,7 @@ export default new Vuex.Store({
     records: {
       users: Array<User>(),
       discounts: Array<Discount>()
-    },
+    }
   },
   getters: {
     isAuthenticated: state => {
@@ -38,7 +38,7 @@ export default new Vuex.Store({
       state.records = {
         ...state.records,
         ...payload
-      }
+      };
     },
     SET_DRAWER(state, payload) {
       state.drawer = payload;

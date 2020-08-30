@@ -16,7 +16,7 @@ import { Component, Vue } from "vue-property-decorator";
 import User, { ADMIN_ROLE, BASE_ROLE, ROLES } from "@/models/User";
 import AppEditor from "@/components/layouts/AppManager.vue";
 import { dbService } from "@/services/firestore.service";
-import curdService, { curd } from "@/services/curd.service";
+import { curd, watchCollection } from "@/services/curd.service";
 
 @Component({
   components: { AppEditor }
@@ -97,9 +97,8 @@ export default class Users extends Vue {
   };
 
   created() {
-    curdService.watchCollection(
-      data => this.$store.commit("SET_RECORDS", { users: data }),
-      "users"
+    watchCollection("users", data =>
+      this.$store.commit("SET_RECORDS", { users: data })
     );
   }
 

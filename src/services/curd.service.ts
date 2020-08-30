@@ -10,20 +10,22 @@ const unsnap = (object: any) => {
   return object;
 };
 
-export default {
-  watchCollection(fn: (data: any) => any, path: string) {
-    return dbService.getCollection(path).onSnapshot(querySnapshot => {
-      fn(querySnapshot.docs.map(snapshot => snap(snapshot)));
-    });
-  },
-  watchDocument(fn: (data: any) => any, path: string, ref?: string) {
-    return dbService.getDocument(path, ref).onSnapshot(snapshot => {
-      fn(snap(snapshot));
-    });
-  }
-};
+function watchCollection(path: string, fn: (data: any) => any) {
+  return dbService.getCollection(path).onSnapshot(querySnapshot => {
+    fn(querySnapshot.docs.map(snapshot => snap(snapshot)));
+  });
+}
 
-export const curd = {
+function watchDocument(
+  { path, ref }: { path: string; ref?: string },
+  fn: (data: any) => any
+) {
+  return dbService.getDocument(path, ref).onSnapshot(snapshot => {
+    fn(snap(snapshot));
+  });
+}
+
+const curd = {
   async get(path: string, ref?: string) {
     return await dbService
       .getSnapshot(path, ref)
@@ -42,3 +44,5 @@ export const curd = {
     return dbService.delete(path);
   }
 };
+
+export { watchCollection, watchDocument, curd };
