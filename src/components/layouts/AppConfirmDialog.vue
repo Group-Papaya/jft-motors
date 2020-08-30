@@ -1,21 +1,21 @@
 <template>
   <v-dialog v-model="dialog" max-width="290">
     <v-card>
-      <v-card-title class="headline">Delete {{ itemName }}</v-card-title>
+      <v-card-title class="headline">{{ headline }}</v-card-title>
 
       <v-card-text>
-        Are you sure you would like to delete {{ itemName }}?
+        {{ message }}
       </v-card-text>
 
       <v-card-actions>
         <v-spacer></v-spacer>
 
-        <v-btn color="green darken-1" text @click="closeDialog(false)">
-          No
+        <v-btn color="green darken-1" text @click="closeDialog(true)">
+          Yes
         </v-btn>
 
-        <v-btn color="red darken-1" text @click="closeDialog(true)">
-          Yes
+        <v-btn color="red darken-1" text @click="closeDialog(false)">
+          Cancel
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -29,18 +29,25 @@ import { Component, Vue, Prop } from "vue-property-decorator";
 export default class AppConfirmDialog extends Vue {
   name = "AppConfirmDialog";
   dialog = false;
+  message = "Message";
+  headline = "Headline";
   confirmation = false;
+  closeFunction?: (result: boolean) => void = undefined;
 
-  @Prop({ type: String, default: undefined }) readonly itemName:
-    | string
-    | undefined;
-
-  showDialog() {
+  showDialog(
+    headline: string,
+    message: string,
+    onClose: (result: boolean) => void
+  ) {
+    this.message = message;
+    this.headline = headline;
+    this.closeFunction = onClose;
     this.dialog = true;
   }
 
   closeDialog(result: boolean) {
-    this.e;
+    if (this.closeFunction) this.closeFunction(result);
+    this.dialog = false;
   }
 }
 </script>
