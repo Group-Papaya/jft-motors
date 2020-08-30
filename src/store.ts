@@ -40,6 +40,17 @@ export default new Vuex.Store({
     ...vuexfireMutations
   },
   actions: {
+    ADD_RECORD({ dispatch }, { record, path, ref = undefined }) {
+      curd.add(record, path, ref).then(ref => {
+        dispatch("SET_RECORD", {
+          record: { ...record, id: ref.id },
+          path: ref.path
+        });
+      });
+    },
+    SET_RECORD(_, { record, path, ref = undefined }) {
+      curd.update(record, path, ref);
+    },
     setUser(_, user) {
       curd.update(user, `users/${user.id}`);
     },
