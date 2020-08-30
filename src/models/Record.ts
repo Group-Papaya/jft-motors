@@ -1,5 +1,6 @@
 export default class Record {
   id?: string;
+  path?: string;
 }
 
 export type DocumentRef =

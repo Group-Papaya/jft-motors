@@ -104,7 +104,7 @@ export default class AppEditor extends Vue {
       "Confirm Delete",
       "You are about to delete this item",
       function(result: boolean) {
-        if (result) curd.delete(item.snapPath);
+        if (result) curd.delete(item.path);
       }
     );
   }

@@ -2,11 +2,11 @@ import { Record } from "@/models";
 import { dbService } from "./firestore.service";
 
 const snap = (snapshot: { data: () => any; ref: { path: any } }) => {
-  return { ...snapshot.data(), snapPath: snapshot.ref.path };
+  return { ...snapshot.data(), path: snapshot.ref.path };
 };
 
 const unsnap = (object: any) => {
-  delete object.snapPath;
+  delete object.path;
   return object;
 };
 
