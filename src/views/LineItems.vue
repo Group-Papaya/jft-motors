@@ -97,7 +97,7 @@ export default class LineItems extends Vue {
         id: `${x}`,
         name: `line item-${x}`,
         type: x % 2 ? WORKER : PRODUCT,
-        cost: x * Math.random(),
+        cost: x * 2 * Math.random(),
         units: x * 1000,
         discounted: false
       };
