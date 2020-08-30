@@ -103,11 +103,11 @@ export default class Users extends Vue {
   }
 
   editItem(user: User) {
-    this.$store.dispatch("setUser", user);
+    this.$store.dispatch("SET_RECORD", { record: user, path: user.path });
   }
 
   addUser(user: User) {
-    this.$store.dispatch("addUser", user);
+    this.$store.dispatch("ADD_RECORD", { record: user, path: "users" });
   }
 }
 </script>
