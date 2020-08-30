@@ -1,4 +1,4 @@
-import { User } from "@/models";
+import { Discount, User } from "@/models";
 import { auth } from "@/services/auth.service";
 import Vue from "vue";
 import Vuex from "vuex";
@@ -17,7 +17,8 @@ export default new Vuex.Store({
       user: auth.user,
       authenticated: auth.user ? !auth.user.isAnonymous : false
     },
-    users: Array<User>()
+    users: Array<User>(),
+    discounts: Array<Discount>()
   },
   getters: {
     isAuthenticated: state => {
@@ -50,15 +51,6 @@ export default new Vuex.Store({
     },
     SET_RECORD(_, { record, path, ref = undefined }) {
       curd.update(record, path, ref);
-    },
-    setUser(_, user) {
-      curd.update(user, `users/${user.id}`);
-    },
-    addUser({ dispatch }, user) {
-      curd.add(user, "users").then(ref => {
-        user.id = ref.id;
-        dispatch("setUser", user);
-      });
     }
   },
   plugins: [createPersistedState()]
