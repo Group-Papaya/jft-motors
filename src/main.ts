@@ -3,6 +3,7 @@ import App from "./App.vue";
 import "./firebase";
 import "./plugins/base";
 import "./plugins/vue2-filters";
+import "./plugins/vuetify-dialog";
 import vuetify from "./plugins/vuetify";
 import router from "./router";
 import "./service-worker";
