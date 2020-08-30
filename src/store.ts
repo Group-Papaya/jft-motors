@@ -17,8 +17,10 @@ export default new Vuex.Store({
       user: auth.user,
       authenticated: auth.user ? !auth.user.isAnonymous : false
     },
-    users: Array<User>(),
-    discounts: Array<Discount>()
+    records: {
+      users: Array<User>(),
+      discounts: Array<Discount>()
+    },
   },
   getters: {
     isAuthenticated: state => {
@@ -32,8 +34,11 @@ export default new Vuex.Store({
     SET_BAR_IMAGE(state, payload) {
       state.barImage = payload;
     },
-    SET_USERS(state, payload) {
-      state.users = payload;
+    SET_RECORDS(state, payload) {
+      state.records = {
+        ...state.records,
+        ...payload
+      }
     },
     SET_DRAWER(state, payload) {
       state.drawer = payload;

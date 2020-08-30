@@ -61,7 +61,7 @@ export default class Users extends Vue {
   ];
 
   get users() {
-    return this.$store.state.users;
+    return this.$store.state.records.users;
   }
 
   model = {
@@ -97,9 +97,10 @@ export default class Users extends Vue {
   };
 
   created() {
-    curdService.watchCollection(data => {
-      this.$store.commit("SET_USERS", data);
-    }, "users");
+    curdService.watchCollection(
+      data => this.$store.commit("SET_RECORDS", { users: data }),
+      "users"
+    );
   }
 
   editItem(user: User) {
