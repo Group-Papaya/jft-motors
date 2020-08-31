@@ -34,9 +34,9 @@
     <app-material-card
       color="warning"
       icon="mdi-note"
-      :title="'Quotation ' + quotationId"
       max-width="800px"
       class="px-5 py-3 mx-md-auto"
+      :title="'Quotation ' + quotation.id"
     >
       <div class="px-md-10 pb-16">
         <!-- quotation header     -->
@@ -104,7 +104,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in quotation.items" :key="item.id">
+              <tr v-for="(item, index) in quotation.items" :key="index">
                 <td>{{ index + 1 }}</td>
                 <td>{{ item.name }}</td>
                 <td>{{ item.quantity }}</td>
@@ -157,17 +157,24 @@
         <v-card-title>Add Line Item to Quotation</v-card-title>
         <v-card-text>
           <v-form>
+            <v-autocomplete
+              label="Line item"
+              :v-model="item"
+              :items="lineItems"
+              :item-text="value => value.name"
+              :item-value="value => lineItems.find(it => it.id === value.id)"
+              @change="value => (item = value)"
+            />
             <v-form-base
-              :row="rowAttribute"
               :col="12"
-              :model="model"
+              :model="item"
               :schema="schema"
-              @change="handleInput"
+              :row="rowAttribute"
             />
           </v-form>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="warning" @click="addLineItem(model)"
+          <v-btn color="warning" @click="addLineItem(item)"
             >Add Line Item</v-btn
           >
         </v-card-actions>
@@ -182,43 +189,50 @@ import { LineItem, Quotation, Client, User } from "@/models";
 import { PRODUCT, WORKER } from "@/models/LineItem";
 
 import VFormBase from "../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
+import { watchCollection } from "@/services/curd.service";
+import store from "@/store";
+import { db } from "@/firebase";
+import { dbService } from "@/services/firestore.service";
 
 @Component({
   components: { VFormBase }
 })
 export default class QuotationEditor extends Mixins() {
   name = "QuotationEditor";
-  addLineItemDialog = false;
-  quotationId = "";
-  quotation = new Quotation();
+  quotation!: Quotation;
   quotationDiscount = 0;
-  lineItems: any[] = [];
+  addLineItemDialog = false;
 
-  rowAttribute = { justify: "center", align: "center", noGutters: true };
-  model = {
-    name: "",
+  item: LineItem = {
+    id: "",
     cost: 0,
+    name: "",
+    type: "",
+    units: 0,
     quantity: 0,
-    discount: false
+    details: "",
+    discounted: false,
+    path: ""
   };
 
+  lineItems: Array<LineItem> = Array<LineItem>();
+
+  rowAttribute = { justify: "center", align: "center", noGutters: true };
+
   schema = {
-    name: {
-      type: "autocomplete",
-      label: "Line item",
-      items: [""]
-    },
     quantity: {
+      value: 0,
       type: "number",
-      label: "Quantity",
-      disabled: true
+      label: "Quantity"
     },
     cost: {
+      value: 0,
       type: "number",
       label: "Cost",
       disabled: true
     },
     discount: {
+      value: false,
       type: "switch",
       label: "Apply discount",
       disabled: true
@@ -226,54 +240,51 @@ export default class QuotationEditor extends Mixins() {
   };
 
   created() {
-    this.quotationId = this.$route.params.id;
+    watchCollection("quotations", data =>
+      this.$store.commit("SET_RECORDS", { quotations: data })
+    );
 
-    this.getDemoData();
-    this.getQuotation();
+    watchCollection("line-items", data =>
+      this.$store.commit("SET_RECORDS", { lineitems: data })
+    );
 
-    this.schema.name.items = this.lineItemNames;
+    this.lineItems = this.getLineItems();
+    this.getQuotation(this.$route.params.id);
+
+    watchCollection(
+      `${this.quotation.path}/items`,
+      items => (this.quotation.items = items)
+    );
   }
 
-  getQuotation() {
-    this.quotation = new Quotation();
-    this.quotation.id = "1";
-    this.quotation.user = "Admin";
-    this.quotation.client = "Test Client";
-    this.quotation.items = [];
-    this.quotation.total = 9000;
-    this.quotation.completed = false;
-    this.quotation.created = new Date().toLocaleString();
-    this.quotation.updated = new Date().toLocaleString();
+  getLineItems() {
+    return this.$store.state.records.lineitems;
+  }
+
+  getQuotation(id: string) {
+    this.quotation = this.$store.getters.getQuotation(id);
   }
 
   openModal() {
     this.addLineItemDialog = true;
   }
 
-  addLineItem(item: any) {
+  addLineItem(item: LineItem) {
     this.addLineItemDialog = false;
-    this.quotation.items?.push(JSON.parse(JSON.stringify(item)));
-    this.model.name = "";
-    this.model.discount = false;
-    this.model.cost = 0;
-    this.model.quantity = 0;
+    this.quotation.items.push(item);
+    this.$store.dispatch("SET_RECORD", {
+      record: { ...item, reference: db.doc(`${item.path}`) },
+      path: `${this.quotation.path}/items`,
+      ref: item.id
+    });
   }
 
   deleteQuotation() {
-    console.log(this.quotationId);
+    console.log(this.quotation.id);
   }
 
   markComplete() {
     console.log("completed");
-  }
-
-  handleInput(data: any) {
-    switch (data.key) {
-      case "name":
-        this.schema.quantity.disabled = false;
-        this.model.cost = 90;
-        break;
-    }
   }
 
   get discountTotal() {
@@ -281,30 +292,9 @@ export default class QuotationEditor extends Mixins() {
   }
 
   get total() {
-    return this.quotation.items?.reduce((total, curr) => {
-      return total + Number.parseFloat(curr.cost) * curr.quantity;
+    return this.quotation.items?.reduce((total, item) => {
+      return total + item.cost * item.quantity;
     }, 0);
-  }
-
-  get lineItemNames() {
-    return this.lineItems.map(item => {
-      return item.name;
-    });
-  }
-
-  getDemoData() {
-    for (let x = 1; x < 5; x++) {
-      const lineItem = {
-        id: `${x}`,
-        name: `line item-${x}`,
-        type: x % 2 ? WORKER : PRODUCT,
-        cost: (x * Math.random()).toFixed(3),
-        quantity: x * 2,
-        units: x * 1000,
-        discounted: false
-      };
-      this.lineItems.push(lineItem);
-    }
   }
 }
 </script>
