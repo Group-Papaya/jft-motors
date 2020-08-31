@@ -15,6 +15,7 @@
 import { Component, Vue } from "vue-property-decorator";
 import AppEditor from "@/components/layouts/AppManager.vue";
 import Client from "@/models/Client";
+import { watchCollection } from "@/services/curd.service";
 
 @Component({
   components: { AppEditor }
@@ -52,10 +53,13 @@ export default class Clients extends Vue {
       value: "actions"
     }
   ];
-  items: any[] = [];
+
+  get items() {
+    return this.$store.state.records.clients;
+  }
 
   model = {
-    fistname: "",
+    firstname: "",
     lastname: "",
     phone: "",
     email: ""
@@ -80,30 +84,18 @@ export default class Clients extends Vue {
     }
   };
 
-  mounted() {
-    this.getDemoData();
+  created() {
+    watchCollection("clients", data =>
+      this.$store.commit("SET_RECORDS", { clients: data })
+    );
   }
 
-  getDemoData() {
-    for (let x = 1; x < 11; x++) {
-      const client = {
-        id: `${x}`,
-        firstname: `client ${x}`,
-        lastname: "test" + x,
-        phone: x * 1000,
-        email: "test@email.com"
-      };
-
-      this.items.push(client);
-    }
+  editItem(record: Client) {
+    this.$store.dispatch("SET_RECORD", { record, path: record.path });
   }
 
-  editItem(client: Client) {
-    console.log(client);
-  }
-
-  addClient(client: Client) {
-    console.log(client);
+  addClient(record: Client) {
+    this.$store.dispatch("ADD_RECORD", { record, path: "clients" });
   }
 }
 </script>

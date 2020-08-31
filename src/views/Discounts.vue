@@ -16,6 +16,7 @@ import { Component, Vue } from "vue-property-decorator";
 import { JOB, PRODUCT, WORKER } from "@/models/LineItem";
 import AppEditor from "@/components/layouts/AppManager.vue";
 import Discount from "@/models/Discount";
+import { watchCollection } from "@/services/curd.service";
 
 @Component({
   components: { AppEditor }
@@ -49,7 +50,9 @@ export default class Discounts extends Vue {
     }
   ];
 
-  items: any[] = [];
+  get items() {
+    return this.$store.state.records.discounts;
+  }
 
   model = {
     name: "",
@@ -72,6 +75,20 @@ export default class Discounts extends Vue {
     }
   };
 
+  created() {
+    watchCollection("discounts", data =>
+      this.$store.commit("SET_RECORDS", { discounts: data })
+    );
+  }
+
+  editItem(record: Discount) {
+    this.$store.dispatch("SET_RECORD", { record, path: record.path });
+  }
+
+  addDiscount(record: Discount) {
+    this.$store.dispatch("ADD_RECORD", { record, path: "discounts" });
+  }
+
   mounted() {
     this.getDemoData();
   }
@@ -87,14 +104,6 @@ export default class Discounts extends Vue {
 
       this.items.push(lineItem);
     }
-  }
-
-  editItem(discount: Discount) {
-    console.log(discount);
-  }
-
-  addDiscount(discount: Discount) {
-    console.log(discount);
   }
 }
 </script>

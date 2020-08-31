@@ -13,6 +13,7 @@
 import { Component, Vue } from "vue-property-decorator";
 import moment from "moment";
 import AppManager from "@/components/layouts/AppManager.vue";
+import { watchCollection } from "@/services/curd.service";
 
 @Component({
   components: { AppManager }
@@ -41,23 +42,14 @@ export default class Invoices extends Vue {
     }
   ];
 
-  items: any[] = [];
-
-  mounted() {
-    this.getDemoData();
+  get items() {
+    return this.$store.getters.invoices;
   }
 
-  getDemoData() {
-    for (let x = 1; x < 11; x++) {
-      const quotation = {
-        id: `${x}`,
-        client: `client ${x}`,
-        created: moment().format("MMMM Do YYYY"),
-        total: x * 1000
-      };
-
-      this.items.push(quotation);
-    }
+  created() {
+    watchCollection("quotations", data =>
+      this.$store.commit("SET_RECORDS", { quotations: data })
+    );
   }
 }
 </script>
