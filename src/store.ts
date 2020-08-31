@@ -1,4 +1,4 @@
-import { Discount, User } from "@/models";
+import { Discount, Quotation, User } from "@/models";
 import { auth } from "@/services/auth.service";
 import Vue from "vue";
 import Vuex from "vuex";
@@ -19,12 +19,19 @@ export default new Vuex.Store({
     },
     records: {
       users: Array<User>(),
-      discounts: Array<Discount>()
+      discounts: Array<Discount>(),
+      quotations: Array<Quotation>()
     }
   },
   getters: {
     isAuthenticated: state => {
       return state.auth.authenticated;
+    },
+    invoices: state => {
+      return state.records.quotations.filter(it => it.completed === true);
+    },
+    getQuotation: state => (id: string) => {
+      return state.records.quotations.find(it => it.id === id);
     }
   },
   mutations: {
