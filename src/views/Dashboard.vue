@@ -9,7 +9,7 @@
           :model="model"
           :schema="schema"
           :addHandler="addQuotation"
-          :items="items"
+          :items="this.items"
           :headers="headers"
         />
       </v-col>
@@ -95,10 +95,19 @@ export default class Dashboard extends Vue {
   // get current  month
   currentMonth = moment().format("MMMM");
 
-  addQuotation(quotation: Quotation) {
-    // write to firebase
-    console.log(quotation);
-    // route to quotation editor
+  addQuotation(record: Quotation) {
+    this.$store.dispatch("ADD_RECORD", {
+      record: {
+        ...record,
+        items: [],
+        total: 0.0,
+        completed: false,
+        user: this.$store.state.auth.user.uid,
+        created: moment().format("MMMM Do YYYY"),
+        updated: moment().format("MMMM Do YYYY")
+      },
+      path: "quotations"
+    });
   }
 
   get subtitle() {

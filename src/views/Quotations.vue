@@ -5,7 +5,7 @@
     :schema="schema"
     :addHandler="addQuotation"
     icon="mdi-note"
-    :items="items"
+    :items="this.items"
     :headers="headers"
   />
 </template>
@@ -81,6 +81,7 @@ export default class Quotations extends Vue {
     this.$store.dispatch("ADD_RECORD", {
       record: {
         ...record,
+        items: [],
         total: 0.0,
         completed: false,
         user: this.$store.state.auth.user.uid,
