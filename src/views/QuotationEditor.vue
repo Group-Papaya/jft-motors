@@ -92,7 +92,7 @@
         <v-divider class="my-4" light></v-divider>
 
         <!-- quotation line items -->
-        <v-simple-table v-if="quotation.items.length">
+        <v-simple-table v-if="quotation.items">
           <template v-slot:default>
             <thead>
               <tr>
@@ -193,6 +193,7 @@ import { watchCollection } from "@/services/curd.service";
 import store from "@/store";
 import { db } from "@/firebase";
 import { dbService } from "@/services/firestore.service";
+import { forEach } from "lodash";
 
 @Component({
   components: { VFormBase }
@@ -239,22 +240,20 @@ export default class QuotationEditor extends Mixins() {
     }
   };
 
+  itemsWatcher: any = null;
+
   created() {
-    watchCollection("quotations", data =>
-      this.$store.commit("SET_RECORDS", { quotations: data })
-    );
-
-    watchCollection("line-items", data =>
-      this.$store.commit("SET_RECORDS", { lineitems: data })
-    );
-
     this.lineItems = this.getLineItems();
     this.getQuotation(this.$route.params.id);
 
-    watchCollection(
+    this.itemsWatcher = watchCollection(
       `${this.quotation.path}/items`,
       items => (this.quotation.items = items)
     );
+  }
+
+  destroyed() {
+    this.itemsWatcher();
   }
 
   getLineItems() {

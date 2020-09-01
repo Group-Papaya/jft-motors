@@ -90,12 +90,6 @@ export default class LineItems extends Vue {
     }
   };
 
-  created() {
-    watchCollection("line-items", data =>
-      this.$store.commit("SET_RECORDS", { lineitems: data })
-    );
-  }
-
   editItem(record: LineItem) {
     this.$store.dispatch("SET_RECORD", { record, path: record.path });
   }

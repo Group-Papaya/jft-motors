@@ -96,12 +96,6 @@ export default class Users extends Vue {
     }
   };
 
-  created() {
-    watchCollection("users", data =>
-      this.$store.commit("SET_RECORDS", { users: data })
-    );
-  }
-
   editItem(user: User) {
     this.$store.dispatch("SET_RECORD", { record: user, path: user.path });
   }

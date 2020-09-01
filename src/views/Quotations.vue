@@ -17,6 +17,7 @@ import AppManager from "@/components/layouts/AppManager.vue";
 import Quotation from "@/models/Quotation";
 import { watchCollection } from "@/services/curd.service";
 import { auth } from "firebase";
+import { Client } from "@/models";
 
 @Component({
   components: { AppManager }
@@ -63,7 +64,8 @@ export default class Quotations extends Vue {
     client: {
       type: "select",
       label: "Client",
-      items: ["Tesla", "Jobs", "Taleb"]
+      items: this.clients,
+      itemText: (value: Client) => `${value.firstname} ${value.lastname}`
     }
   };
 
@@ -71,17 +73,14 @@ export default class Quotations extends Vue {
     return this.$store.state.records.quotations;
   }
 
-  created() {
-    watchCollection("quotations", data =>
-      this.$store.commit("SET_RECORDS", { quotations: data })
-    );
+  get clients() {
+    return this.$store.state.records.clients;
   }
 
   addQuotation(record: Quotation) {
     this.$store.dispatch("ADD_RECORD", {
       record: {
         ...record,
-        items: [],
         total: 0.0,
         completed: false,
         user: this.$store.state.auth.user.uid,

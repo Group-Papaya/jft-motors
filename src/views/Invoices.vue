@@ -45,12 +45,6 @@ export default class Invoices extends Vue {
   get items() {
     return this.$store.getters.invoices;
   }
-
-  created() {
-    watchCollection("quotations", data =>
-      this.$store.commit("SET_RECORDS", { quotations: data })
-    );
-  }
 }
 </script>
 

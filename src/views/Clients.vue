@@ -84,12 +84,6 @@ export default class Clients extends Vue {
     }
   };
 
-  created() {
-    watchCollection("clients", data =>
-      this.$store.commit("SET_RECORDS", { clients: data })
-    );
-  }
-
   editItem(record: Client) {
     this.$store.dispatch("SET_RECORD", { record, path: record.path });
   }

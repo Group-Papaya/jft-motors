@@ -75,35 +75,12 @@ export default class Discounts extends Vue {
     }
   };
 
-  created() {
-    watchCollection("discounts", data =>
-      this.$store.commit("SET_RECORDS", { discounts: data })
-    );
-  }
-
   editItem(record: Discount) {
     this.$store.dispatch("SET_RECORD", { record, path: record.path });
   }
 
   addDiscount(record: Discount) {
     this.$store.dispatch("ADD_RECORD", { record, path: "discounts" });
-  }
-
-  mounted() {
-    this.getDemoData();
-  }
-
-  getDemoData() {
-    for (let x = 1; x < 11; x++) {
-      const lineItem = {
-        id: `${x}`,
-        name: `discount ${x}`,
-        amount: x * Math.random(),
-        percentage: x * 1000
-      };
-
-      this.items.push(lineItem);
-    }
   }
 }
 </script>
