@@ -19,7 +19,7 @@
           <v-icon small class="mr-2" @click.stop="openEditDialog(item)">
             mdi-pencil
           </v-icon>
-          <v-icon small @click="deleteItem(item)" color="red">
+          <v-icon small @click.stop="deleteItem(item)" color="red">
             mdi-delete
           </v-icon>
         </template>
@@ -34,16 +34,20 @@
       :addHandler="addHandler"
       :editHandler="editHandler"
     />
+
+    <AppConfirmDialog ref="confirm" />
   </v-container>
 </template>
 
 <script lang="ts">
 import AppManagerDialog from "@/components/layouts/AppManagerDialog.vue";
+import AppConfirmDialog from "@/components/layouts/AppConfirmDialog.vue";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import router from "@/router";
+import { curd } from "@/services/curd.service";
 
 @Component({
-  components: { AppManagerDialog }
+  components: { AppManagerDialog, AppConfirmDialog }
 })
 export default class AppEditor extends Vue {
   name = "AppManager.vue";
@@ -96,12 +100,28 @@ export default class AppEditor extends Vue {
 
   deleteItem(item: any) {
     // delete item from firebase
-    console.log(item.id);
+    this.confirmDialog.showDialog(
+      "Confirm Delete",
+      "You are about to delete this item",
+      function(result: boolean) {
+        if (result) curd.delete(item.path);
+      }
+    );
   }
 
   get dialogRef() {
     return this.$refs.itemDialog as Vue & {
       showDialog: (create?: boolean, item?: any) => Function;
+    };
+  }
+
+  get confirmDialog() {
+    return this.$refs.confirm as Vue & {
+      showDialog: (
+        headline: string,
+        message: string,
+        close: (result: boolean) => void
+      ) => Function;
     };
   }
 }

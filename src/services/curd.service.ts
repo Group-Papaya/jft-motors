@@ -1,31 +1,48 @@
 import { Record } from "@/models";
 import { dbService } from "./firestore.service";
-export default {
-  watchCollection(fn: (data: any) => any, path: string) {
-    return dbService.getCollection(path).onSnapshot(querySnapshot => {
-      fn(querySnapshot.docs.map(snapshot => snapshot.data()));
-    });
-  },
-  watchDocument(fn: (data: any) => any, path: string, ref?: string) {
-    return dbService.getDocument(path, ref).onSnapshot(snapshot => {
-      fn(snapshot.data());
-    });
-  }
+
+const snap = (snapshot: { data: () => any; ref: { path: any } }) => {
+  return { ...snapshot.data(), path: snapshot.ref.path };
 };
 
-export const curd = {
+const unsnap = (object: any) => {
+  delete object.path;
+  return object;
+};
+
+function watchCollection(path: string, fn: (data: any) => any) {
+  return dbService.getCollection(path).onSnapshot(querySnapshot => {
+    fn(querySnapshot.docs.map(snapshot => snap(snapshot)));
+  });
+}
+
+function watchDocument(
+  { path, ref }: { path: string; ref?: string },
+  fn: (data: any) => any
+) {
+  return dbService.getDocument(path, ref).onSnapshot(snapshot => {
+    fn(snap(snapshot));
+  });
+}
+
+const curd = {
   async get(path: string, ref?: string) {
     return await dbService
       .getSnapshot(path, ref)
-      .then(snapshot => snapshot.data());
+      .then(snapshot => snap(snapshot));
   },
   add<T = Record>(record: T, path: string, ref?: string) {
     return dbService.add(record, path, ref);
   },
   update<T = Record>(record: T, path: string, ref?: string) {
-    return dbService.setDocument(record, dbService.getDocument(path, ref));
+    return dbService.setDocument(
+      unsnap(record),
+      dbService.getDocument(path, ref)
+    );
   },
   delete(path: string) {
     return dbService.delete(path);
   }
 };
+
+export { watchCollection, watchDocument, curd };

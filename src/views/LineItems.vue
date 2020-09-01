@@ -15,6 +15,7 @@
 import { Component, Vue } from "vue-property-decorator";
 import AppEditor from "@/components/layouts/AppManager.vue";
 import LineItem, { JOB, PRODUCT, WORKER } from "@/models/LineItem";
+import { watchCollection } from "@/services/curd.service";
 
 @Component({
   components: { AppEditor }
@@ -58,7 +59,9 @@ export default class LineItems extends Vue {
     }
   ];
 
-  items: any[] = [];
+  get items() {
+    return this.$store.state.records.lineitems;
+  }
 
   model = {
     name: "",
@@ -87,31 +90,12 @@ export default class LineItems extends Vue {
     }
   };
 
-  mounted() {
-    this.getDemoData();
+  editItem(record: LineItem) {
+    this.$store.dispatch("SET_RECORD", { record, path: record.path });
   }
 
-  getDemoData() {
-    for (let x = 1; x < 11; x++) {
-      const lineItem = {
-        id: `${x}`,
-        name: `line item-${x}`,
-        type: x % 2 ? WORKER : PRODUCT,
-        cost: x * 2 * Math.random(),
-        units: x * 1000,
-        discounted: false
-      };
-
-      this.items.push(lineItem);
-    }
-  }
-
-  editItem(lineItem: LineItem) {
-    console.log(lineItem);
-  }
-
-  addLineItem(lineItem: LineItem) {
-    console.log(lineItem);
+  addLineItem(record: LineItem) {
+    this.$store.dispatch("ADD_RECORD", { record, path: "line-items" });
   }
 }
 </script>

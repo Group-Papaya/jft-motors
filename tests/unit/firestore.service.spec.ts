@@ -49,7 +49,8 @@ const item: LineItem = {
 
 const draft: Quotation = {
   user: "",
-  client: ""
+  client: "",
+  items: []
 };
 
 const add = async (record: Record, to: string) => {

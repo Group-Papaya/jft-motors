@@ -5,7 +5,7 @@
     :schema="schema"
     :addHandler="addQuotation"
     icon="mdi-note"
-    :items="items"
+    :items="this.items"
     :headers="headers"
   />
 </template>
@@ -15,6 +15,9 @@ import moment from "moment";
 import { Component, Vue } from "vue-property-decorator";
 import AppManager from "@/components/layouts/AppManager.vue";
 import Quotation from "@/models/Quotation";
+import { watchCollection } from "@/services/curd.service";
+import { auth } from "firebase";
+import { Client } from "@/models";
 
 @Component({
   components: { AppManager }
@@ -61,34 +64,32 @@ export default class Quotations extends Vue {
     client: {
       type: "select",
       label: "Client",
-      items: ["Tesla", "Jobs", "Taleb"]
+      items: this.clients,
+      itemText: (value: Client) => `${value.firstname} ${value.lastname}`
     }
   };
 
-  items: any[] = [];
-
-  mounted() {
-    this.getDemoData();
+  get items() {
+    return this.$store.state.records.quotations;
   }
 
-  addQuotation(quotation: Quotation) {
-    // write to firebase
-    console.log(quotation);
-    // route to quotation editor
+  get clients() {
+    return this.$store.state.records.clients;
   }
 
-  getDemoData() {
-    for (let x = 1; x < 11; x++) {
-      const quotation = {
-        id: `${x}`,
-        client: `client ${x}`,
+  addQuotation(record: Quotation) {
+    this.$store.dispatch("ADD_RECORD", {
+      record: {
+        ...record,
+        items: [],
+        total: 0.0,
+        completed: false,
+        user: this.$store.state.auth.user.uid,
         created: moment().format("MMMM Do YYYY"),
-        updated: moment().format("MMMM Do YYYY"),
-        total: x * 1000
-      };
-
-      this.items.push(quotation);
-    }
+        updated: moment().format("MMMM Do YYYY")
+      },
+      path: "quotations"
+    });
   }
 }
 </script>

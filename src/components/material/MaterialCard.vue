@@ -57,10 +57,13 @@
               right
               x-small
               color="warning"
-              @click="addItem(title)">
+              @click="addItem(title)"
+            >
               <v-icon>mdi-plus</v-icon>
             </v-btn>
-            <span class="card-title  ml-2 hidden-sm-and-down font-weight-light">Add {{ itemName }}</span>
+            <span class="card-title  ml-2 hidden-sm-and-down font-weight-light"
+              >Add {{ itemName }}</span
+            >
           </div>
         </v-row>
       </div>
