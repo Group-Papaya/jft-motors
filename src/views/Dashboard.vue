@@ -9,7 +9,7 @@
           :model="model"
           :schema="schema"
           :addHandler="addQuotation"
-          :items="items"
+          :items="this.items"
           :headers="headers"
         />
       </v-col>
@@ -22,7 +22,7 @@
           :model="model"
           :schema="schema"
           :addHandler="addQuotation"
-          :items="items"
+          :items="this.invoices"
           :button="false"
           color="primary"
           :headers="headers"
@@ -37,6 +37,7 @@ import { Component, Vue } from "vue-property-decorator";
 import moment from "moment";
 import Quotation from "@/models/Quotation";
 import AppManager from "@/components/layouts/AppManager.vue";
+import { Client } from "@/models";
 
 @Component({
   components: { AppManager }
@@ -66,8 +67,17 @@ export default class Dashboard extends Vue {
     }
   ];
 
-  // invoice items
-  items: any[] = [];
+  get items() {
+    return this.$store.state.records.quotations;
+  }
+
+  get invoices() {
+    return this.$store.getters.invoices;
+  }
+
+  get clients() {
+    return this.$store.state.records.clients;
+  }
 
   model = {
     client: ""
@@ -77,34 +87,27 @@ export default class Dashboard extends Vue {
     client: {
       type: "select",
       label: "Client",
-      items: ["Tesla", "Jobs", "Taleb"]
+      items: this.clients,
+      itemText: (value: Client) => `${value.firstname} ${value.lastname}`
     }
   };
 
   // get current  month
   currentMonth = moment().format("MMMM");
 
-  mounted() {
-    this.getDemoData();
-  }
-
-  addQuotation(quotation: Quotation) {
-    // write to firebase
-    console.log(quotation);
-    // route to quotation editor
-  }
-
-  getDemoData() {
-    for (let x = 1; x < 11; x++) {
-      const quotation = {
-        id: `${x}`,
-        client: `client ${x}`,
+  addQuotation(record: Quotation) {
+    this.$store.dispatch("ADD_RECORD", {
+      record: {
+        ...record,
+        items: [],
+        total: 0.0,
+        completed: false,
+        user: this.$store.state.auth.user.uid,
         created: moment().format("MMMM Do YYYY"),
-        total: x * 1000
-      };
-
-      this.items.push(quotation);
-    }
+        updated: moment().format("MMMM Do YYYY")
+      },
+      path: "quotations"
+    });
   }
 
   get subtitle() {

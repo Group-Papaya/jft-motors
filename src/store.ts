@@ -1,4 +1,4 @@
-import { User } from "@/models";
+import { Discount, Quotation, User } from "@/models";
 import { auth } from "@/services/auth.service";
 import Vue from "vue";
 import Vuex from "vuex";
@@ -17,11 +17,21 @@ export default new Vuex.Store({
       user: auth.user,
       authenticated: auth.user ? !auth.user.isAnonymous : false
     },
-    users: Array<User>()
+    records: {
+      users: Array<User>(),
+      discounts: Array<Discount>(),
+      quotations: Array<Quotation>()
+    }
   },
   getters: {
     isAuthenticated: state => {
       return state.auth.authenticated;
+    },
+    invoices: state => {
+      return state.records.quotations.filter(it => it.completed === true);
+    },
+    getQuotation: state => (id: string) => {
+      return state.records.quotations.find(it => it.id === id);
     }
   },
   mutations: {
@@ -31,8 +41,11 @@ export default new Vuex.Store({
     SET_BAR_IMAGE(state, payload) {
       state.barImage = payload;
     },
-    SET_USERS(state, payload) {
-      state.users = payload;
+    SET_RECORDS(state, payload) {
+      state.records = {
+        ...state.records,
+        ...payload
+      };
     },
     SET_DRAWER(state, payload) {
       state.drawer = payload;
@@ -40,14 +53,16 @@ export default new Vuex.Store({
     ...vuexfireMutations
   },
   actions: {
-    setUser(_, user) {
-      curd.update(user, `users/${user.id}`);
-    },
-    addUser({ dispatch }, user) {
-      curd.add(user, "users").then(ref => {
-        user.id = ref.id;
-        dispatch("setUser", user);
+    ADD_RECORD({ dispatch }, { record, path, ref = undefined }) {
+      curd.add(record, path, ref).then(ref => {
+        dispatch("SET_RECORD", {
+          record: { ...record, id: ref.id },
+          path: ref.path
+        });
       });
+    },
+    SET_RECORD(_, { record, path, ref = undefined }) {
+      curd.update(record, path, ref);
     }
   },
   plugins: [createPersistedState()]

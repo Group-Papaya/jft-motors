@@ -16,7 +16,7 @@ import { Component, Vue } from "vue-property-decorator";
 import User, { ADMIN_ROLE, BASE_ROLE, ROLES } from "@/models/User";
 import AppEditor from "@/components/layouts/AppManager.vue";
 import { dbService } from "@/services/firestore.service";
-import curdService, { curd } from "@/services/curd.service";
+import { curd, watchCollection } from "@/services/curd.service";
 
 @Component({
   components: { AppEditor }
@@ -61,7 +61,7 @@ export default class Users extends Vue {
   ];
 
   get users() {
-    return this.$store.state.users;
+    return this.$store.state.records.users;
   }
 
   model = {
@@ -96,18 +96,12 @@ export default class Users extends Vue {
     }
   };
 
-  created() {
-    curdService.watchCollection(data => {
-      this.$store.commit("SET_USERS", data);
-    }, "users");
-  }
-
   editItem(user: User) {
-    this.$store.dispatch("setUser", user);
+    this.$store.dispatch("SET_RECORD", { record: user, path: user.path });
   }
 
   addUser(user: User) {
-    this.$store.dispatch("addUser", user);
+    this.$store.dispatch("ADD_RECORD", { record: user, path: "users" });
   }
 }
 </script>

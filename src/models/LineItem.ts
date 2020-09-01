@@ -6,7 +6,7 @@ export default class LineItem extends Record {
   cost!: number;
   units!: number;
   details!: string;
-  quantity?: number;
+  quantity!: number;
   discount?: DocumentRef;
   discounted?: boolean = false;
 }
