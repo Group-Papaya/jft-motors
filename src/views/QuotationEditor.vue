@@ -22,7 +22,7 @@
             x-small
             color="warning"
             class="d-flex d-sm-none"
-            @click="addLineItem()"
+            @click="deleteQuotation()"
           >
             <v-icon>mdi-delete</v-icon>
           </v-btn>
@@ -36,7 +36,6 @@
       icon="mdi-note"
       max-width="800px"
       class="px-5 py-3 mx-md-auto"
-      :title="'Quotation ' + quotation.id"
     >
       <div class="px-md-10 pb-16">
         <!-- quotation header     -->
@@ -52,7 +51,7 @@
             </v-col>
             <v-col>
               <div class="caption font-weight-bold">Prepared By</div>
-              <div class="body-2" v-text="quotation.user"></div>
+              <div class="body-2" >{{user}}</div>
             </v-col>
           </v-row>
           <v-row>
@@ -288,6 +287,11 @@ export default class QuotationEditor extends Mixins() {
 
   get discountTotal() {
     return 0;
+  }
+
+  get user () {
+    const user = this.$store.getters.getUser(this.quotation.user);
+    return `${user.firstname} ${user.lastname}`
   }
 
   get total() {
