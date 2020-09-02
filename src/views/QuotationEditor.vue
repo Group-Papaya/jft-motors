@@ -96,12 +96,14 @@
 
         <!-- quotation line items -->
         <div v-if="quotation.items">
-          <v-col class="py-0 my-1" v-for="(item, index) in quotation.items" :key="item.id">
+          <v-col class="py-0 px-0 my-1" v-for="(item, index) in quotation.items" :key="item.id">
             <AppQuotationItem :item="item" :position="index" v-on:edit-line-item="openModal" v-on:delete-line-item="deleteLineItem"></AppQuotationItem>
           </v-col>
         </div>
 
+        <v-divider class="mt-10 mb-4" light></v-divider>
 
+<!--  totals -->
           <v-row class="text-right">
             <v-col>
               <div class="caption font-weight-bold">Discount Total</div>
@@ -235,8 +237,26 @@ export default class QuotationEditor extends Vue {
     }
   }
 
-  deleteQuotation() {
-    console.log(this.quotation.id);
+    async deleteQuotation() {
+      const res = await this.$dialog.confirm({
+        text: `Do you want to delete quotation with id: '${this.quotation.id}'?`,
+        title: 'Delete Line Item'
+      })
+
+      if (res) {
+        // delete line items
+        if (this.quotation.items) {
+          for (const item of this.quotation.items) {
+            await curd.delete(item.path as string)
+          }
+        }
+
+        // delete quotation
+        await curd.delete(this.quotation.path as string)
+
+        // redirect to quotation screen
+        await this.$router.replace('/quotations')
+      }
   }
 
   markComplete() {
