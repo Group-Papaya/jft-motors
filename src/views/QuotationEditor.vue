@@ -81,7 +81,7 @@
         <v-divider class="my-4" light></v-divider>
 
         <!-- quotation line item header -->
-        <v-card flat>
+        <v-card flat v-if="quotation.items.length">
           <v-card-text>
             <v-row class="py-0 my-0">
               <v-col cols="1">#</v-col>
@@ -95,16 +95,16 @@
         </v-card>
 
         <!-- quotation line items -->
-        <div v-if="quotation.items">
+        <div v-if="quotation.items.length">
           <v-col class="py-0 px-0 my-1" v-for="(item, index) in quotation.items" :key="item.id">
             <AppQuotationItem :item="item" :position="index" v-on:edit-line-item="openModal" v-on:delete-line-item="deleteLineItem"></AppQuotationItem>
           </v-col>
         </div>
 
-        <v-divider class="mt-10 mb-4" light></v-divider>
+        <v-divider class="mt-10 mb-4" light v-if="quotation.items.length"></v-divider>
 
 <!--  totals -->
-          <v-row class="text-right">
+          <v-row class="text-right" v-if="quotation.items.length">
             <v-col>
               <div class="caption font-weight-bold">Discount Total</div>
               <div class="body-2">{{ discountTotal | currency("R", 2) }}</div>
@@ -118,6 +118,10 @@
               <div class="body-2">{{ total - discountTotal | currency("R", 2) }}</div>
             </v-col>
           </v-row>
+
+        <v-row v-else>
+          <div>No items have been added to the quotation yet.</div>
+        </v-row>
 
       </div>
     </app-material-card>
