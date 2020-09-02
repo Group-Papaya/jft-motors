@@ -28,7 +28,10 @@ export default new Vuex.Store({
       return state.auth.authenticated;
     },
     invoices: state => {
-      return state.records.quotations.filter(it => it.completed === true);
+      return state.records.quotations.filter(it => it.completed);
+    },
+    drafts: state => {
+      return state.records.quotations.filter(it => !it.completed);
     },
     getQuotation: state => (id: string) => {
       return state.records.quotations.find(it => it.id === id);
