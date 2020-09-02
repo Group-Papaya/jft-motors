@@ -14,8 +14,7 @@
             color="warning"
             class="d-none d-sm-flex"
             @click="deleteQuotation()"
-            >Delete Quotation
-          </v-btn>
+          >Delete Quotation</v-btn>
           <v-btn
             fab
             right
@@ -51,7 +50,7 @@
             </v-col>
             <v-col>
               <div class="caption font-weight-bold">Prepared By</div>
-              <div class="body-2" >{{user}}</div>
+              <div class="body-2">{{user}}</div>
             </v-col>
           </v-row>
           <v-row>
@@ -73,131 +72,74 @@
         <v-divider class="my-4" light></v-divider>
 
         <v-row col="12" class="justify-end align-center">
-          <v-btn class="d-none d-sm-flex" @click="openModal()" color="warning"
-            >Add Line Item
-          </v-btn>
-          <v-btn
-            fab
-            right
-            x-small
-            color="warning"
-            class="d-flex d-sm-none"
-            @click="openModal()"
-          >
+          <v-btn class="d-none d-sm-flex" @click="openModal(true)" color="warning">Add Line Item</v-btn>
+          <v-btn fab right x-small color="warning" class="d-flex d-sm-none" @click="openModal(true)">
             <v-icon>mdi-plus</v-icon>
           </v-btn>
         </v-row>
 
         <v-divider class="my-4" light></v-divider>
 
+        <!-- quotation line item header -->
+        <v-card flat>
+          <v-card-text>
+            <v-row class="py-0 my-0">
+              <v-col cols="1">#</v-col>
+              <v-col cols="3" class="text-left caption font-weight-bold">Line Item Name</v-col>
+              <v-col cols="1" class="text-right caption font-weight-bold">Qty</v-col>
+              <v-col cols="2" class="text-right caption font-weight-bold">Discount</v-col>
+              <v-col cols="3" class="text-right caption font-weight-bold">Price</v-col>
+              <v-col cols="2" class="text-right"></v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+
         <!-- quotation line items -->
-        <v-simple-table v-if="quotation.items">
-          <template v-slot:default>
-            <thead>
-              <tr>
-                <th class="text-left">#</th>
-                <th class="text-left">Name</th>
-                <th class="text-left">Qty</th>
-                <th class="text-left">Discount</th>
-                <th class="text-left">Cost</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, index) in quotation.items" :key="index">
-                <td>{{ index + 1 }}</td>
-                <td>{{ item.name }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>
-                  {{
-                    (item.discounted ? item.discount : "0") | currency("R", 2)
-                  }}
-                </td>
-                <td>{{ item.cost | currency("R", 2) }}</td>
-              </tr>
-              <tr>
-                <td></td>
-                <td class="font-weight-bold">Sub Total</td>
-                <td></td>
-                <td class="font-weight-bold red--text">
-                  -{{ discountTotal | currency("R", 2) }}
-                </td>
-                <td class="font-weight-bold">{{ total | currency("R") }}</td>
-              </tr>
-              <tr>
-                <td></td>
-                <td class="font-weight-bold">Discount</td>
-                <td></td>
-                <td></td>
-                <td class="font-weight-bold red--text">
-                  -{{ quotationDiscount | currency("R", 2) }}
-                </td>
-              </tr>
-              <tr>
-                <td></td>
-                <td class="font-weight-bold">Total</td>
-                <td></td>
-                <td></td>
-                <td class="font-weight-bold">
-                  {{
-                    (total - discountTotal - quotationDiscount)
-                      | currency("R", 2)
-                  }}
-                </td>
-              </tr>
-            </tbody>
-          </template>
-        </v-simple-table>
+        <div v-if="quotation.items">
+          <v-col class="py-0 my-1" v-for="(item, index) in quotation.items" :key="item.id">
+            <AppQuotationItem :item="item" :position="index" v-on:edit-line-item="openModal" v-on:delete-line-item="deleteLineItem"></AppQuotationItem>
+          </v-col>
+        </div>
+
+
+          <v-row class="text-right">
+            <v-col>
+              <div class="caption font-weight-bold">Discount Total</div>
+              <div class="body-2">{{ discountTotal | currency("R", 2) }}</div>
+            </v-col>
+            <v-col>
+              <div class="caption font-weight-bold">Sub Total</div>
+              <div class="body-2">{{ total | currency("R", 2) }}</div>
+            </v-col>
+            <v-col>
+              <div class="caption font-weight-bold">Grand Total</div>
+              <div class="body-2">{{ total - discountTotal | currency("R", 2) }}</div>
+            </v-col>
+          </v-row>
+
       </div>
     </app-material-card>
 
     <!--   add line item to quotation dialog   -->
-    <v-dialog v-model="addLineItemDialog" max-width="600">
-      <v-card>
-        <v-card-title>Add Line Item to Quotation</v-card-title>
-        <v-card-text>
-          <v-form>
-            <v-autocomplete
-              label="Line item"
-              :v-model="item"
-              :items="lineItems"
-              :item-text="value => value.name"
-              :item-value="value => lineItems.find(it => it.id === value.id)"
-              @change="value => (item = value)"
-            />
-            <v-form-base
-              :col="12"
-              :model="item"
-              :schema="schema"
-              :row="rowAttribute"
-            />
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="warning" @click="addLineItem(item)"
-            >Add Line Item</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <AppAddLineItemToQuotation ref="lineItemDialog" :addHandler="addLineItem" :editHandler="editLineItem" :quotation="quotation"/>
+
   </v-container>
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Vue, Watch } from "vue-property-decorator";
-import { LineItem, Quotation, Client, User } from "@/models";
-import { PRODUCT, WORKER } from "@/models/LineItem";
+import { Component, Vue} from "vue-property-decorator";
+import { LineItem, Quotation} from "@/models";
 
 import VFormBase from "../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
-import { watchCollection } from "@/services/curd.service";
-import store from "@/store";
+import { watchCollection, curd } from "@/services/curd.service";
 import { db } from "@/firebase";
-import { dbService } from "@/services/firestore.service";
-import { forEach } from "lodash";
+import AppQuotationItem from "@/components/layouts/AppQuotationItem.vue";
+import AppAddLineItemToQuotation from "@/components/layouts/AppAddLineItemToQuotation.vue"
 
 @Component({
-  components: { VFormBase }
+  components: { VFormBase, AppQuotationItem, AppAddLineItemToQuotation }
 })
-export default class QuotationEditor extends Mixins() {
+export default class QuotationEditor extends Vue {
   name = "QuotationEditor";
   quotation!: Quotation;
   quotationDiscount = 0;
@@ -263,11 +205,12 @@ export default class QuotationEditor extends Mixins() {
     this.quotation = this.$store.getters.getQuotation(id);
   }
 
-  openModal() {
-    this.addLineItemDialog = true;
+  openModal(add: boolean,item?: LineItem) {
+      this.dialogRef.showDialog(add, item);
   }
 
   addLineItem(item: LineItem) {
+    // console.log(item)
     this.addLineItemDialog = false;
     this.quotation.items.push(item);
     this.$store.dispatch("SET_RECORD", {
@@ -275,6 +218,21 @@ export default class QuotationEditor extends Mixins() {
       path: `${this.quotation.path}/items`,
       ref: item.id
     });
+  }
+
+  editLineItem(item: LineItem) {
+    // this.$store.dispatch("SET_RECORD", { item, path: item.path });
+    curd.update(item, item.path as string)
+  }
+
+  async deleteLineItem (item: LineItem) {
+    const res = await this.$dialog.confirm({
+      text: `Do you want to remove '${item.name}' from quotation?`,
+      title: 'Delete Line Item'
+    })
+    if (res) {
+     await curd.delete(item.path as string);
+    }
   }
 
   deleteQuotation() {
@@ -289,9 +247,15 @@ export default class QuotationEditor extends Mixins() {
     return 0;
   }
 
-  get user () {
+  get dialogRef() {
+    return this.$refs.lineItemDialog as Vue & {
+      showDialog: (add?: boolean, item?: any) => Function;
+    };
+  }
+
+  get user() {
     const user = this.$store.getters.getUser(this.quotation.user);
-    return `${user.firstname} ${user.lastname}`
+    return `${user.firstname} ${user.lastname}`;
   }
 
   get total() {
