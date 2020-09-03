@@ -35,6 +35,9 @@ export default new Vuex.Store({
     },
     getQuotation: state => (id: string) => {
       return state.records.quotations.find(it => it.id === id);
+    },
+    getUser: state => (id: string) => {
+      return state.records.users.find(user => user.id === id);
     }
   },
   mutations: {
