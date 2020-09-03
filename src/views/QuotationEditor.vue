@@ -47,7 +47,10 @@
             </v-col>
             <v-col>
               <div class="caption font-weight-bold">Client</div>
-              <div class="body-2" v-text="quotation.client"></div>
+              <div
+                class="body-2"
+                v-text="`${client.firstname} ${client.lastname}`"
+              ></div>
             </v-col>
             <v-col>
               <div class="caption font-weight-bold">Prepared By</div>
@@ -173,7 +176,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { LineItem, Quotation } from "@/models";
+import { LineItem, Quotation, Client } from "@/models";
 
 import VFormBase from "../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
 import { watchCollection, curd } from "@/services/curd.service";
@@ -224,6 +227,10 @@ export default class QuotationEditor extends Vue {
       disabled: true
     }
   };
+
+  get client() {
+    return this.$store.getters.getClient(this.quotation.client);
+  }
 
   itemsWatcher: any = null;
 

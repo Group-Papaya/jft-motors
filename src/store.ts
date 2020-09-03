@@ -1,4 +1,4 @@
-import { Discount, Quotation, User } from "@/models";
+import { Client, Discount, Quotation, User } from "@/models";
 import { auth } from "@/services/auth.service";
 import Vue from "vue";
 import Vuex from "vuex";
@@ -19,6 +19,7 @@ export default new Vuex.Store({
     },
     records: {
       users: Array<User>(),
+      clients: Array<Client>(),
       discounts: Array<Discount>(),
       quotations: Array<Quotation>()
     }
@@ -38,6 +39,9 @@ export default new Vuex.Store({
     },
     getUser: state => (id: string) => {
       return state.records.users.find(user => user.id === id);
+    },
+    getClient: state => (path: string) => {
+      return state.records.clients.find(client => client.path === path);
     }
   },
   mutations: {

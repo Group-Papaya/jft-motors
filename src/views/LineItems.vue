@@ -113,8 +113,8 @@ export default class LineItems extends Vue {
     },
     discount: {
       type: "autocomplete",
-      disabled: this.model.discounted,
       label: "Select Discount",
+      disabled: this.model.discounted,
       items: this.$store.state.records.discounts,
       itemText: (value: Discount) => value.name,
       itemValue: (value: Discount) => value.path

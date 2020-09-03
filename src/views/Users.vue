@@ -30,32 +30,31 @@ export default class Users extends Vue {
     },
     {
       sortable: false,
-      text: "first name",
+      text: "Firstname",
       value: "firstname"
     },
     {
       sortable: false,
-      text: "last name",
+      text: "Lastname",
       value: "lastname"
     },
     {
       sortable: false,
-      text: "phone number",
+      text: "Phone Number",
       value: "phone"
     },
     {
       sortable: false,
-      text: "email address",
+      text: "E-mail Address",
       value: "email"
     },
     {
       sortable: false,
-      text: "role",
+      text: "Role",
       value: "role"
     },
     {
       sortable: false,
-      text: "actions",
       value: "actions"
     }
   ];

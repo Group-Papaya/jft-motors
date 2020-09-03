@@ -31,22 +31,22 @@ export default class Quotations extends Vue {
     },
     {
       sortable: false,
-      text: "client",
+      text: "Client",
       value: "client"
     },
     {
       sortable: false,
-      text: "date",
+      text: "Date Created",
       value: "created"
     },
     {
       sortable: false,
-      text: "modified",
+      text: "Modified",
       value: "updated"
     },
     {
       sortable: false,
-      text: "total",
+      text: "Total",
       value: "total"
     },
     {
@@ -62,10 +62,11 @@ export default class Quotations extends Vue {
 
   schema = {
     client: {
-      type: "select",
-      label: "Client",
+      type: "autocomplete",
+      label: "Select Client",
       items: this.clients,
-      itemText: (value: Client) => `${value.firstname} ${value.lastname}`
+      itemText: (value: Client) => `${value.firstname} ${value.lastname}`,
+      itemValue: (value: Client) => value.path
     }
   };
 
