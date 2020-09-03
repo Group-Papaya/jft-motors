@@ -191,15 +191,14 @@ export default class QuotationEditor extends Vue {
   addLineItemDialog = false;
 
   item: LineItem = {
-    id: "",
-    cost: 0,
     name: "",
     type: "",
+    cost: 0,
     units: 0,
-    quantity: 0,
     details: "",
-    discounted: false,
-    path: ""
+    quantity: 0,
+    discount: "",
+    discounted: false
   };
 
   lineItems: Array<LineItem> = Array<LineItem>();

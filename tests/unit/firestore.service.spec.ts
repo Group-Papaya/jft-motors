@@ -44,8 +44,10 @@ const item: LineItem = {
   type: PRODUCT,
   cost: 1250,
   units: 1,
-  details: "GoodYear 16in",
-  quantity: 1
+  quantity: 1,
+  discount: "",
+  discounted: false,
+  details: "GoodYear 16in"
 };
 
 const draft: Quotation = {
@@ -105,7 +107,7 @@ describe("Firebase Service", () => {
 
   it("can add complex/record object with ref objects", async () => {
     const _discount = add(discount, "discounts").then(ref => {
-      item.discount = ref;
+      item.discount = ref.path;
     });
 
     await Promise.all([
