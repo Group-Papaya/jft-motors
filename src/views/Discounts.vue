@@ -30,22 +30,26 @@ export default class Discounts extends Vue {
     },
     {
       sortable: false,
-      text: "name",
+      text: "Name",
       value: "name"
     },
     {
       sortable: false,
-      text: "amount",
+      text: "Amount",
       value: "amount"
     },
     {
       sortable: false,
-      text: "percentage",
+      text: "Percentage",
       value: "percentage"
     },
     {
       sortable: false,
-      text: "actions",
+      text: "Details",
+      value: "details"
+    },
+    {
+      sortable: false,
       value: "actions"
     }
   ];
@@ -54,10 +58,11 @@ export default class Discounts extends Vue {
     return this.$store.state.records.discounts;
   }
 
-  model = {
+  model: Discount = {
     name: "",
     amount: 0,
-    percentage: 0
+    details: "",
+    percentage: false
   };
 
   schema = {
@@ -65,22 +70,41 @@ export default class Discounts extends Vue {
       type: "text",
       label: "Discount name"
     },
+    details: {
+      type: "text",
+      label: "Discount details"
+    },
     amount: {
       type: "number",
       label: "Amount"
     },
     percentage: {
-      type: "number",
-      label: "Percentage"
+      inset: true,
+      type: "switch",
+      label: "Percentage",
+      value: this.model.percentage
     }
   };
 
   editItem(record: Discount) {
-    this.$store.dispatch("SET_RECORD", { record, path: record.path });
+    this.$store.dispatch("SET_RECORD", {
+      record: this.discount(record),
+      path: record.path
+    });
   }
 
   addDiscount(record: Discount) {
-    this.$store.dispatch("ADD_RECORD", { record, path: "discounts" });
+    this.$store.dispatch("ADD_RECORD", {
+      record: this.discount(record),
+      path: "discounts"
+    });
+  }
+
+  discount({ percentage, ...rest }: Discount) {
+    return {
+      ...rest,
+      percentage: percentage || false
+    };
   }
 }
 </script>
