@@ -33,8 +33,9 @@ const client: Client = {
 };
 
 const discount: Discount = {
+  name: "VAT Discount",
   amount: 0.15,
-  details: "VAT Discount",
+  details: "To be applied, the inc. VAT of an Item",
   percentage: true
 };
 
