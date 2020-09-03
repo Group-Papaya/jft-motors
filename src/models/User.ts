@@ -3,9 +3,9 @@ export default class User extends Record {
   role!: number;
   email!: string;
   phone?: string;
-  firstname!: string;
   lastname!: string;
-  password?: string;
+  firstname!: string;
+  password!: string;
 }
 const BASE_ROLE = 0;
 const ADMIN_ROLE = 1;
