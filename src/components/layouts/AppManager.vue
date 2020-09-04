@@ -9,6 +9,7 @@
       v-on:openDialog="openAddDialog"
       class="px-5 py-3">
       <!-- data list -->
+
       <v-data-table
         :headers="headers"
         :items="items"

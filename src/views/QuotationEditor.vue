@@ -4,8 +4,11 @@
     <v-row class="mb-8 flex-row flex-sx-column">
       <v-col cols="12">
         <v-row class="justify-md-center ml-1">
-          <v-btn width="100" color="warning">Draft</v-btn>
-          <v-btn width="100" light @click="markComplete()">Complete</v-btn>
+          <v-btn-toggle dense>
+            <v-btn>Send Email</v-btn>
+            <v-btn>Print PDF</v-btn>
+          </v-btn-toggle>
+
         </v-row>
       </v-col>
     </v-row>
@@ -29,7 +32,7 @@
               <div class="caption font-weight-bold">Client</div>
               <div
                 class="body-2"
-                v-text="`${client.firstname} ${client.lastname}`"
+                v-text="client"
               ></div>
             </v-col>
             <v-col>
@@ -55,7 +58,13 @@
 
         <v-divider class="my-4" light></v-divider>
 
-        <v-row col="12" class="justify-end align-center">
+        <v-row col="12" class="justify-space-between align-center">
+          <v-btn-toggle mandatory v-model="isCompleted" borderless dense>
+            <v-btn :value="false">Draft</v-btn>
+            <v-btn :value="true">Complete</v-btn>
+          </v-btn-toggle>
+
+          Status: {{ this.quotation.completed }}
           <v-btn
             class="d-none d-sm-flex"
             @click="openModal(true)"
@@ -155,7 +164,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+  import {Component, Vue, Watch} from "vue-property-decorator";
 import { LineItem, Quotation, Client } from "@/models";
 
 import VFormBase from "../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
@@ -171,6 +180,7 @@ export default class QuotationEditor extends Vue {
   name = "QuotationEditor";
   quotation!: Quotation;
   quotationDiscount = 0;
+
   addLineItemDialog = false;
 
   item: LineItem = {
@@ -208,9 +218,7 @@ export default class QuotationEditor extends Vue {
     }
   };
 
-  get client() {
-    return this.$store.getters.getClient(this.quotation.client);
-  }
+
 
   itemsWatcher: any = null;
 
@@ -266,32 +274,6 @@ export default class QuotationEditor extends Vue {
     }
   }
 
-  async deleteQuotation() {
-    const res = await this.$dialog.confirm({
-      text: `Do you want to delete quotation with id: '${this.quotation.id}'?`,
-      title: "Delete Line Item"
-    });
-
-    if (res) {
-      // delete line items
-      if (this.quotation.items) {
-        for (const item of this.quotation.items) {
-          await curd.delete(item.path as string);
-        }
-      }
-
-      // delete quotation
-      await curd.delete(this.quotation.path as string);
-
-      // redirect to quotation screen
-      await this.$router.replace("/quotations");
-    }
-  }
-
-  markComplete() {
-    console.log("completed");
-  }
-
   get discountTotal() {
     return 0;
   }
@@ -307,11 +289,42 @@ export default class QuotationEditor extends Vue {
     return `${user.firstname} ${user.lastname}`;
   }
 
+  get client() {
+    const client = this.$store.getters.getClient(this.quotation.client);
+    return `${client.firstname} ${client.lastname}`;
+  }
+
   get total() {
     return this.quotation.items?.reduce((total, item) => {
       return total + item.cost * item.quantity;
     }, 0);
   }
+
+  get isCompleted() {
+    return this.quotation.completed ? this.quotation.completed : false
+  }
+
+  set isCompleted(value: boolean) {
+    const res = this.toggleComplete()
+
+    res.then(choice => {
+      if (choice) {
+        curd.update({ completed: value }, this.quotation.path as string)
+      }
+    })
+  }
+
+  async toggleComplete() {
+    return await this.$dialog.confirm({
+      text: `Do you want to convert to invoice?`,
+      title: "Convert to Invoice"
+    });
+  }
+
+  // @Watch('quotation', { immediate: true, deep: true })
+  // statusChanged(newVal: any) {
+  //   console.log('the status has been changed to ' + newVal)
+  // }
 }
 </script>
 
