@@ -2,29 +2,10 @@
   <v-container :id="name" fluid tag="section" class="my-5">
     <!--  quotation menu      -->
     <v-row class="mb-8 flex-row flex-sx-column">
-      <v-col cols="9">
-        <v-row col="12" class="justify-md-center ml-1">
+      <v-col cols="12">
+        <v-row class="justify-md-center ml-1">
           <v-btn width="100" color="warning">Draft</v-btn>
           <v-btn width="100" light @click="markComplete()">Complete</v-btn>
-        </v-row>
-      </v-col>
-      <v-col cols="3">
-        <v-row col="12" class="justify-end mr-1">
-          <v-btn
-            color="warning"
-            class="d-none d-sm-flex"
-            @click="deleteQuotation()"
-          >Delete Quotation</v-btn>
-          <v-btn
-            fab
-            right
-            x-small
-            color="warning"
-            class="d-flex d-sm-none"
-            @click="deleteQuotation()"
-          >
-            <v-icon>mdi-delete</v-icon>
-          </v-btn>
         </v-row>
       </v-col>
     </v-row>
