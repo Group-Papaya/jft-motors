@@ -9,7 +9,7 @@
           :model="model"
           :schema="schema"
           :addHandler="addQuotation"
-          :items="this.items"
+          :items="this.drafts"
           :headers="headers"
         />
       </v-col>
@@ -67,8 +67,8 @@ export default class Dashboard extends Vue {
     }
   ];
 
-  get items() {
-    return this.$store.state.records.quotations;
+  get drafts() {
+    return this.$store.getters.drafts;
   }
 
   get invoices() {

@@ -1,4 +1,5 @@
 import { app } from "@/firebase";
+import { User } from "@/models";
 import store from "@/store";
 import { Logger, tryCatch } from "@/utils";
 import bcrypt from "bcryptjs";
@@ -20,12 +21,12 @@ export default class AuthService {
   }
 
   @tryCatch(Logger)
-  async register(email: string, password: string): Promise<AuthResponse> {
+  async register({ email, password, ...rest }: User): Promise<AuthResponse> {
     return await this.firebaseAuth
       .createUserWithEmailAndPassword(email, password)
       .then(value => {
         bcrypt.hash(password, 2).then(hash => {
-          const user = { id: value.user?.uid, email, password: hash };
+          const user = { id: value.user?.uid, email, password: hash, ...rest };
           dbService.add(user, "users", value.user?.uid);
         });
         return { result: value };

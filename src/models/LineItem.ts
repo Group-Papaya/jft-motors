@@ -1,4 +1,4 @@
-import Record, { DocumentRef } from "./Record";
+import Record from "./Record";
 
 export default class LineItem extends Record {
   name!: string;
@@ -7,12 +7,12 @@ export default class LineItem extends Record {
   units!: number;
   details!: string;
   quantity!: number;
-  discount?: DocumentRef;
-  discounted?: boolean = false;
+  discount!: string;
+  discounted = false;
 }
 
-const JOB = "JOB";
-const WORKER = "WORKER";
-const PRODUCT = "PRODUCT";
+const JOB = "Job";
+const WORKER = "Worker";
+const PRODUCT = "Product";
 
 export { JOB, WORKER, PRODUCT };

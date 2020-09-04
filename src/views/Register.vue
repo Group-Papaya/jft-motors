@@ -83,9 +83,9 @@ export default {
   },
   methods: {
     async register() {
-      await auth.register(this.form.email, this.form.password).then(value => {
+      await auth.register(this.form).then(value => {
         if (value.error) this.error = value.error;
-        else this.$router.replace("/");
+        else this.$router.replace("/auth/login");
       });
     }
   }

@@ -27,11 +27,14 @@
             </v-col>
             <v-col>
               <div class="caption font-weight-bold">Client</div>
-              <div class="body-2" v-text="quotation.client"></div>
+              <div
+                class="body-2"
+                v-text="`${client.firstname} ${client.lastname}`"
+              ></div>
             </v-col>
             <v-col>
               <div class="caption font-weight-bold">Prepared By</div>
-              <div class="body-2">{{user}}</div>
+              <div class="body-2">{{ user }}</div>
             </v-col>
           </v-row>
           <v-row>
@@ -53,8 +56,20 @@
         <v-divider class="my-4" light></v-divider>
 
         <v-row col="12" class="justify-end align-center">
-          <v-btn class="d-none d-sm-flex" @click="openModal(true)" color="warning">Add Line Item</v-btn>
-          <v-btn fab right x-small color="warning" class="d-flex d-sm-none" @click="openModal(true)">
+          <v-btn
+            class="d-none d-sm-flex"
+            @click="openModal(true)"
+            color="warning"
+            >Add Line Item</v-btn
+          >
+          <v-btn
+            fab
+            right
+            x-small
+            color="warning"
+            class="d-flex d-sm-none"
+            @click="openModal(true)"
+          >
             <v-icon>mdi-plus</v-icon>
           </v-btn>
         </v-row>
@@ -66,10 +81,18 @@
           <v-card-text>
             <v-row class="py-0 my-0">
               <v-col cols="1">#</v-col>
-              <v-col cols="3" class="text-left caption font-weight-bold">Line Item Name</v-col>
-              <v-col cols="1" class="text-right caption font-weight-bold">Qty</v-col>
-              <v-col cols="2" class="text-right caption font-weight-bold">Discount</v-col>
-              <v-col cols="3" class="text-right caption font-weight-bold">Price</v-col>
+              <v-col cols="3" class="text-left caption font-weight-bold"
+                >Line Item Name</v-col
+              >
+              <v-col cols="1" class="text-right caption font-weight-bold"
+                >Qty</v-col
+              >
+              <v-col cols="2" class="text-right caption font-weight-bold"
+                >Discount</v-col
+              >
+              <v-col cols="3" class="text-right caption font-weight-bold"
+                >Price</v-col
+              >
               <v-col cols="2" class="text-right"></v-col>
             </v-row>
           </v-card-text>
@@ -77,51 +100,69 @@
 
         <!-- quotation line items -->
         <div v-if="quotation.items.length">
-          <v-col class="py-0 px-0 my-1" v-for="(item, index) in quotation.items" :key="item.id">
-            <AppQuotationItem :item="item" :position="index" v-on:edit-line-item="openModal" v-on:delete-line-item="deleteLineItem"></AppQuotationItem>
+          <v-col
+            class="py-0 px-0 my-1"
+            v-for="(item, index) in quotation.items"
+            :key="item.id"
+          >
+            <AppQuotationItem
+              :item="item"
+              :position="index"
+              v-on:edit-line-item="openModal"
+              v-on:delete-line-item="deleteLineItem"
+            ></AppQuotationItem>
           </v-col>
         </div>
 
-        <v-divider class="mt-10 mb-4" light v-if="quotation.items.length"></v-divider>
+        <v-divider
+          class="mt-10 mb-4"
+          light
+          v-if="quotation.items.length"
+        ></v-divider>
 
-<!--  totals -->
-          <v-row class="text-right" v-if="quotation.items.length">
-            <v-col>
-              <div class="caption font-weight-bold">Discount Total</div>
-              <div class="body-2">{{ discountTotal | currency("R", 2) }}</div>
-            </v-col>
-            <v-col>
-              <div class="caption font-weight-bold">Sub Total</div>
-              <div class="body-2">{{ total | currency("R", 2) }}</div>
-            </v-col>
-            <v-col>
-              <div class="caption font-weight-bold">Grand Total</div>
-              <div class="body-2">{{ total - discountTotal | currency("R", 2) }}</div>
-            </v-col>
-          </v-row>
+        <!--  totals -->
+        <v-row class="text-right" v-if="quotation.items.length">
+          <v-col>
+            <div class="caption font-weight-bold">Discount Total</div>
+            <div class="body-2">{{ discountTotal | currency("R", 2) }}</div>
+          </v-col>
+          <v-col>
+            <div class="caption font-weight-bold">Sub Total</div>
+            <div class="body-2">{{ total | currency("R", 2) }}</div>
+          </v-col>
+          <v-col>
+            <div class="caption font-weight-bold">Grand Total</div>
+            <div class="body-2">
+              {{ (total - discountTotal) | currency("R", 2) }}
+            </div>
+          </v-col>
+        </v-row>
 
         <v-row v-else>
           <div>No items have been added to the quotation yet.</div>
         </v-row>
-
       </div>
     </app-material-card>
 
     <!--   add line item to quotation dialog   -->
-    <AppAddLineItemToQuotation ref="lineItemDialog" :addHandler="addLineItem" :editHandler="editLineItem" :quotation="quotation"/>
-
+    <AppAddLineItemToQuotation
+      ref="lineItemDialog"
+      :addHandler="addLineItem"
+      :editHandler="editLineItem"
+      :quotation="quotation"
+    />
   </v-container>
 </template>
 
 <script lang="ts">
-import { Component, Vue} from "vue-property-decorator";
-import { LineItem, Quotation} from "@/models";
+import { Component, Vue } from "vue-property-decorator";
+import { LineItem, Quotation, Client } from "@/models";
 
 import VFormBase from "../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
 import { watchCollection, curd } from "@/services/curd.service";
 import { db } from "@/firebase";
 import AppQuotationItem from "@/components/layouts/AppQuotationItem.vue";
-import AppAddLineItemToQuotation from "@/components/layouts/AppAddLineItemToQuotation.vue"
+import AppAddLineItemToQuotation from "@/components/layouts/AppAddLineItemToQuotation.vue";
 
 @Component({
   components: { VFormBase, AppQuotationItem, AppAddLineItemToQuotation }
@@ -133,15 +174,14 @@ export default class QuotationEditor extends Vue {
   addLineItemDialog = false;
 
   item: LineItem = {
-    id: "",
-    cost: 0,
     name: "",
     type: "",
+    cost: 0,
     units: 0,
-    quantity: 0,
     details: "",
-    discounted: false,
-    path: ""
+    quantity: 0,
+    discount: "",
+    discounted: false
   };
 
   lineItems: Array<LineItem> = Array<LineItem>();
@@ -168,6 +208,10 @@ export default class QuotationEditor extends Vue {
     }
   };
 
+  get client() {
+    return this.$store.getters.getClient(this.quotation.client);
+  }
+
   itemsWatcher: any = null;
 
   created() {
@@ -192,8 +236,8 @@ export default class QuotationEditor extends Vue {
     this.quotation = this.$store.getters.getQuotation(id);
   }
 
-  openModal(add: boolean,item?: LineItem) {
-      this.dialogRef.showDialog(add, item);
+  openModal(add: boolean, item?: LineItem) {
+    this.dialogRef.showDialog(add, item);
   }
 
   addLineItem(item: LineItem) {
@@ -209,39 +253,39 @@ export default class QuotationEditor extends Vue {
 
   editLineItem(item: LineItem) {
     // this.$store.dispatch("SET_RECORD", { item, path: item.path });
-    curd.update(item, item.path as string)
+    curd.update(item, item.path as string);
   }
 
-  async deleteLineItem (item: LineItem) {
+  async deleteLineItem(item: LineItem) {
     const res = await this.$dialog.confirm({
       text: `Do you want to remove '${item.name}' from quotation?`,
-      title: 'Delete Line Item'
-    })
+      title: "Delete Line Item"
+    });
     if (res) {
-     await curd.delete(item.path as string);
+      await curd.delete(item.path as string);
     }
   }
 
-    async deleteQuotation() {
-      const res = await this.$dialog.confirm({
-        text: `Do you want to delete quotation with id: '${this.quotation.id}'?`,
-        title: 'Delete Line Item'
-      })
+  async deleteQuotation() {
+    const res = await this.$dialog.confirm({
+      text: `Do you want to delete quotation with id: '${this.quotation.id}'?`,
+      title: "Delete Line Item"
+    });
 
-      if (res) {
-        // delete line items
-        if (this.quotation.items) {
-          for (const item of this.quotation.items) {
-            await curd.delete(item.path as string)
-          }
+    if (res) {
+      // delete line items
+      if (this.quotation.items) {
+        for (const item of this.quotation.items) {
+          await curd.delete(item.path as string);
         }
-
-        // delete quotation
-        await curd.delete(this.quotation.path as string)
-
-        // redirect to quotation screen
-        await this.$router.replace('/quotations')
       }
+
+      // delete quotation
+      await curd.delete(this.quotation.path as string);
+
+      // redirect to quotation screen
+      await this.$router.replace("/quotations");
+    }
   }
 
   markComplete() {

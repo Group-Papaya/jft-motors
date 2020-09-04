@@ -29,27 +29,26 @@ export default class Clients extends Vue {
     },
     {
       sortable: false,
-      text: "first name",
+      text: "Firstname",
       value: "firstname"
     },
     {
       sortable: false,
-      text: "last name",
+      text: "Lastname",
       value: "lastname"
     },
     {
       sortable: false,
-      text: "phone number",
+      text: "Phone Number",
       value: "phone"
     },
     {
       sortable: false,
-      text: "email address",
+      text: "E-mail Address",
       value: "email"
     },
     {
       sortable: false,
-      text: "actions",
       value: "actions"
     }
   ];
@@ -68,11 +67,11 @@ export default class Clients extends Vue {
   schema = {
     firstname: {
       type: "text",
-      label: "First Name"
+      label: "Firstname"
     },
     lastname: {
       type: "text",
-      label: "Last Name"
+      label: "Lastname"
     },
     phone: {
       type: "text",
@@ -80,7 +79,7 @@ export default class Clients extends Vue {
     },
     email: {
       type: "email",
-      label: "Email Address"
+      label: "E-mail Address"
     }
   };
 

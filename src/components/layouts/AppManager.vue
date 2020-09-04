@@ -15,7 +15,19 @@
         @click:row="openEditDialog"
       >
         <template v-slot:item.id="{ item }">
-          <v-chip :color="title === 'Invoices'? 'primary' :'warning'" class="px-2" small> #{{ items.map((x)=>{ return x.id}).indexOf(item.id) + 1 }}</v-chip>
+          <v-chip
+            :color="title === 'Invoices' ? 'primary' : 'warning'"
+            class="px-2"
+            small
+          >
+            #{{
+              items
+                .map(x => {
+                  return x.id;
+                })
+                .indexOf(item.id) + 1
+            }}</v-chip
+          >
         </template>
         <template v-slot:item.actions="{ item }">
           <v-icon small class="mr-2" @click.stop="openEditDialog(item)">

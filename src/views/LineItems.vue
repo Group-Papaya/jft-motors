@@ -16,6 +16,9 @@ import { Component, Vue } from "vue-property-decorator";
 import AppEditor from "@/components/layouts/AppManager.vue";
 import LineItem, { JOB, PRODUCT, WORKER } from "@/models/LineItem";
 import { watchCollection } from "@/services/curd.service";
+import { Discount } from "@/models";
+import { db } from "@/firebase";
+import { dbService } from "@/services/firestore.service";
 
 @Component({
   components: { AppEditor }
@@ -29,32 +32,36 @@ export default class LineItems extends Vue {
     },
     {
       sortable: false,
-      text: "name",
+      text: "Name",
       value: "name"
     },
     {
       sortable: false,
-      text: "type",
+      text: "Type",
       value: "type"
     },
     {
       sortable: false,
-      text: "cost",
+      text: "Cost",
       value: "cost"
     },
     {
       sortable: false,
-      text: "units",
+      text: "Units",
       value: "units"
     },
     {
       sortable: false,
-      text: "discount",
+      text: "Discount",
+      value: "discount"
+    },
+    {
+      sortable: false,
+      text: "Discounted",
       value: "discounted"
     },
     {
       sortable: false,
-      text: "actions",
       value: "actions"
     }
   ];
@@ -63,17 +70,27 @@ export default class LineItems extends Vue {
     return this.$store.state.records.lineitems;
   }
 
-  model = {
+  model: LineItem = {
     name: "",
     type: "",
     cost: 0,
-    units: 0
+    units: 0,
+    details: "",
+    quantity: 0,
+    discount: "",
+    discounted: false
   };
+
+  disabled = true;
 
   schema = {
     name: {
       type: "text",
       label: "Line item name"
+    },
+    details: {
+      type: "text",
+      label: "Line Details"
     },
     type: {
       type: "select",
@@ -87,15 +104,42 @@ export default class LineItems extends Vue {
     units: {
       type: "number",
       label: "Units"
+    },
+    discounted: {
+      inset: true,
+      type: "switch",
+      label: "Discountable?",
+      value: this.model.discounted
+    },
+    discount: {
+      type: "autocomplete",
+      label: "Select Discount",
+      disabled: this.model.discounted,
+      items: this.$store.state.records.discounts,
+      itemText: (value: Discount) => value.name,
+      itemValue: (value: Discount) => value.path
     }
   };
 
   editItem(record: LineItem) {
-    this.$store.dispatch("SET_RECORD", { record, path: record.path });
+    this.$store.dispatch("SET_RECORD", {
+      record: this.setDiscount(record),
+      path: record.path
+    });
   }
 
   addLineItem(record: LineItem) {
-    this.$store.dispatch("ADD_RECORD", { record, path: "line-items" });
+    this.$store.dispatch("ADD_RECORD", {
+      record: this.setDiscount(record),
+      path: "line-items"
+    });
+  }
+
+  setDiscount({ discounted, ...rest }: LineItem) {
+    return {
+      ...rest,
+      discount: discounted ? rest.discount : ""
+    };
   }
 }
 </script>
