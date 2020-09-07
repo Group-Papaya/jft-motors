@@ -42,7 +42,7 @@ export default class FirestoreService {
     record: T,
     document: firebase.firestore.DocumentReference
   ) {
-    return document.update(record).then(() => document);
+    return document.set(record).then(() => document);
   }
 
   @tryCatch(Logger)
