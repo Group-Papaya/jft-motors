@@ -122,7 +122,7 @@ describe("Firebase Service", () => {
     ]).then(() => {
       if (admin.id && client.id) {
         draft.user = testService.getDocument(`users/${admin.id}`);
-        draft.client = testService.getDocument(`clients/${client.id}`);
+        draft.client = testService.getDocument(`clients/${client.id}`).path;
       }
 
       draft.created = testService.currentTime();
