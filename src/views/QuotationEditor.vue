@@ -8,7 +8,6 @@
             <v-btn>Send Email</v-btn>
             <v-btn>Print PDF</v-btn>
           </v-btn-toggle>
-
         </v-row>
       </v-col>
     </v-row>
@@ -30,10 +29,7 @@
             </v-col>
             <v-col>
               <div class="caption font-weight-bold">Client</div>
-              <div
-                class="body-2"
-                v-text="client"
-              ></div>
+              <div class="body-2" v-text="client"></div>
             </v-col>
             <v-col>
               <div class="caption font-weight-bold">Prepared By</div>
@@ -164,7 +160,7 @@
 </template>
 
 <script lang="ts">
-  import {Component, Vue, Watch} from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
 import { LineItem, Quotation, Client } from "@/models";
 
 import VFormBase from "../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
@@ -217,8 +213,6 @@ export default class QuotationEditor extends Vue {
       disabled: true
     }
   };
-
-
 
   itemsWatcher: any = null;
 
@@ -301,17 +295,17 @@ export default class QuotationEditor extends Vue {
   }
 
   get isCompleted() {
-    return this.quotation.completed ? this.quotation.completed : false
+    return this.quotation.completed ? this.quotation.completed : false;
   }
 
   set isCompleted(value: boolean) {
-    const res = this.toggleComplete()
+    const res = this.toggleComplete();
 
     res.then(choice => {
       if (choice) {
-        curd.update({ completed: value }, this.quotation.path as string)
+        curd.update({ completed: value }, this.quotation.path as string);
       }
-    })
+    });
   }
 
   async toggleComplete() {

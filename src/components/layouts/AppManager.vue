@@ -7,7 +7,8 @@
       :subtitle="subtitle"
       :button="button"
       v-on:openDialog="openAddDialog"
-      class="px-5 py-3">
+      class="px-5 py-3"
+    >
       <!-- data list -->
 
       <v-data-table
