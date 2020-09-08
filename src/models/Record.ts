@@ -1,5 +1,6 @@
 export default class Record {
   id?: string;
+  meta?: any;
   path?: string;
 }
 
