@@ -121,7 +121,7 @@ describe("Firebase Service", () => {
       add(item, "line-items")
     ]).then(() => {
       if (admin.id && client.id) {
-        draft.user = testService.getDocument(`users/${admin.id}`);
+        draft.user = testService.getDocument(`users/${admin.id}`).path;
         draft.client = testService.getDocument(`clients/${client.id}`).path;
       }
 
