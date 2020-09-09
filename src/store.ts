@@ -14,7 +14,8 @@ export default new Vuex.Store({
     barImage: require("@/assets/background.jpg"),
     drawer: null,
     auth: {
-      user: auth.user,
+      user: User,
+      data: auth.user,
       authenticated: auth.user ? !auth.user.isAnonymous : false
     },
     records: {

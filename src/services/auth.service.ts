@@ -4,6 +4,7 @@ import store from "@/store";
 import { Logger, tryCatch } from "@/utils";
 import bcrypt from "bcryptjs";
 import firebase from "firebase/app";
+import { curd } from "./curd.service";
 import { dbService } from "./firestore.service";
 
 interface AuthResponse {
@@ -40,9 +41,10 @@ export default class AuthService {
   async login(email: string, password: string): Promise<AuthResponse> {
     return await this.firebaseAuth
       .signInWithEmailAndPassword(email, password)
-      .then(credentials => {
+      .then(async credentials => {
         store.commit("SET_AUTH_STATE", {
-          user: credentials.user,
+          data: credentials.user,
+          user: await curd.get("users", credentials.user?.uid),
           authenticated: true
         });
         return { result: credentials };
