@@ -5,7 +5,7 @@
       <v-col cols="12">
         <v-row class="justify-md-center ml-1">
           <v-btn-toggle dense>
-            <v-btn>Send Email</v-btn>
+            <v-btn @click="sendEmail()">Send Email</v-btn>
             <v-btn>Print PDF</v-btn>
           </v-btn-toggle>
         </v-row>
@@ -29,7 +29,7 @@
             </v-col>
             <v-col>
               <div class="caption font-weight-bold">Client</div>
-              <div class="body-2" v-text="client"></div>
+              <div class="body-2" v-text="quotation.client"></div>
             </v-col>
             <v-col>
               <div class="caption font-weight-bold">Prepared By</div>
@@ -82,7 +82,7 @@
         <v-divider class="my-4" light></v-divider>
 
         <!-- quotation line item header -->
-        <v-card flat v-if="quotation.items.length">
+        <v-card flat v-if="quotationItems.length">
           <v-card-text>
             <v-row class="py-0 my-0">
               <v-col cols="1">#</v-col>
@@ -104,10 +104,10 @@
         </v-card>
 
         <!-- quotation line items -->
-        <div v-if="quotation.items.length">
+        <div v-if="quotationItems.length">
           <v-col
             class="py-0 px-0 my-1"
-            v-for="(item, index) in quotation.items"
+            v-for="(item, index) in quotationItems"
             :key="item.id"
           >
             <AppQuotationItem
@@ -122,11 +122,11 @@
         <v-divider
           class="mt-10 mb-4"
           light
-          v-if="quotation.items.length"
+          v-if="quotationItems.length"
         ></v-divider>
 
         <!--  totals -->
-        <v-row class="text-right" v-if="quotation.items.length">
+        <v-row class="text-right" v-if="quotationItems.length">
           <v-col>
             <div class="caption font-weight-bold">Discount Total</div>
             <div class="body-2">{{ discountTotal | currency("R", 2) }}</div>
@@ -175,6 +175,7 @@ import AppAddLineItemToQuotation from "@/components/layouts/AppAddLineItemToQuot
 export default class QuotationEditor extends Vue {
   name = "QuotationEditor";
   quotation!: Quotation;
+  quotationItems: LineItem[] = [];
   quotationDiscount = 0;
 
   addLineItemDialog = false;
@@ -222,7 +223,7 @@ export default class QuotationEditor extends Vue {
 
     this.itemsWatcher = watchCollection(
       `${this.quotation.path}/items`,
-      items => (this.quotation.items = items)
+      items => (this.quotationItems = items)
     );
   }
 
@@ -244,8 +245,8 @@ export default class QuotationEditor extends Vue {
 
   addLineItem(item: LineItem) {
     // console.log(item)
-    this.addLineItemDialog = false;
-    this.quotation.items.push(item);
+    // this.addLineItemDialog = false;
+    // this.quotation.items.push(item);
     this.$store.dispatch("SET_RECORD", {
       record: { ...item, reference: db.doc(`${item.path}`) },
       path: `${this.quotation.path}/items`,
@@ -289,7 +290,7 @@ export default class QuotationEditor extends Vue {
   }
 
   get total() {
-    return this.quotation.items?.reduce((total, item) => {
+    return this.quotationItems?.reduce((total, item) => {
       return total + item.cost * item.quantity;
     }, 0);
   }
@@ -299,18 +300,38 @@ export default class QuotationEditor extends Vue {
   }
 
   set isCompleted(value: boolean) {
-    const res = this.toggleComplete();
+    const res = this.toggleComplete(value);
 
     res.then(choice => {
       if (choice) {
-        curd.update({ completed: value }, this.quotation.path as string);
+        this.quotation.completed  = value
+        curd.update(this.quotation, this.quotation.path as string)
+
+        if (value) {
+          // redirect to invoice page
+          this.$router.replace(`/invoices/${this.quotation.id}`)
+        } else {
+          // redirect to quotation page
+          this.$router.replace(`/quotations/${this.quotation.id}`)
+        }
+
       }
     });
   }
 
-  async toggleComplete() {
+  sendEmail() {
+    // get client email from database
+    const email = this.$store.getters.getClient(this.quotation.client).email
+    console.log(email)
+  }
+
+  generateHTML() {
+    console.log('generating html')
+  }
+
+  async toggleComplete(value: boolean) {
     return await this.$dialog.confirm({
-      text: `Do you want to convert to invoice?`,
+      text: value ? `Do you want to convert this quotation to an invoice?` : `Do you want to convert this invoice to a quotation?`,
       title: "Convert to Invoice"
     });
   }
