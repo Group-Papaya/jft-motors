@@ -17,27 +17,39 @@
             <v-container class="py-0">
               <v-row>
                 <v-col cols="12" md="4">
-                  <v-text-field label="Company (disabled)" disabled />
+                  <v-text-field
+                    disabled
+                    value="JFT Motors"
+                    label="Company (name)"
+                  />
                 </v-col>
 
                 <v-col cols="12" md="4">
-                  <v-text-field class="purple-input" label="User Name" />
-                </v-col>
-
-                <v-col cols="12" md="4">
-                  <v-text-field label="Email Address" class="purple-input" />
-                </v-col>
-
-                <v-col cols="12" md="6">
-                  <v-text-field label="First Name" class="purple-input" />
+                  <v-text-field
+                    label="Email Address"
+                    class="purple-input"
+                    :value="user.email"
+                  />
                 </v-col>
 
                 <v-col cols="12" md="6">
-                  <v-text-field label="Last Name" class="purple-input" />
+                  <v-text-field
+                    label="First Name"
+                    class="purple-input"
+                    :value="user.firstname"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    label="Last Name"
+                    class="purple-input"
+                    :value="user.lastname"
+                  />
                 </v-col>
 
                 <v-col cols="12">
-                  <v-text-field label="Adress" class="purple-input" />
+                  <v-text-field label="Address" class="purple-input" />
                 </v-col>
 
                 <v-col cols="12" md="4">
@@ -82,10 +94,28 @@
           <v-card-subtitle class="pb-0">Admin</v-card-subtitle>
 
           <v-card-text class="text--primary">
-            <div data-cy="user-full-name">Alex Johnson</div>
+            <div data-cy="user-full-name">
+              {{ `${user.firstname} ${user.lastname}` }}
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
+<script lang="ts">
+import { Component, Vue } from "vue-property-decorator";
+import AppEditor from "@/components/layouts/AppManager.vue";
+import Client from "@/models/Client";
+import { watchCollection } from "@/services/curd.service";
+import { User } from "@/models";
+
+@Component({
+  components: { AppEditor }
+})
+export default class UserProfile extends Vue {
+  get user(): User {
+    return this.$store.state.auth.user;
+  }
+}
+</script>

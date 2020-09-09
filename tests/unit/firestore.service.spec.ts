@@ -9,19 +9,19 @@ let testService: FirestoreService;
 
 const admin: User = {
   role: ADMIN_ROLE,
+  phone: "021-458-7131",
   email: "test-admin@jft-motors.web.app",
   password: "test-password",
   firstname: "test-admin",
-  phone: "021-458-7131",
   lastname: "example"
 };
 
 const user: User = {
   role: BASE_ROLE,
+  phone: "083-218-2182",
   email: "test-user@jft-motors.web.app",
   password: "test-password",
   firstname: "test-user",
-  phone: "083-218-2182",
   lastname: "example"
 };
 

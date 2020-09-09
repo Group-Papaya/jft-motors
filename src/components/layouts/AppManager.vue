@@ -49,6 +49,7 @@
       :schema="schema"
       :addHandler="addHandler"
       :editHandler="editHandler"
+      :changeHandler="changeHandler"
     />
 
     <AppConfirmDialog ref="confirm" />
@@ -67,6 +68,14 @@ import { curd } from "@/services/curd.service";
 })
 export default class AppEditor extends Vue {
   name = "AppManager.vue";
+
+  @Prop({
+    type: Function,
+    default: () => {
+      return;
+    }
+  })
+  readonly changeHandler: Function | undefined;
 
   @Prop({ type: String, default: undefined }) readonly title:
     | string

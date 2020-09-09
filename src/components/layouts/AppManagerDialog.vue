@@ -11,6 +11,7 @@
             :col="12"
             :model="create ? model : item"
             :schema="schema"
+            @change="changeHandler"
           />
         </v-form>
       </v-card-text>
@@ -45,6 +46,10 @@ export default {
         },
         addHandler: {
             type: Function
+        },
+        changeHandler:{
+          type: Function,
+          default: () => {return}
         },
       editHandler: {
         type: Function
