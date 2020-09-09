@@ -29,11 +29,11 @@
             </v-col>
             <v-col>
               <div class="caption font-weight-bold">Client</div>
-              <div class="body-2" v-text="client"></div>
+              <div class="body-2" v-text="quotation.client"></div>
             </v-col>
             <v-col>
               <div class="caption font-weight-bold">Prepared By</div>
-              <div class="body-2">{{ user }}</div>
+              <div class="body-2" v-text="quotation.user"></div>
             </v-col>
           </v-row>
           <v-row>
@@ -243,7 +243,6 @@ export default class QuotationEditor extends Vue {
   }
 
   addLineItem(item: LineItem) {
-    // console.log(item)
     this.addLineItemDialog = false;
     this.quotation.items.push(item);
     this.$store.dispatch("SET_RECORD", {
@@ -278,16 +277,6 @@ export default class QuotationEditor extends Vue {
     };
   }
 
-  get user() {
-    const user = this.$store.getters.getUser(this.quotation.user);
-    return `${user.firstname} ${user.lastname}`;
-  }
-
-  get client() {
-    const client = this.$store.getters.getClient(this.quotation.client);
-    return `${client.firstname} ${client.lastname}`;
-  }
-
   get total() {
     return this.quotation.items?.reduce((total, item) => {
       return total + item.cost * item.quantity;
@@ -314,11 +303,6 @@ export default class QuotationEditor extends Vue {
       title: "Convert to Invoice"
     });
   }
-
-  // @Watch('quotation', { immediate: true, deep: true })
-  // statusChanged(newVal: any) {
-  //   console.log('the status has been changed to ' + newVal)
-  // }
 }
 </script>
 
