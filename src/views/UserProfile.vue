@@ -91,7 +91,7 @@
             src="http://www.jftmotors.co.za/skin/images/banner_img01.jpg"
           />
 
-          <v-card-subtitle class="pb-0">Admin</v-card-subtitle>
+          <v-card-subtitle class="pb-0">{{ user.role }}</v-card-subtitle>
 
           <v-card-text class="text--primary">
             <div data-cy="user-full-name">
@@ -106,9 +106,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import AppEditor from "@/components/layouts/AppManager.vue";
-import Client from "@/models/Client";
-import { watchCollection } from "@/services/curd.service";
-import { User } from "@/models";
+import User, { ROLES } from "@/models/User";
 
 @Component({
   components: { AppEditor }
@@ -116,6 +114,10 @@ import { User } from "@/models";
 export default class UserProfile extends Vue {
   get user(): User {
     return this.$store.state.auth.user;
+  }
+
+  get roles() {
+    return ROLES;
   }
 }
 </script>

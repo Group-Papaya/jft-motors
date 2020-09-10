@@ -66,7 +66,7 @@ export default class Users extends Vue {
     lastname: "",
     phone: "",
     email: "",
-    role: ROLES[BASE_ROLE]
+    role: BASE_ROLE
   };
 
   schema = {
