@@ -3,8 +3,9 @@
     title="Discounts"
     :model="model"
     :schema="schema"
-    :addHandler="addDiscount"
+    :change-handler="handleChanges"
     :editHandler="editItem"
+    :addHandler="addDiscount"
     icon="mdi-tag-text-outline"
     :items="items"
     :headers="headers"
@@ -13,10 +14,8 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { JOB, PRODUCT, WORKER } from "@/models/LineItem";
 import AppEditor from "@/components/layouts/AppManager.vue";
-import Discount from "@/models/Discount";
-import { watchCollection } from "@/services/curd.service";
+import { Discount } from "@/models";
 
 @Component({
   components: { AppEditor }
@@ -36,7 +35,7 @@ export default class Discounts extends Vue {
     {
       sortable: false,
       text: "Amount",
-      value: "amount"
+      value: "format"
     },
     {
       sortable: false,
@@ -58,6 +57,12 @@ export default class Discounts extends Vue {
     return this.$store.state.records.discounts;
   }
 
+  get rules() {
+    return {
+      ispercentage: it => (it ? 15 : 150)
+    };
+  }
+
   model: Discount = {
     name: "",
     amount: 0,
@@ -75,16 +80,23 @@ export default class Discounts extends Vue {
       label: "Discount details"
     },
     amount: {
+      min: 0,
       type: "number",
       label: "Amount"
     },
     percentage: {
       inset: true,
       type: "switch",
-      label: "Percentage",
-      value: this.model.percentage
+      label: "Percentage Discount",
+      value: false
     }
   };
+
+  handleChanges({ key, value }) {
+    if (key === "percentage") {
+      this.schema.amount.max = this.rules.ispercentage(value);
+    }
+  }
 
   editItem(record: Discount) {
     this.$store.dispatch("SET_RECORD", {
@@ -100,10 +112,22 @@ export default class Discounts extends Vue {
     });
   }
 
-  discount({ percentage, ...rest }: Discount) {
+  discount({ percentage, ...discount }: Discount): Discount {
+    const max = this.rules.ispercentage(percentage);
+    const amount = discount.amount < max ? discount.amount : max;
+    const symbol = percentage ? "%" : "R";
     return {
-      ...rest,
-      percentage: percentage || false
+      ...discount,
+      amount: amount,
+      format: percentage ? `${amount}${symbol}` : `${symbol}${amount}`,
+      percentage: percentage,
+      meta: {
+        value: {
+          symbol: symbol,
+          amount: amount
+        },
+        ...discount.meta
+      }
     };
   }
 }
