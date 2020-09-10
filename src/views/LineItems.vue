@@ -1,20 +1,23 @@
 <template>
   <AppEditor
     title="LineItems"
+    :items="items"
     :model="model"
     :schema="schema"
-    :addHandler="addLineItem"
-    :editHandler="editItem"
-    icon="mdi-format-list-bulleted"
-    :items="items"
     :headers="headers"
+    :editHandler="editItem"
+    :addHandler="addLineItem"
+    :watch-handler="watchEvent"
+    :on-show-dialog="setDialog"
+    :change-handler="handleChange"
+    icon="mdi-format-list-bulleted"
   />
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import AppEditor from "@/components/layouts/AppManager.vue";
-import LineItem, { JOB, PRODUCT, WORKER } from "@/models/LineItem";
+import LineItem, { ITEMISES, JOB, PRODUCT, WORKER } from "@/models/LineItem";
 import { watchCollection } from "@/services/curd.service";
 import { Discount } from "@/models";
 import { db } from "@/firebase";
@@ -43,7 +46,7 @@ export default class LineItems extends Vue {
     {
       sortable: false,
       text: "Cost",
-      value: "cost"
+      value: "format"
     },
     {
       sortable: false,
@@ -71,17 +74,17 @@ export default class LineItems extends Vue {
   }
 
   model: LineItem = {
-    name: "",
     type: "",
+    name: "",
     cost: 0,
     units: 0,
+    unit: "",
+    format: "",
     details: "",
     quantity: 0,
     discount: "",
     discounted: false
   };
-
-  disabled = true;
 
   schema = {
     name: {
@@ -95,7 +98,7 @@ export default class LineItems extends Vue {
     type: {
       type: "select",
       label: "Type",
-      items: [JOB, WORKER, PRODUCT]
+      items: ITEMISES
     },
     cost: {
       type: "number",
@@ -117,9 +120,32 @@ export default class LineItems extends Vue {
       disabled: this.model.discounted,
       items: this.$store.state.records.discounts,
       itemText: (value: Discount) => value.name,
-      itemValue: (value: Discount) => value.path
+      itemValue: (value: Discount) => value
     }
   };
+
+  setDialog(item: LineItem) {
+    this.schema.discount.disabled = !item?.discounted;
+  }
+
+  handleChange({ key, value }: any) {
+    if (key === "discounted") {
+      this.model.discounted = value !== null;
+      this.schema.discounted.value = value !== null;
+      this.schema.discount.disabled = value === null;
+    }
+    if (key === "discount") this.mutModelState(value);
+  }
+
+  watchEvent({ on, key, value }: any) {
+    if (on === "input") {
+      if (key === "discount") this.mutModelState(value);
+    }
+  }
+
+  mutModelState(value: Discount) {
+    this.model.discount = `R${this.calculateDiscountFor(this.model, value)}`;
+  }
 
   editItem(record: LineItem) {
     this.$store.dispatch("SET_RECORD", {
@@ -135,10 +161,23 @@ export default class LineItems extends Vue {
     });
   }
 
-  setDiscount({ discounted, ...rest }: LineItem) {
+  calculateDiscountFor(item, discount) {
+    return discount.percentage
+      ? item.cost * (discount.amount * (1 / 100))
+      : item.cost - discount.amount;
+  }
+
+  setDiscount({ discounted, ...item }: LineItem): LineItem {
+    const discount = this.calculateDiscountFor(item, item.discount);
     return {
-      ...rest,
-      discount: discounted ? rest.discount : ""
+      ...item,
+      discounted: discounted,
+      format: `R${item.cost}`,
+      discount: `R${discount ? discount : 0}`,
+      meta: {
+        ...item.meta,
+        discount: item.discount
+      }
     };
   }
 }

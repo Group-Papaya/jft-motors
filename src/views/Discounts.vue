@@ -1,14 +1,14 @@
 <template>
   <AppEditor
     title="Discounts"
+    :items="items"
     :model="model"
     :schema="schema"
-    :change-handler="handleChanges"
-    :editHandler="editItem"
-    :addHandler="addDiscount"
-    icon="mdi-tag-text-outline"
-    :items="items"
     :headers="headers"
+    :edit-handler="editItem"
+    :add-handler="addDiscount"
+    :change-handler="handleChanges"
+    icon="mdi-tag-text-outline"
   />
 </template>
 
@@ -59,13 +59,14 @@ export default class Discounts extends Vue {
 
   get rules() {
     return {
-      ispercentage: it => (it ? 15 : 150)
+      ispercentage: (it: any) => (it ? 15 : 150)
     };
   }
 
   model: Discount = {
     name: "",
     amount: 0,
+    format: "",
     details: "",
     percentage: false
   };
@@ -83,7 +84,8 @@ export default class Discounts extends Vue {
       min: 0,
       step: 0.25,
       type: "number",
-      label: "Amount"
+      label: "Amount",
+      max: this.rules.ispercentage(this.model.percentage)
     },
     percentage: {
       inset: true,
@@ -93,7 +95,7 @@ export default class Discounts extends Vue {
     }
   };
 
-  handleChanges({ key, value }) {
+  handleChanges({ key, value }: any) {
     if (key === "amount") {
       this.schema.amount.max = this.rules.ispercentage(
         this.schema.percentage.value
