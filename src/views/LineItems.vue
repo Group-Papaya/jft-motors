@@ -17,11 +17,8 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import AppEditor from "@/components/layouts/AppManager.vue";
-import LineItem, { ITEMISES, JOB, PRODUCT, WORKER } from "@/models/LineItem";
-import { watchCollection } from "@/services/curd.service";
+import LineItem, { ITEMISES } from "@/models/LineItem";
 import { Discount } from "@/models";
-import { db } from "@/firebase";
-import { dbService } from "@/services/firestore.service";
 
 @Component({
   components: { AppEditor }
@@ -56,7 +53,7 @@ export default class LineItems extends Vue {
     {
       sortable: false,
       text: "Discount",
-      value: "discount"
+      value: "meta.discount.format"
     },
     {
       sortable: false,
@@ -168,15 +165,18 @@ export default class LineItems extends Vue {
   }
 
   setDiscount({ discounted, ...item }: LineItem): LineItem {
-    const discount = this.calculateDiscountFor(item, item.discount);
+    const discount = item.cost - this.calculateDiscountFor(item, item.discount);
     return {
       ...item,
       discounted: discounted,
       format: `R${item.cost}`,
-      discount: `R${discount ? discount : 0}`,
+      discount: `R${discount}`,
       meta: {
         ...item.meta,
-        discount: item.discount
+        discount: {
+          value: discount,
+          ...item.discount
+        }
       }
     };
   }

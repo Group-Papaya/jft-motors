@@ -10,10 +10,10 @@
         <v-col cols="3" class="text-left" v-text="item.name"></v-col>
         <v-col cols="1" class="text-right" v-text="item.quantity"></v-col>
         <v-col cols="2" class="text-right">
-          {{ item.discount | currency("R", 2) }}
+          {{ item.meta.discount.format }}
         </v-col>
         <v-col cols="3" class="text-right ">
-          {{ item.cost | currency("R", 2) }}
+          {{ item.format }}
         </v-col>
         <v-col cols="2" class="text-right">
           <v-icon small class="mr-2" @click.stop="editLineItem(item)">
