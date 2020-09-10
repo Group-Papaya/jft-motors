@@ -81,6 +81,7 @@ export default class Discounts extends Vue {
     },
     amount: {
       min: 0,
+      step: 0.25,
       type: "number",
       label: "Amount"
     },
@@ -93,6 +94,11 @@ export default class Discounts extends Vue {
   };
 
   handleChanges({ key, value }) {
+    if (key === "amount") {
+      this.schema.amount.max = this.rules.ispercentage(
+        this.schema.percentage.value
+      );
+    }
     if (key === "percentage") {
       this.schema.amount.max = this.rules.ispercentage(value);
     }
@@ -113,21 +119,15 @@ export default class Discounts extends Vue {
   }
 
   discount({ percentage, ...discount }: Discount): Discount {
+    percentage = percentage || false;
+    const symbol = percentage ? "%" : "R";
     const max = this.rules.ispercentage(percentage);
     const amount = discount.amount < max ? discount.amount : max;
-    const symbol = percentage ? "%" : "R";
     return {
       ...discount,
       amount: amount,
       format: percentage ? `${amount}${symbol}` : `${symbol}${amount}`,
-      percentage: percentage,
-      meta: {
-        value: {
-          symbol: symbol,
-          amount: amount
-        },
-        ...discount.meta
-      }
+      percentage: percentage
     };
   }
 }
