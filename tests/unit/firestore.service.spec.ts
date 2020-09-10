@@ -33,6 +33,7 @@ const client: Client = {
 };
 
 const discount: Discount = {
+  format: "",
   name: "VAT Discount",
   amount: 0.15,
   details: "To be applied, the inc. VAT of an Item",
@@ -40,12 +41,14 @@ const discount: Discount = {
 };
 
 const item: LineItem = {
+  format: "",
+  unit: "",
   name: "line item",
   type: PRODUCT,
   cost: 1250,
   units: 1,
   quantity: 1,
-  discount: "",
+  discount: 0,
   discounted: false,
   details: "GoodYear 16in"
 };
@@ -107,7 +110,7 @@ describe("Firebase Service", () => {
 
   it("can add complex/record object with ref objects", async () => {
     const _discount = add(discount, "discounts").then(ref => {
-      item.discount = ref.path;
+      ref.get().then(doc => (item.discount = doc ? 50 : 0));
     });
 
     await Promise.all([

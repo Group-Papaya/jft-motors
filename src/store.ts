@@ -49,9 +49,6 @@ export default new Vuex.Store({
     SET_AUTH_STATE(state, payload) {
       state.auth = payload;
     },
-    SET_BAR_IMAGE(state, payload) {
-      state.barImage = payload;
-    },
     SET_RECORDS(state, payload) {
       state.records = {
         ...state.records,
@@ -60,8 +57,7 @@ export default new Vuex.Store({
     },
     SET_DRAWER(state, payload) {
       state.drawer = payload;
-    },
-    ...vuexfireMutations
+    }
   },
   actions: {
     ADD_RECORD({ dispatch }, { record, path, ref = undefined }) {
@@ -73,7 +69,7 @@ export default new Vuex.Store({
       });
     },
     SET_RECORD(_, { record, path, ref = undefined }) {
-      curd.update(record, path, ref);
+      return curd.update(record, path, ref);
     }
   },
   plugins: [createPersistedState()]
