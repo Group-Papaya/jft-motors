@@ -1,22 +1,21 @@
 <template>
   <AppEditor
     title="Discounts"
+    :items="items"
     :model="model"
     :schema="schema"
-    :addHandler="addDiscount"
-    :editHandler="editItem"
-    icon="mdi-tag-text-outline"
-    :items="items"
     :headers="headers"
+    :edit-handler="editItem"
+    :add-handler="addDiscount"
+    :change-handler="handleChanges"
+    icon="mdi-tag-text-outline"
   />
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { JOB, PRODUCT, WORKER } from "@/models/LineItem";
 import AppEditor from "@/components/layouts/AppManager.vue";
-import Discount from "@/models/Discount";
-import { watchCollection } from "@/services/curd.service";
+import { Discount } from "@/models";
 
 @Component({
   components: { AppEditor }
@@ -30,22 +29,26 @@ export default class Discounts extends Vue {
     },
     {
       sortable: false,
-      text: "name",
+      text: "Name",
       value: "name"
     },
     {
       sortable: false,
-      text: "amount",
-      value: "amount"
+      text: "Amount",
+      value: "format"
     },
     {
       sortable: false,
-      text: "percentage",
+      text: "Percentage",
       value: "percentage"
     },
     {
       sortable: false,
-      text: "actions",
+      text: "Details",
+      value: "details"
+    },
+    {
+      sortable: false,
       value: "actions"
     }
   ];
@@ -54,10 +57,18 @@ export default class Discounts extends Vue {
     return this.$store.state.records.discounts;
   }
 
-  model = {
+  get rules() {
+    return {
+      ispercentage: (it: any) => (it ? 15 : 150)
+    };
+  }
+
+  model: Discount = {
     name: "",
     amount: 0,
-    percentage: 0
+    format: "",
+    details: "",
+    percentage: false
   };
 
   schema = {
@@ -65,22 +76,61 @@ export default class Discounts extends Vue {
       type: "text",
       label: "Discount name"
     },
+    details: {
+      type: "text",
+      label: "Discount details"
+    },
     amount: {
+      min: 0,
+      step: 0.25,
       type: "number",
-      label: "Amount"
+      label: "Amount",
+      max: this.rules.ispercentage(this.model.percentage)
     },
     percentage: {
-      type: "number",
-      label: "Percentage"
+      inset: true,
+      type: "switch",
+      label: "Percentage Discount",
+      value: false
     }
   };
 
+  handleChanges({ key, value }: any) {
+    if (key === "amount") {
+      this.schema.amount.max = this.rules.ispercentage(
+        this.schema.percentage.value
+      );
+    }
+    if (key === "percentage") {
+      this.schema.amount.max = this.rules.ispercentage(value);
+    }
+  }
+
   editItem(record: Discount) {
-    this.$store.dispatch("SET_RECORD", { record, path: record.path });
+    this.$store.dispatch("SET_RECORD", {
+      record: this.discount(record),
+      path: record.path
+    });
   }
 
   addDiscount(record: Discount) {
-    this.$store.dispatch("ADD_RECORD", { record, path: "discounts" });
+    this.$store.dispatch("ADD_RECORD", {
+      record: this.discount(record),
+      path: "discounts"
+    });
+  }
+
+  discount({ percentage, ...discount }: Discount): Discount {
+    percentage = percentage || false;
+    const symbol = percentage ? "%" : "R";
+    const max = this.rules.ispercentage(percentage);
+    const amount = discount.amount < max ? discount.amount : max;
+    return {
+      ...discount,
+      amount: amount,
+      format: percentage ? `${amount}${symbol}` : `${symbol}${amount}`,
+      percentage: percentage
+    };
   }
 }
 </script>

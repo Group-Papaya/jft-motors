@@ -1,20 +1,30 @@
 <template>
   <v-container :id="title" fluid tag="section" class="my-5">
     <app-material-card
-      :color="color"
       :icon="icon"
+      :color="color"
       :title="title"
-      :subtitle="subtitle"
       :button="button"
+      :subtitle="subtitle"
       v-on:openDialog="openAddDialog"
       class="px-5 py-3"
     >
       <!-- data list -->
+
       <v-data-table
-        :headers="headers"
         :items="items"
+        :headers="headers"
         @click:row="openEditDialog"
       >
+        <template v-slot:item.id="{ item }">
+          <v-chip
+            :color="title === 'Invoices' ? 'primary' : 'warning'"
+            class="px-2"
+            small
+          >
+            #{{ items.map(x => x.id).indexOf(item.id) + 1 }}
+          </v-chip>
+        </template>
         <template v-slot:item.actions="{ item }">
           <v-icon small class="mr-2" @click.stop="openEditDialog(item)">
             mdi-pencil
@@ -31,8 +41,11 @@
       ref="itemDialog"
       :model="model"
       :schema="schema"
-      :addHandler="addHandler"
-      :editHandler="editHandler"
+      :add-handler="addHandler"
+      :edit-handler="editHandler"
+      :watch-handler="watchHandler"
+      :on-show-dialog="onShowDialog"
+      :change-handler="changeHandler"
     />
 
     <AppConfirmDialog ref="confirm" />
@@ -51,6 +64,24 @@ import { curd } from "@/services/curd.service";
 })
 export default class AppEditor extends Vue {
   name = "AppManager.vue";
+
+  @Prop({
+    type: Function,
+    default: () => undefined
+  })
+  readonly changeHandler: Function | undefined;
+
+  @Prop({
+    type: Function,
+    default: () => undefined
+  })
+  readonly watchHandler: Function | undefined;
+
+  @Prop({
+    type: Function,
+    default: () => undefined
+  })
+  readonly onShowDialog: Function | undefined;
 
   @Prop({ type: String, default: undefined }) readonly title:
     | string

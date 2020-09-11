@@ -8,8 +8,9 @@
           :subtitle="'Quotations ' + subtitle"
           :model="model"
           :schema="schema"
+          :changeHandler="handleChanges"
           :addHandler="addQuotation"
-          :items="this.items"
+          :items="this.drafts"
           :headers="headers"
         />
       </v-col>
@@ -23,6 +24,7 @@
           :schema="schema"
           :addHandler="addQuotation"
           :items="this.invoices"
+          :changeHandler="handleChanges"
           :button="false"
           color="primary"
           :headers="headers"
@@ -67,8 +69,8 @@ export default class Dashboard extends Vue {
     }
   ];
 
-  get items() {
-    return this.$store.state.records.quotations;
+  get drafts() {
+    return this.$store.getters.drafts;
   }
 
   get invoices() {
@@ -80,31 +82,45 @@ export default class Dashboard extends Vue {
   }
 
   model = {
-    client: ""
+    client: "",
+    meta: {
+      client: Client
+    }
   };
 
   schema = {
     client: {
-      type: "select",
-      label: "Client",
+      type: "autocomplete",
+      label: "Select Client",
       items: this.clients,
-      itemText: (value: Client) => `${value.firstname} ${value.lastname}`
+      itemText: (value: Client) => `${value.firstname} ${value.lastname}`,
+      itemValue: (value: Client) => value
     }
   };
 
-  // get current  month
+  async handleChanges({ key, value }: any) {
+    this.model.meta.client = value;
+  }
+
   currentMonth = moment().format("MMMM");
 
   addQuotation(record: Quotation) {
+    const client = record.meta.client;
+    const user = this.$store.state.auth.user;
     this.$store.dispatch("ADD_RECORD", {
       record: {
         ...record,
         items: [],
         total: 0.0,
+        client: `${client.firstname} ${client.lastname}`,
         completed: false,
-        user: this.$store.state.auth.user.uid,
+        user: `${user.firstname} ${user.lastname}`,
         created: moment().format("MMMM Do YYYY"),
-        updated: moment().format("MMMM Do YYYY")
+        updated: moment().format("MMMM Do YYYY"),
+        meta: {
+          ...record.meta,
+          user: user
+        }
       },
       path: "quotations"
     });

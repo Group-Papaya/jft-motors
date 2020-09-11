@@ -1,8 +1,10 @@
 import { app } from "@/firebase";
+import { User } from "@/models";
 import store from "@/store";
 import { Logger, tryCatch } from "@/utils";
 import bcrypt from "bcryptjs";
 import firebase from "firebase/app";
+import { curd } from "./curd.service";
 import { dbService } from "./firestore.service";
 
 interface AuthResponse {
@@ -20,12 +22,12 @@ export default class AuthService {
   }
 
   @tryCatch(Logger)
-  async register(email: string, password: string): Promise<AuthResponse> {
+  async register({ email, password, ...rest }: User): Promise<AuthResponse> {
     return await this.firebaseAuth
       .createUserWithEmailAndPassword(email, password)
       .then(value => {
         bcrypt.hash(password, 2).then(hash => {
-          const user = { id: value.user?.uid, email, password: hash };
+          const user = { id: value.user?.uid, email, password: hash, ...rest };
           dbService.add(user, "users", value.user?.uid);
         });
         return { result: value };
@@ -39,9 +41,10 @@ export default class AuthService {
   async login(email: string, password: string): Promise<AuthResponse> {
     return await this.firebaseAuth
       .signInWithEmailAndPassword(email, password)
-      .then(credentials => {
+      .then(async credentials => {
         store.commit("SET_AUTH_STATE", {
-          user: credentials.user,
+          data: credentials.user,
+          user: await curd.get("users", credentials.user?.uid),
           authenticated: true
         });
         return { result: credentials };

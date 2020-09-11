@@ -9,19 +9,19 @@ let testService: FirestoreService;
 
 const admin: User = {
   role: ADMIN_ROLE,
+  phone: "021-458-7131",
   email: "test-admin@jft-motors.web.app",
   password: "test-password",
   firstname: "test-admin",
-  phone: "021-458-7131",
   lastname: "example"
 };
 
 const user: User = {
   role: BASE_ROLE,
+  phone: "083-218-2182",
   email: "test-user@jft-motors.web.app",
   password: "test-password",
   firstname: "test-user",
-  phone: "083-218-2182",
   lastname: "example"
 };
 
@@ -33,18 +33,24 @@ const client: Client = {
 };
 
 const discount: Discount = {
+  format: "",
+  name: "VAT Discount",
   amount: 0.15,
-  details: "VAT Discount",
+  details: "To be applied, the inc. VAT of an Item",
   percentage: true
 };
 
 const item: LineItem = {
+  format: "",
+  unit: "",
   name: "line item",
   type: PRODUCT,
   cost: 1250,
   units: 1,
-  details: "GoodYear 16in",
-  quantity: 1
+  quantity: 1,
+  discount: 0,
+  discounted: false,
+  details: "GoodYear 16in"
 };
 
 const draft: Quotation = {
@@ -104,7 +110,7 @@ describe("Firebase Service", () => {
 
   it("can add complex/record object with ref objects", async () => {
     const _discount = add(discount, "discounts").then(ref => {
-      item.discount = ref;
+      ref.get().then(doc => (item.discount = doc ? 50 : 0));
     });
 
     await Promise.all([
@@ -118,8 +124,8 @@ describe("Firebase Service", () => {
       add(item, "line-items")
     ]).then(() => {
       if (admin.id && client.id) {
-        draft.user = testService.getDocument(`users/${admin.id}`);
-        draft.client = testService.getDocument(`clients/${client.id}`);
+        draft.user = testService.getDocument(`users/${admin.id}`).path;
+        draft.client = testService.getDocument(`clients/${client.id}`).path;
       }
 
       draft.created = testService.currentTime();

@@ -2,41 +2,23 @@
   <v-container :id="name" fluid tag="section" class="my-5">
     <!--  quotation menu      -->
     <v-row class="mb-8 flex-row flex-sx-column">
-      <v-col cols="9">
-        <v-row col="12" class="justify-md-center ml-1">
-          <v-btn width="100" color="warning">Draft</v-btn>
-          <v-btn width="100" light @click="markComplete()">Complete</v-btn>
-        </v-row>
-      </v-col>
-      <v-col cols="3">
-        <v-row col="12" class="justify-end mr-1">
-          <v-btn
-            color="warning"
-            class="d-none d-sm-flex"
-            @click="deleteQuotation()"
-            >Delete Quotation
-          </v-btn>
-          <v-btn
-            fab
-            right
-            x-small
-            color="warning"
-            class="d-flex d-sm-none"
-            @click="addLineItem()"
-          >
-            <v-icon>mdi-delete</v-icon>
-          </v-btn>
+      <v-col cols="12">
+        <v-row class="justify-md-center ml-1">
+          <v-btn-toggle dense>
+            <v-btn @click="sendEmail()">Send Email</v-btn>
+            <v-btn>Print PDF</v-btn>
+          </v-btn-toggle>
         </v-row>
       </v-col>
     </v-row>
 
     <!--  page   -->
     <app-material-card
+      ref="quotationPage"
       color="warning"
       icon="mdi-note"
       max-width="800px"
       class="px-5 py-3 mx-md-auto"
-      :title="'Quotation ' + quotation.id"
     >
       <div class="px-md-10 pb-16">
         <!-- quotation header     -->
@@ -73,17 +55,26 @@
 
         <v-divider class="my-4" light></v-divider>
 
-        <v-row col="12" class="justify-end align-center">
-          <v-btn class="d-none d-sm-flex" @click="openModal()" color="warning"
-            >Add Line Item
-          </v-btn>
+        <v-row col="12" class="justify-space-between align-center">
+          <v-btn-toggle mandatory v-model="isCompleted" borderless dense>
+            <v-btn :value="false">Draft</v-btn>
+            <v-btn :value="true">Complete</v-btn>
+          </v-btn-toggle>
+
+          Status: {{ this.quotation.completed }}
+          <v-btn
+            class="d-none d-sm-flex"
+            @click="openModal(true)"
+            color="warning"
+            >Add Line Item</v-btn
+          >
           <v-btn
             fab
             right
             x-small
             color="warning"
             class="d-flex d-sm-none"
-            @click="openModal()"
+            @click="openModal(true)"
           >
             <v-icon>mdi-plus</v-icon>
           </v-btn>
@@ -91,129 +82,116 @@
 
         <v-divider class="my-4" light></v-divider>
 
+        <!-- quotation line item header -->
+        <v-card flat v-if="quotation.items.length">
+          <v-card-text>
+            <v-row class="py-0 my-0">
+              <v-col cols="1">#</v-col>
+              <v-col cols="3" class="text-left caption font-weight-bold"
+                >Line Item Name</v-col
+              >
+              <v-col cols="1" class="text-right caption font-weight-bold"
+                >Qty</v-col
+              >
+              <v-col cols="2" class="text-right caption font-weight-bold"
+                >Discount</v-col
+              >
+              <v-col cols="3" class="text-right caption font-weight-bold"
+                >Price</v-col
+              >
+              <v-col cols="2" class="text-right"></v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+
         <!-- quotation line items -->
-        <v-simple-table v-if="quotation.items">
-          <template v-slot:default>
-            <thead>
-              <tr>
-                <th class="text-left">#</th>
-                <th class="text-left">Name</th>
-                <th class="text-left">Qty</th>
-                <th class="text-left">Discount</th>
-                <th class="text-left">Cost</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, index) in quotation.items" :key="index">
-                <td>{{ index + 1 }}</td>
-                <td>{{ item.name }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>
-                  {{
-                    (item.discounted ? item.discount : "0") | currency("R", 2)
-                  }}
-                </td>
-                <td>{{ item.cost | currency("R", 2) }}</td>
-              </tr>
-              <tr>
-                <td></td>
-                <td class="font-weight-bold">Sub Total</td>
-                <td></td>
-                <td class="font-weight-bold red--text">
-                  -{{ discountTotal | currency("R", 2) }}
-                </td>
-                <td class="font-weight-bold">{{ total | currency("R") }}</td>
-              </tr>
-              <tr>
-                <td></td>
-                <td class="font-weight-bold">Discount</td>
-                <td></td>
-                <td></td>
-                <td class="font-weight-bold red--text">
-                  -{{ quotationDiscount | currency("R", 2) }}
-                </td>
-              </tr>
-              <tr>
-                <td></td>
-                <td class="font-weight-bold">Total</td>
-                <td></td>
-                <td></td>
-                <td class="font-weight-bold">
-                  {{
-                    (total - discountTotal - quotationDiscount)
-                      | currency("R", 2)
-                  }}
-                </td>
-              </tr>
-            </tbody>
-          </template>
-        </v-simple-table>
+        <div v-if="quotation.items.length">
+          <v-col
+            class="py-0 px-0 my-1"
+            v-for="(item, index) in quotation.items"
+            :key="item.id"
+          >
+            <AppQuotationItem
+              :item="item"
+              :position="index"
+              v-on:edit-line-item="openModal"
+              v-on:delete-line-item="deleteLineItem"
+            ></AppQuotationItem>
+          </v-col>
+        </div>
+
+        <v-divider
+          class="mt-10 mb-4"
+          light
+          v-if="quotation.items.length"
+        ></v-divider>
+
+        <!--  totals -->
+        <v-row class="text-right" v-if="quotation.items.length">
+          <v-col>
+            <div class="caption font-weight-bold">Discount Total</div>
+            <div class="body-2">{{ discountTotal | currency("R", 2) }}</div>
+          </v-col>
+          <v-col>
+            <div class="caption font-weight-bold">Sub Total</div>
+            <div class="body-2">{{ total | currency("R", 2) }}</div>
+          </v-col>
+          <v-col>
+            <div class="caption font-weight-bold">Grand Total</div>
+            <div class="body-2">
+              {{ (total - discountTotal) | currency("R", 2) }}
+            </div>
+          </v-col>
+        </v-row>
+
+        <v-row v-else>
+          <div>No items have been added to the quotation yet.</div>
+        </v-row>
       </div>
     </app-material-card>
 
     <!--   add line item to quotation dialog   -->
-    <v-dialog v-model="addLineItemDialog" max-width="600">
-      <v-card>
-        <v-card-title>Add Line Item to Quotation</v-card-title>
-        <v-card-text>
-          <v-form>
-            <v-autocomplete
-              label="Line item"
-              :v-model="item"
-              :items="lineItems"
-              :item-text="value => value.name"
-              :item-value="value => lineItems.find(it => it.id === value.id)"
-              @change="value => (item = value)"
-            />
-            <v-form-base
-              :col="12"
-              :model="item"
-              :schema="schema"
-              :row="rowAttribute"
-            />
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="warning" @click="addLineItem(item)"
-            >Add Line Item</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <AppAddLineItemToQuotation
+      ref="lineItemDialog"
+      :addHandler="addLineItem"
+      :editHandler="editLineItem"
+      :quotation="quotation"
+    />
   </v-container>
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Vue, Watch } from "vue-property-decorator";
-import { LineItem, Quotation, Client, User } from "@/models";
-import { PRODUCT, WORKER } from "@/models/LineItem";
+import { Component, Vue } from "vue-property-decorator";
+import { LineItem, Quotation } from "@/models";
 
 import VFormBase from "../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
-import { watchCollection } from "@/services/curd.service";
-import store from "@/store";
+import { watchCollection, curd } from "@/services/curd.service";
 import { db } from "@/firebase";
-import { dbService } from "@/services/firestore.service";
-import { forEach } from "lodash";
+import AppQuotationItem from "@/components/layouts/AppQuotationItem.vue";
+import AppAddLineItemToQuotation from "@/components/layouts/AppAddLineItemToQuotation.vue";
+
+import jsPDF, { ImageOptions } from "jspdf";
+import html2canvas from "html2canvas";
 
 @Component({
-  components: { VFormBase }
+  components: { VFormBase, AppQuotationItem, AppAddLineItemToQuotation }
 })
-export default class QuotationEditor extends Mixins() {
+export default class QuotationEditor extends Vue {
   name = "QuotationEditor";
   quotation!: Quotation;
   quotationDiscount = 0;
+
   addLineItemDialog = false;
 
   item: LineItem = {
-    id: "",
-    cost: 0,
     name: "",
     type: "",
+    cost: 0,
     units: 0,
-    quantity: 0,
     details: "",
-    discounted: false,
-    path: ""
+    quantity: 0,
+    discount: "",
+    discounted: false
   };
 
   lineItems: Array<LineItem> = Array<LineItem>();
@@ -264,8 +242,8 @@ export default class QuotationEditor extends Mixins() {
     this.quotation = this.$store.getters.getQuotation(id);
   }
 
-  openModal() {
-    this.addLineItemDialog = true;
+  openModal(add: boolean, item?: LineItem) {
+    this.dialogRef.showDialog(add, item);
   }
 
   addLineItem(item: LineItem) {
@@ -278,22 +256,137 @@ export default class QuotationEditor extends Mixins() {
     });
   }
 
-  deleteQuotation() {
-    console.log(this.quotation.id);
+  editLineItem(item: LineItem) {
+    // this.$store.dispatch("SET_RECORD", { item, path: item.path });
+    curd.update(item, item.path as string);
   }
 
-  markComplete() {
-    console.log("completed");
+  async deleteLineItem(item: LineItem) {
+    const res = await this.$dialog.confirm({
+      text: `Do you want to remove '${item.name}' from quotation?`,
+      title: "Delete Line Item"
+    });
+    if (res) {
+      await curd.delete(item.path as string);
+    }
   }
 
   get discountTotal() {
-    return 0;
+    return this.quotation.items?.reduce(
+      (total, item) => total + item.meta.discount.value,
+      0
+    );
+  }
+
+  get dialogRef() {
+    return this.$refs.lineItemDialog as Vue & {
+      showDialog: (add?: boolean, item?: any) => Function;
+    };
   }
 
   get total() {
     return this.quotation.items?.reduce((total, item) => {
       return total + item.cost * item.quantity;
     }, 0);
+  }
+
+  get isCompleted() {
+    return this.quotation.completed ? this.quotation.completed : false;
+  }
+
+  set isCompleted(value: boolean) {
+    const res = this.toggleComplete(value);
+
+    res.then(choice => {
+      if (choice) {
+        this.quotation.completed = value;
+        curd.update(this.quotation, this.quotation.path as string);
+
+        if (value) {
+          // redirect to invoice page
+          this.$router.replace(`/invoices/${this.quotation.id}`);
+        } else {
+          // redirect to quotation page
+          this.$router.replace(`/quotations/${this.quotation.id}`);
+        }
+      }
+    });
+  }
+
+  sendEmail() {
+    // generate PDF
+    this.generatePDF();
+
+    // get client email from database
+    const email = this.quotation.meta.client.email;
+
+    // store PDF in firebase
+
+    // send email to client with PDF link
+    // this.generateHTML()
+  }
+
+  generatePDF() {
+    /** WITH CSS */
+    // const canvasElement = document.createElement('canvas');
+
+    const pdfData = (this.$refs.quotationPage as Vue).$el as HTMLElement;
+
+    const divHeight = pdfData.clientHeight;
+    const divWidth = pdfData.clientWidth;
+    const ratio = divHeight / divWidth;
+
+    html2canvas(pdfData, { scale: 1 }).then(function(canvas) {
+      // const doc = new jsPDF();
+      // const width = doc.internal.pageSize.getWidth();
+      // const height = doc.internal.pageSize.getHeight() * ratio
+
+      const imgData = canvas.toDataURL("image/jpeg");
+      const pdfDOC = new jsPDF("portrait", "mm", "a4"); //  use a4 for smaller page
+
+      const width = pdfDOC.internal.pageSize.getWidth();
+      let height = pdfDOC.internal.pageSize.getHeight();
+      height = ratio * width;
+
+      pdfDOC.addImage(imgData, "JPEG", 0, 0, width - 20, height - 10);
+      pdfDOC.save("summary.pdf");
+
+      // const img = canvas.toDataURL("png");
+      //
+      // const imgOpts: ImageOptions = {
+      //     height, width, x: 0, y: 0,
+      //     imageData: img
+      // }
+      // doc.addImage(imgOpts);
+      //
+      // doc.save("sample.pdf");
+    });
+  }
+
+  async generateHTML() {
+    let html = `<table>
+    <tr>
+    <td>#</td>
+    <td>Line Item Name</td>
+    <td>Qty</td>
+    <td>Discount</td>
+    <td>Price</td>
+</tr>`;
+    this.lineItems.forEach(lineItem => {
+      html += ``;
+    });
+
+    html += "</table>";
+    return html;
+  }
+
+  async toggleComplete(value: boolean) {
+    return await this.$dialog.confirm({
+      text: value
+        ? `Do you want to convert this quotation to an invoice?`
+        : `Do you want to convert this invoice to a quotation?`,
+      title: "Convert to Invoice"
+    });
   }
 }
 </script>

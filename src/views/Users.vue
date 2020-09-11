@@ -13,10 +13,8 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import User, { ADMIN_ROLE, BASE_ROLE, ROLES } from "@/models/User";
+import User, { BASE_ROLE, ROLES } from "@/models/User";
 import AppEditor from "@/components/layouts/AppManager.vue";
-import { dbService } from "@/services/firestore.service";
-import { curd, watchCollection } from "@/services/curd.service";
 
 @Component({
   components: { AppEditor }
@@ -30,32 +28,31 @@ export default class Users extends Vue {
     },
     {
       sortable: false,
-      text: "first name",
+      text: "Firstname",
       value: "firstname"
     },
     {
       sortable: false,
-      text: "last name",
+      text: "Lastname",
       value: "lastname"
     },
     {
       sortable: false,
-      text: "phone number",
+      text: "Phone Number",
       value: "phone"
     },
     {
       sortable: false,
-      text: "email address",
+      text: "E-mail Address",
       value: "email"
     },
     {
       sortable: false,
-      text: "role",
+      text: "Role",
       value: "role"
     },
     {
       sortable: false,
-      text: "actions",
       value: "actions"
     }
   ];
@@ -69,7 +66,7 @@ export default class Users extends Vue {
     lastname: "",
     phone: "",
     email: "",
-    role: ROLES[ADMIN_ROLE]
+    role: BASE_ROLE
   };
 
   schema = {
@@ -92,16 +89,32 @@ export default class Users extends Vue {
     role: {
       type: "select",
       label: "Role",
-      items: [ROLES[ADMIN_ROLE], ROLES[BASE_ROLE]]
+      items: ROLES
     }
   };
 
   editItem(user: User) {
-    this.$store.dispatch("SET_RECORD", { record: user, path: user.path });
+    this.$store.dispatch("SET_RECORD", {
+      record: this.mutUser(user),
+      path: user.path
+    });
   }
 
   addUser(user: User) {
-    this.$store.dispatch("ADD_RECORD", { record: user, path: "users" });
+    this.$store.dispatch("ADD_RECORD", {
+      record: this.mutUser(user),
+      path: "users"
+    });
+  }
+
+  mutUser(user: User): User {
+    return {
+      ...user,
+      meta: {
+        ...user.meta,
+        role: ROLES.indexOf(user.role)
+      }
+    };
   }
 }
 </script>

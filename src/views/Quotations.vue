@@ -5,6 +5,7 @@
     :schema="schema"
     :addHandler="addQuotation"
     icon="mdi-note"
+    :changeHandler="handleChanges"
     :items="this.items"
     :headers="headers"
   />
@@ -15,7 +16,7 @@ import moment from "moment";
 import { Component, Vue } from "vue-property-decorator";
 import AppManager from "@/components/layouts/AppManager.vue";
 import Quotation from "@/models/Quotation";
-import { watchCollection } from "@/services/curd.service";
+import { curd, watchCollection } from "@/services/curd.service";
 import { auth } from "firebase";
 import { Client } from "@/models";
 
@@ -31,22 +32,22 @@ export default class Quotations extends Vue {
     },
     {
       sortable: false,
-      text: "client",
+      text: "Client",
       value: "client"
     },
     {
       sortable: false,
-      text: "date",
+      text: "Date Created",
       value: "created"
     },
     {
       sortable: false,
-      text: "modified",
+      text: "Modified",
       value: "updated"
     },
     {
       sortable: false,
-      text: "total",
+      text: "Total",
       value: "total"
     },
     {
@@ -57,17 +58,25 @@ export default class Quotations extends Vue {
   ];
 
   model = {
-    client: ""
+    client: "",
+    meta: {
+      client: Client
+    }
   };
 
   schema = {
     client: {
-      type: "select",
-      label: "Client",
+      type: "autocomplete",
+      label: "Select Client",
       items: this.clients,
-      itemText: (value: Client) => `${value.firstname} ${value.lastname}`
+      itemText: (value: Client) => `${value.firstname} ${value.lastname}`,
+      itemValue: (value: Client) => value
     }
   };
+
+  async handleChanges({ key, value }: any) {
+    this.model.meta.client = value;
+  }
 
   get items() {
     return this.$store.state.records.quotations;
@@ -78,15 +87,22 @@ export default class Quotations extends Vue {
   }
 
   addQuotation(record: Quotation) {
+    const client = record.meta.client;
+    const user = this.$store.state.auth.user;
     this.$store.dispatch("ADD_RECORD", {
       record: {
         ...record,
         items: [],
         total: 0.0,
+        client: `${client.firstname} ${client.lastname}`,
         completed: false,
-        user: this.$store.state.auth.user.uid,
+        user: `${user.firstname} ${user.lastname}`,
         created: moment().format("MMMM Do YYYY"),
-        updated: moment().format("MMMM Do YYYY")
+        updated: moment().format("MMMM Do YYYY"),
+        meta: {
+          ...record.meta,
+          user: user
+        }
       },
       path: "quotations"
     });

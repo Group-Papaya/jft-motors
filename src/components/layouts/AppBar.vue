@@ -63,9 +63,6 @@
       </template>
 
       <v-list>
-        <v-list-item v-for="n in 5" :key="n" @click="() => {}">
-          <v-list-item-title>Option {{ n }}</v-list-item-title>
-        </v-list-item>
         <v-list-item v-if="auth.authenticated" @click="logout()">
           <v-list-item-icon>
             <v-icon>mdi-account</v-icon>

@@ -1,4 +1,4 @@
-import { Discount, Quotation, User } from "@/models";
+import { Client, Discount, Quotation, User } from "@/models";
 import { auth } from "@/services/auth.service";
 import Vue from "vue";
 import Vuex from "vuex";
@@ -14,11 +14,13 @@ export default new Vuex.Store({
     barImage: require("@/assets/background.jpg"),
     drawer: null,
     auth: {
-      user: auth.user,
+      user: User,
+      data: auth.user,
       authenticated: auth.user ? !auth.user.isAnonymous : false
     },
     records: {
       users: Array<User>(),
+      clients: Array<Client>(),
       discounts: Array<Discount>(),
       quotations: Array<Quotation>()
     }
@@ -28,18 +30,24 @@ export default new Vuex.Store({
       return state.auth.authenticated;
     },
     invoices: state => {
-      return state.records.quotations.filter(it => it.completed === true);
+      return state.records.quotations.filter(it => it.completed);
+    },
+    drafts: state => {
+      return state.records.quotations.filter(it => !it.completed);
     },
     getQuotation: state => (id: string) => {
       return state.records.quotations.find(it => it.id === id);
+    },
+    getUser: state => (id: string) => {
+      return state.records.users.find(user => user.id === id);
+    },
+    getClient: state => (path: string) => {
+      return state.records.clients.find(client => client.path === path);
     }
   },
   mutations: {
     SET_AUTH_STATE(state, payload) {
       state.auth = payload;
-    },
-    SET_BAR_IMAGE(state, payload) {
-      state.barImage = payload;
     },
     SET_RECORDS(state, payload) {
       state.records = {
@@ -49,8 +57,7 @@ export default new Vuex.Store({
     },
     SET_DRAWER(state, payload) {
       state.drawer = payload;
-    },
-    ...vuexfireMutations
+    }
   },
   actions: {
     ADD_RECORD({ dispatch }, { record, path, ref = undefined }) {
@@ -62,7 +69,7 @@ export default new Vuex.Store({
       });
     },
     SET_RECORD(_, { record, path, ref = undefined }) {
-      curd.update(record, path, ref);
+      return curd.update(record, path, ref);
     }
   },
   plugins: [createPersistedState()]
