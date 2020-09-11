@@ -42,13 +42,12 @@ const discount: Discount = {
 
 const item: LineItem = {
   format: "",
-  unit: "",
   name: "line item",
   type: PRODUCT,
   cost: 1250,
   units: 1,
   quantity: 1,
-  discount: 0,
+  discount: "",
   discounted: false,
   details: "GoodYear 16in"
 };
@@ -110,7 +109,7 @@ describe("Firebase Service", () => {
 
   it("can add complex/record object with ref objects", async () => {
     const _discount = add(discount, "discounts").then(ref => {
-      ref.get().then(doc => (item.discount = doc ? 50 : 0));
+      ref.get().then(doc => (item.discount = `${doc ? 50 : 0}`));
     });
 
     await Promise.all([

@@ -184,6 +184,7 @@ export default class QuotationEditor extends Vue {
   addLineItemDialog = false;
 
   item: LineItem = {
+    format: "",
     name: "",
     type: "",
     cost: 0,

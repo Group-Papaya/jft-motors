@@ -1,15 +1,15 @@
+import Discount from "@/models/Discount";
 import Record from "./Record";
 
 export default class LineItem extends Record {
   name!: string;
   type!: string;
-  unit!: string;
   cost!: number;
   units!: number;
   format!: string;
   details!: string;
   quantity!: number;
-  discount!: number;
+  discount!: string | Discount;
   discounted = false;
 }
 

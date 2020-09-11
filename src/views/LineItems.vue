@@ -75,7 +75,6 @@ export default class LineItems extends Vue {
     name: "",
     cost: 0,
     units: 0,
-    unit: "",
     format: "",
     details: "",
     quantity: 0,
@@ -158,24 +157,25 @@ export default class LineItems extends Vue {
     });
   }
 
-  calculateDiscountFor(item, discount) {
+  calculateDiscountFor(item: LineItem, discount: Discount) {
     return discount.percentage
       ? item.cost * (discount.amount * (1 / 100))
       : item.cost - discount.amount;
   }
 
-  setDiscount({ discounted, ...item }: LineItem): LineItem {
-    const discount = item.cost - this.calculateDiscountFor(item, item.discount);
+  setDiscount(item: LineItem): LineItem {
+    const discount =
+      item.cost - this.calculateDiscountFor(item, item.discount as Discount);
     return {
       ...item,
-      discounted: discounted,
+      discounted: item.discounted,
       format: `R${item.cost}`,
       discount: `R${discount}`,
       meta: {
         ...item.meta,
         discount: {
           value: discount,
-          ...item.discount
+          ...(item.discount as Discount)
         }
       }
     };
