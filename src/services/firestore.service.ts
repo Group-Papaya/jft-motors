@@ -17,25 +17,25 @@ export default class FirestoreService {
 
   @tryCatch(Logger)
   // The path is to a root collection or sub-collection
-  // e.g `users | products/:id/line-items`
+  // e.g `/users | /products/:id/line-items`
   getCollection(path: string) {
-    return this.db.collection(path);
+    return this.db.collection(`/${path}`);
   }
 
   @tryCatch(Logger)
   /**
    *
    * @param path Can be the path to a root collection
-   * or sub-collection e.g `users | products/:id/line-items`
+   * or sub-collection e.g `/users | /products/:id/line-items`
    * if the ref is undefined then the path is to a
-   * document e.g `users/:id | products/:id`
+   * document e.g `/users/:id | /products/:id`
    * @param ref The id for a given document
    * @return DocumentReference
    */
   getDocument(path: string, ref?: string) {
     return ref === undefined
       ? this.db.doc(path)
-      : this.db.doc(`${path}/${ref}`);
+      : this.db.doc(`/${path}/${ref}`);
   }
 
   async setDocument<T = Record>(
