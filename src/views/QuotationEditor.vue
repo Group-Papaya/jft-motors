@@ -251,14 +251,13 @@ export default class QuotationEditor extends Vue {
     this.addLineItemDialog = false;
     this.quotation.items.push(item);
     this.$store.dispatch("SET_RECORD", {
-      record: { ...item, reference: db.doc(`${item.path}`) },
+      record: { ...item, reference: db.doc(`${item.path}`).path },
       path: `${this.quotation.path}/items`,
       ref: item.id
     });
   }
 
   editLineItem(item: LineItem) {
-    // this.$store.dispatch("SET_RECORD", { item, path: item.path });
     curd.update(item, item.path as string);
   }
 
