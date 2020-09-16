@@ -60,7 +60,18 @@ export default class FirestoreService {
   // Deletes path if the ref is not undefined
   @tryCatch(Logger)
   async delete(path: string, ref?: string) {
-    return this.getDocument(path, ref).delete();
+    return this.getDocument(path, ref)
+      .delete()
+      .catch(error => console.log(error));
+  }
+
+  @tryCatch(Logger)
+  async deleteCollection(path: string) {
+    return this.getCollection(path)
+      .get()
+      .then(collectionSnapshot =>
+        collectionSnapshot.forEach(snapshot => this.delete(snapshot.ref.path))
+      );
   }
 
   @tryCatch(Logger)
