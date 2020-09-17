@@ -17,10 +17,8 @@ import moment from "moment";
 import { Component, Vue } from "vue-property-decorator";
 import AppManager from "@/components/layouts/AppManager.vue";
 import Quotation from "@/models/Quotation";
-import { curd, watchCollection } from "@/services/curd.service";
-import { auth } from "firebase";
+import { curd } from "@/services/curd.service";
 import { Client } from "@/models";
-import { db } from "@/firebase";
 
 @Component({
   components: { AppManager }
@@ -76,7 +74,7 @@ export default class Quotations extends Vue {
     }
   };
 
-  async handleChanges({ key, value }: any) {
+  async handleChanges({ _, value }: any) {
     this.model.meta.client = value;
   }
 
@@ -92,7 +90,7 @@ export default class Quotations extends Vue {
     if (result)
       curd
         .deleteCollection(`${quotation.path}/items`)
-        .then(() => curd.delete(quotation.path));
+        .then(() => curd.delete(quotation.path as string));
   }
 
   addQuotation(record: Quotation) {

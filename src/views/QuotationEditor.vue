@@ -165,7 +165,7 @@ import { Component, Vue } from "vue-property-decorator";
 import { LineItem, Quotation } from "@/models";
 
 import VFormBase from "../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
-import { watchCollection, curd } from "@/services/curd.service";
+import { watchCollection, curd, watchDocument } from "@/services/curd.service";
 import { db } from "@/firebase";
 import AppQuotationItem from "@/components/layouts/AppQuotationItem.vue";
 import AppAddLineItemToQuotation from "@/components/layouts/AppAddLineItemToQuotation.vue";
@@ -225,9 +225,14 @@ export default class QuotationEditor extends Vue {
     this.lineItems = this.getLineItems();
     this.getQuotation(this.$route.params.id);
 
-    this.itemsWatcher = watchCollection(
-      `${this.quotation.path}/items`,
-      items => (this.quotation.items = items)
+    // this.itemsWatcher = watchCollection(
+    //   `${this.quotation.path}/items`,
+    //   items => (this.quotation.items = items)
+    // );
+
+    this.itemsWatcher = watchDocument(
+      { path: this.quotation.path },
+      (it: Quotation) => (this.quotation.items = it.items)
     );
   }
 
@@ -282,7 +287,7 @@ export default class QuotationEditor extends Vue {
     if (res) {
       this.quotation.items = await curd
         .delete(item.path as string)
-        .then(() => this.quotation.items.findIndex(it => it.id !== item.id));
+        .then(() => this.quotation.items.filter(it => it.id !== item.id));
       await this.updateQuotation(this.quotation);
     }
   }

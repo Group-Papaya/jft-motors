@@ -89,7 +89,7 @@ export default class AppEditor extends Vue {
       if (result) curd.delete(item.path);
     }
   })
-  readonly onDeleteDialog: (result: any, item: any) => any | undefined;
+  readonly onDeleteDialog?: (result: boolean, item: any) => any;
 
   @Prop({ type: String, default: undefined }) readonly title:
     | string
@@ -122,7 +122,7 @@ export default class AppEditor extends Vue {
     | Function
     | undefined;
 
-  openAddDialog(event: any) {
+  openAddDialog(_: any) {
     this.dialogRef.showDialog(true);
   }
 
@@ -145,22 +145,14 @@ export default class AppEditor extends Vue {
         text: `Confirm Delete`,
         title: "You are about to delete this item"
       })
-      .then(result => this.onDeleteDialog(result, item));
+      .then(result => {
+        if (this.onDeleteDialog) this.onDeleteDialog(result, item);
+      });
   }
 
   get dialogRef() {
     return this.$refs.itemDialog as Vue & {
       showDialog: (create?: boolean, item?: any) => Function;
-    };
-  }
-
-  get confirmDialog() {
-    return this.$refs.confirm as Vue & {
-      showDialog: (
-        headline: string,
-        message: string,
-        close: (result: boolean) => void
-      ) => Function;
     };
   }
 }
