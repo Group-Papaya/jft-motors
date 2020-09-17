@@ -83,6 +83,14 @@ export default class AppEditor extends Vue {
   })
   readonly onShowDialog: Function | undefined;
 
+  @Prop({
+    type: Function,
+    default: (result: boolean, item: any) => {
+      if (result) curd.delete(item.path);
+    }
+  })
+  readonly onDeleteDialog?: (result: boolean, item: any) => any;
+
   @Prop({ type: String, default: undefined }) readonly title:
     | string
     | undefined;
@@ -114,7 +122,7 @@ export default class AppEditor extends Vue {
     | Function
     | undefined;
 
-  openAddDialog(event: any) {
+  openAddDialog(_: any) {
     this.dialogRef.showDialog(true);
   }
 
@@ -131,28 +139,20 @@ export default class AppEditor extends Vue {
 
   deleteItem(item: any) {
     // delete item from firebase
-    this.confirmDialog.showDialog(
-      "Confirm Delete",
-      "You are about to delete this item",
-      function(result: boolean) {
-        if (result) curd.delete(item.path);
-      }
-    );
+
+    this.$dialog
+      .confirm({
+        text: `Confirm Delete`,
+        title: "You are about to delete this item"
+      })
+      .then(result => {
+        if (this.onDeleteDialog) this.onDeleteDialog(result, item);
+      });
   }
 
   get dialogRef() {
     return this.$refs.itemDialog as Vue & {
       showDialog: (create?: boolean, item?: any) => Function;
-    };
-  }
-
-  get confirmDialog() {
-    return this.$refs.confirm as Vue & {
-      showDialog: (
-        headline: string,
-        message: string,
-        close: (result: boolean) => void
-      ) => Function;
     };
   }
 }

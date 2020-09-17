@@ -6,7 +6,7 @@
         <v-row class="justify-md-center ml-1">
           <v-btn-toggle dense>
             <v-btn @click="sendEmail()">Send Email</v-btn>
-            <v-btn>Print PDF</v-btn>
+            <v-btn @click="downloadInvoice()">Print PDF</v-btn>
           </v-btn-toggle>
         </v-row>
       </v-col>
@@ -60,7 +60,6 @@
             <v-btn :value="false">Draft</v-btn>
             <v-btn :value="true">Complete</v-btn>
           </v-btn-toggle>
-
           Status: {{ this.quotation.completed }}
           <v-btn
             class="d-none d-sm-flex"
@@ -107,9 +106,9 @@
         <!-- quotation line items -->
         <div v-if="quotation.items.length">
           <v-col
+            :key="item.key"
             class="py-0 px-0 my-1"
             v-for="(item, index) in quotation.items"
-            :key="item.id"
           >
             <AppQuotationItem
               :item="item"
@@ -165,13 +164,15 @@ import { Component, Vue } from "vue-property-decorator";
 import { LineItem, Quotation } from "@/models";
 
 import VFormBase from "../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
-import { watchCollection, curd } from "@/services/curd.service";
+import { watchCollection, curd, watchDocument } from "@/services/curd.service";
 import { db } from "@/firebase";
 import AppQuotationItem from "@/components/layouts/AppQuotationItem.vue";
 import AppAddLineItemToQuotation from "@/components/layouts/AppAddLineItemToQuotation.vue";
 
 import jsPDF, { ImageOptions } from "jspdf";
 import html2canvas from "html2canvas";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const easyinvoice = require("easyinvoice");
 
 @Component({
   components: { VFormBase, AppQuotationItem, AppAddLineItemToQuotation }
@@ -225,9 +226,14 @@ export default class QuotationEditor extends Vue {
     this.lineItems = this.getLineItems();
     this.getQuotation(this.$route.params.id);
 
-    this.itemsWatcher = watchCollection(
-      `${this.quotation.path}/items`,
-      items => (this.quotation.items = items)
+    // this.itemsWatcher = watchCollection(
+    //   `${this.quotation.path}/items`,
+    //   items => (this.quotation.items = items)
+    // );
+
+    this.itemsWatcher = watchDocument(
+      { path: this.quotation.path as string },
+      (it: Quotation) => (this.quotation.items = it.items)
     );
   }
 
@@ -247,14 +253,27 @@ export default class QuotationEditor extends Vue {
     this.dialogRef.showDialog(add, item);
   }
 
+  updateQuotation(quotation: Quotation) {
+    return this.$store.dispatch("SET_RECORD", {
+      record: { ...quotation, total: this.total, format: `R${this.total}` },
+      path: "quotations",
+      ref: quotation.id
+    });
+  }
+
   addLineItem(item: LineItem) {
     this.addLineItemDialog = false;
-    this.quotation.items.push(item);
+    this.quotation.items.push({
+      ...item,
+      key: this.quotation.items.length + 1
+    });
     this.$store.dispatch("SET_RECORD", {
       record: { ...item, reference: db.doc(`${item.path}`).path },
       path: `${this.quotation.path}/items`,
       ref: item.id
     });
+
+    this.updateQuotation(this.quotation);
   }
 
   editLineItem(item: LineItem) {
@@ -267,7 +286,10 @@ export default class QuotationEditor extends Vue {
       title: "Delete Line Item"
     });
     if (res) {
-      await curd.delete(item.path as string);
+      this.quotation.items = await curd
+        .delete(item.path as string)
+        .then(() => this.quotation.items.filter(it => it.id !== item.id));
+      await this.updateQuotation(this.quotation);
     }
   }
 
@@ -302,82 +324,103 @@ export default class QuotationEditor extends Vue {
         this.quotation.completed = value;
         curd.update(this.quotation, this.quotation.path as string);
 
-        if (value) {
-          // redirect to invoice page
-          this.$router.replace(`/invoices/${this.quotation.id}`);
-        } else {
-          // redirect to quotation page
-          this.$router.replace(`/quotations/${this.quotation.id}`);
-        }
+        // if (value) {
+        //   // redirect to invoice page
+        //   this.$router.replace(`/invoices/${this.quotation.id}`);
+        // } else {
+        //   // redirect to quotation page
+        //   this.$router.replace(`/quotations/${this.quotation.id}`);
+        // }
       }
     });
   }
 
-  sendEmail() {
+  get documentType() {
+    return this.isCompleted ? "Invoice" : "Quotation";
+  }
+
+  async sendEmail() {
     // generate PDF
-    this.generatePDF();
+    // this.generatePDF();
 
     // get client email from database
     const email = this.quotation.meta.client.email;
 
-    // store PDF in firebase
+    const type = this.quotation.completed ? "Invoice" : "Quotation";
+    const subject = `${type} from JFT Motors`;
 
-    // send email to client with PDF link
-    // this.generateHTML()
-  }
+    // TODO: add url to PDF
+    const quotationUrl = window.location.href;
 
-  generatePDF() {
-    /** WITH CSS */
-    // const canvasElement = document.createElement('canvas');
+    const body = `Hi, ${this.quotation.meta.client.firstname} ${this.quotation.meta.client.lastname}. Please visit the link to view ${type}: ${quotationUrl}`;
 
-    const pdfData = (this.$refs.quotationPage as Vue).$el as HTMLElement;
-
-    const divHeight = pdfData.clientHeight;
-    const divWidth = pdfData.clientWidth;
-    const ratio = divHeight / divWidth;
-
-    html2canvas(pdfData, { scale: 1 }).then(function(canvas) {
-      // const doc = new jsPDF();
-      // const width = doc.internal.pageSize.getWidth();
-      // const height = doc.internal.pageSize.getHeight() * ratio
-
-      const imgData = canvas.toDataURL("image/jpeg");
-      const pdfDOC = new jsPDF("portrait", "mm", "a4"); //  use a4 for smaller page
-
-      const width = pdfDOC.internal.pageSize.getWidth();
-      let height = pdfDOC.internal.pageSize.getHeight();
-      height = ratio * width;
-
-      pdfDOC.addImage(imgData, "JPEG", 0, 0, width - 20, height - 10);
-      pdfDOC.save("summary.pdf");
-
-      // const img = canvas.toDataURL("png");
-      //
-      // const imgOpts: ImageOptions = {
-      //     height, width, x: 0, y: 0,
-      //     imageData: img
-      // }
-      // doc.addImage(imgOpts);
-      //
-      // doc.save("sample.pdf");
-    });
-  }
-
-  async generateHTML() {
-    let html = `<table>
-    <tr>
-    <td>#</td>
-    <td>Line Item Name</td>
-    <td>Qty</td>
-    <td>Discount</td>
-    <td>Price</td>
-</tr>`;
-    this.lineItems.forEach(lineItem => {
-      html += ``;
+    const res = await this.$dialog.confirm({
+      text: `Attemping to launch your default email client, would you like to proceed?`,
+      title: `Send ${type} e-mail`
     });
 
-    html += "</table>";
-    return html;
+    if (res) {
+      // open email client
+      window.open(`mailto:${email}?subject=${subject}&body=${body}`);
+    }
+  }
+
+  async downloadInvoice() {
+    const products = this.quotation.items.map(
+      ({ quantity, details, cost, discountAmount }) => {
+        return {
+          quantity,
+          description: details,
+          tax: 0,
+          price: discountAmount ? cost - discountAmount : cost
+        };
+      }
+    );
+    const data = {
+      documentTitle: this.documentType,
+      currency: "ZAR",
+      taxNotation: "vat", //or gst
+      marginTop: 25,
+      marginRight: 25,
+      marginLeft: 25,
+      marginBottom: 25,
+      logo:
+        "https://firebasestorage.googleapis.com/v0/b/jft-motors.appspot.com/o/logo.png?alt=media&token=f29da7d9-c265-438a-8f53-f3c728666bb6",
+      sender: {
+        company: "JFT Motors",
+        address: "373 Imam Haron Rd, Lansdowne",
+        zip: "7780",
+        city: "Cape Town",
+        country: "South Africa",
+        "phone number": "021 696 2600"
+      },
+      client: {
+        company: this.quotation.client,
+        address: this.quotation.meta.client.email,
+        zip: "7700",
+        city: "Cape Town",
+        country: "South Africa"
+      },
+      invoiceNumber: this.quotation.id,
+      invoiceDate: this.quotation.updated,
+      products: products,
+      bottomNotice: this.isCompleted
+        ? "Kindly pay your invoice within 15 days."
+        : "Please note: this is quotation is valid for 15 days"
+    };
+
+    const dialogRes = await this.$dialog.confirm({
+      title: `Download ${this.documentType} PDF`,
+      text: `Woud you like to download ${this.documentType} PDF?`
+    });
+
+    if (dialogRes) {
+      const result = await easyinvoice.createInvoice(data);
+      easyinvoice.download(
+        `${Date.now()}-${this.documentType}.pdf`,
+        result.pdf
+      );
+    }
   }
 
   async toggleComplete(value: boolean) {

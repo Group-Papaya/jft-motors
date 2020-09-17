@@ -43,7 +43,6 @@ export default class AuthService {
       .signInWithEmailAndPassword(email, password)
       .then(async credentials => {
         store.commit("SET_AUTH_STATE", {
-          data: credentials.user,
           user: await curd.get("users", credentials.user?.uid),
           authenticated: true
         });

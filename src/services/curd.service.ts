@@ -40,8 +40,11 @@ const curd = {
       dbService.getDocument(path, ref)
     );
   },
-  delete(path: string) {
-    return dbService.delete(path);
+  delete(path: string, ref?: string) {
+    return dbService.delete(path, ref);
+  },
+  deleteCollection(path: string) {
+    return dbService.deleteCollection(path);
   }
 };
 

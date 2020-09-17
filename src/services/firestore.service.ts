@@ -17,25 +17,25 @@ export default class FirestoreService {
 
   @tryCatch(Logger)
   // The path is to a root collection or sub-collection
-  // e.g `users | products/:id/line-items`
+  // e.g `/users | /products/:id/line-items`
   getCollection(path: string) {
-    return this.db.collection(path);
+    return this.db.collection(`/${path}`);
   }
 
   @tryCatch(Logger)
   /**
    *
    * @param path Can be the path to a root collection
-   * or sub-collection e.g `users | products/:id/line-items`
+   * or sub-collection e.g `/users | /products/:id/line-items`
    * if the ref is undefined then the path is to a
-   * document e.g `users/:id | products/:id`
+   * document e.g `/users/:id | /products/:id`
    * @param ref The id for a given document
    * @return DocumentReference
    */
   getDocument(path: string, ref?: string) {
     return ref === undefined
       ? this.db.doc(path)
-      : this.db.doc(`${path}/${ref}`);
+      : this.db.doc(`/${path}/${ref}`);
   }
 
   async setDocument<T = Record>(
@@ -60,7 +60,18 @@ export default class FirestoreService {
   // Deletes path if the ref is not undefined
   @tryCatch(Logger)
   async delete(path: string, ref?: string) {
-    return this.getDocument(path, ref).delete();
+    return this.getDocument(path, ref)
+      .delete()
+      .catch(error => console.log(error));
+  }
+
+  @tryCatch(Logger)
+  async deleteCollection(path: string) {
+    return this.getCollection(path)
+      .get()
+      .then(collectionSnapshot =>
+        collectionSnapshot.forEach(snapshot => this.delete(snapshot.ref.path))
+      );
   }
 
   @tryCatch(Logger)
