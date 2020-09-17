@@ -3,25 +3,21 @@
     <v-card-text class="py-0">
       <v-row>
         <v-col cols="1" class="text-left">
-          <v-chip color="warning" class="px-2" small>
-            #{{ position + 1 }}
-          </v-chip>
+          <v-chip :color="color" class="px-2" small>#{{ position + 1 }}</v-chip>
         </v-col>
         <v-col cols="3" class="text-left" v-text="item.name"></v-col>
         <v-col cols="1" class="text-right" v-text="item.quantity"></v-col>
+        <v-col cols="2" class="text-right">{{
+          item.meta.discount.format
+        }}</v-col>
+        <v-col cols="3" class="text-right">{{ item.format }}</v-col>
         <v-col cols="2" class="text-right">
-          {{ item.meta.discount.format }}
-        </v-col>
-        <v-col cols="3" class="text-right ">
-          {{ item.format }}
-        </v-col>
-        <v-col cols="2" class="text-right">
-          <v-icon small class="mr-2" @click.stop="editLineItem(item)">
-            mdi-pencil
-          </v-icon>
-          <v-icon small class="mr-2" @click.stop="deleteLineItem(item)">
-            mdi-delete
-          </v-icon>
+          <v-icon small class="mr-2" @click.stop="editLineItem(item)"
+            >mdi-pencil</v-icon
+          >
+          <v-icon small class="mr-2" @click.stop="deleteLineItem(item)"
+            >mdi-delete</v-icon
+          >
         </v-col>
       </v-row>
     </v-card-text>
@@ -42,6 +38,10 @@ export default class AppQuotationItem extends Vue {
 
   @Prop({ type: Number, default: undefined }) readonly position:
     | number
+    | undefined;
+
+  @Prop({ type: String, default: "warning" }) readonly color:
+    | string
     | undefined;
 
   editLineItem(item: LineItem) {

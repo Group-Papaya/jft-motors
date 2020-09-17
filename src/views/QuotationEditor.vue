@@ -15,7 +15,7 @@
     <!--  page   -->
     <app-material-card
       ref="quotationPage"
-      color="warning"
+      :color="color"
       icon="mdi-note"
       max-width="800px"
       class="px-5 py-3 mx-md-auto"
@@ -60,18 +60,18 @@
             <v-btn :value="false">Draft</v-btn>
             <v-btn :value="true">Complete</v-btn>
           </v-btn-toggle>
-          Status: {{ this.quotation.completed }}
+
           <v-btn
             class="d-none d-sm-flex"
             @click="openModal(true)"
-            color="warning"
+            :color="color"
             >Add Line Item</v-btn
           >
           <v-btn
             fab
             right
             x-small
-            color="warning"
+            :color="color"
             class="d-flex d-sm-none"
             @click="openModal(true)"
           >
@@ -111,6 +111,7 @@
             v-for="(item, index) in quotation.items"
           >
             <AppQuotationItem
+              :color="color"
               :item="item"
               :position="index"
               v-on:edit-line-item="openModal"
@@ -337,6 +338,10 @@ export default class QuotationEditor extends Vue {
 
   get documentType() {
     return this.isCompleted ? "Invoice" : "Quotation";
+  }
+
+  get color() {
+    return this.isCompleted ? "primary" : "warning";
   }
 
   async sendEmail() {
