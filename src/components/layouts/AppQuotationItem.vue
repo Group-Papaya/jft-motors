@@ -10,8 +10,8 @@
         <v-col cols="2" class="text-right">{{
           item.meta.discount.format
         }}</v-col>
-        <v-col cols="3" class="text-right">{{ item.format }}</v-col>
-        <v-col cols="2" class="text-right">
+        <v-col :cols="isEditable ? '3' : '5'" class="text-right">{{ item.format }}</v-col>
+        <v-col cols="2" class="text-right" v-if="isEditable">
           <v-icon small class="mr-2" @click.stop="editLineItem(item)"
             >mdi-pencil</v-icon
           >
@@ -50,6 +50,10 @@ export default class AppQuotationItem extends Vue {
 
   deleteLineItem(item: LineItem) {
     this.$emit("delete-line-item", item);
+  }
+
+  get isEditable() {
+    return this.color === "warning";
   }
 }
 </script>
