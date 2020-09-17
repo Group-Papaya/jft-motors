@@ -41,6 +41,9 @@ export default new Vuex.Store({
     },
     getClient: state => (path: string) => {
       return state.records.clients.find(client => client.path === path);
+    },
+    currentUser: state => {
+      return state.auth.user;
     }
   },
   mutations: {
