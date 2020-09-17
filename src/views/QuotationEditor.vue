@@ -61,7 +61,12 @@
             <v-btn :value="true">Complete</v-btn>
           </v-btn-toggle>
           Status: {{ this.quotation.completed }}
-          <v-btn class="d-none d-sm-flex" @click="openModal(true)" color="warning">Add Line Item</v-btn>
+          <v-btn
+            class="d-none d-sm-flex"
+            @click="openModal(true)"
+            color="warning"
+            >Add Line Item</v-btn
+          >
           <v-btn
             fab
             right
@@ -81,10 +86,18 @@
           <v-card-text>
             <v-row class="py-0 my-0">
               <v-col cols="1">#</v-col>
-              <v-col cols="3" class="text-left caption font-weight-bold">Line Item Name</v-col>
-              <v-col cols="1" class="text-right caption font-weight-bold">Qty</v-col>
-              <v-col cols="2" class="text-right caption font-weight-bold">Discount</v-col>
-              <v-col cols="3" class="text-right caption font-weight-bold">Price</v-col>
+              <v-col cols="3" class="text-left caption font-weight-bold"
+                >Line Item Name</v-col
+              >
+              <v-col cols="1" class="text-right caption font-weight-bold"
+                >Qty</v-col
+              >
+              <v-col cols="2" class="text-right caption font-weight-bold"
+                >Discount</v-col
+              >
+              <v-col cols="3" class="text-right caption font-weight-bold"
+                >Price</v-col
+              >
               <v-col cols="2" class="text-right"></v-col>
             </v-row>
           </v-card-text>
@@ -92,7 +105,11 @@
 
         <!-- quotation line items -->
         <div v-if="quotation.items.length">
-          <v-col class="py-0 px-0 my-1" v-for="(item, index) in quotation.items" :key="item.id">
+          <v-col
+            class="py-0 px-0 my-1"
+            v-for="(item, index) in quotation.items"
+            :key="item.id"
+          >
             <AppQuotationItem
               :item="item"
               :position="index"
@@ -102,7 +119,11 @@
           </v-col>
         </div>
 
-        <v-divider class="mt-10 mb-4" light v-if="quotation.items.length"></v-divider>
+        <v-divider
+          class="mt-10 mb-4"
+          light
+          v-if="quotation.items.length"
+        ></v-divider>
 
         <!--  totals -->
         <v-row class="text-right" v-if="quotation.items.length">
@@ -116,7 +137,9 @@
           </v-col>
           <v-col>
             <div class="caption font-weight-bold">Grand Total</div>
-            <div class="body-2">{{ (total - discountTotal) | currency("R", 2) }}</div>
+            <div class="body-2">
+              {{ (total - discountTotal) | currency("R", 2) }}
+            </div>
           </v-col>
         </v-row>
 
