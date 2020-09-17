@@ -15,7 +15,7 @@
     <!--  page   -->
     <app-material-card
       ref="quotationPage"
-      color="warning"
+      :color="color"
       icon="mdi-note"
       max-width="800px"
       class="px-5 py-3 mx-md-auto"
@@ -60,18 +60,18 @@
             <v-btn :value="false">Draft</v-btn>
             <v-btn :value="true">Complete</v-btn>
           </v-btn-toggle>
-          Status: {{ this.quotation.completed }}
+
           <v-btn
             class="d-none d-sm-flex"
             @click="openModal(true)"
-            color="warning"
+            :color="color"
             >Add Line Item</v-btn
           >
           <v-btn
             fab
             right
             x-small
-            color="warning"
+            :color="color"
             class="d-flex d-sm-none"
             @click="openModal(true)"
           >
@@ -111,6 +111,7 @@
             v-for="(item, index) in quotation.items"
           >
             <AppQuotationItem
+              :color="color"
               :item="item"
               :position="index"
               v-on:edit-line-item="openModal"
@@ -175,7 +176,7 @@ import html2canvas from "html2canvas";
 const easyinvoice = require("easyinvoice");
 
 @Component({
-  components: { VFormBase, AppQuotationItem, AppAddLineItemToQuotation }
+  components: { VFormBase, AppQuotationItem, AppAddLineItemToQuotation },
 })
 export default class QuotationEditor extends Vue {
   name = "QuotationEditor";
@@ -193,7 +194,7 @@ export default class QuotationEditor extends Vue {
     details: "",
     quantity: 0,
     discount: "",
-    discounted: false
+    discounted: false,
   };
 
   lineItems: Array<LineItem> = Array<LineItem>();
@@ -204,20 +205,20 @@ export default class QuotationEditor extends Vue {
     quantity: {
       value: 0,
       type: "number",
-      label: "Quantity"
+      label: "Quantity",
     },
     cost: {
       value: 0,
       type: "number",
       label: "Cost",
-      disabled: true
+      disabled: true,
     },
     discount: {
       value: false,
       type: "switch",
       label: "Apply discount",
-      disabled: true
-    }
+      disabled: true,
+    },
   };
 
   itemsWatcher: any = null;
@@ -257,7 +258,7 @@ export default class QuotationEditor extends Vue {
     return this.$store.dispatch("SET_RECORD", {
       record: { ...quotation, total: this.total, format: `R${this.total}` },
       path: "quotations",
-      ref: quotation.id
+      ref: quotation.id,
     });
   }
 
@@ -265,12 +266,12 @@ export default class QuotationEditor extends Vue {
     this.addLineItemDialog = false;
     this.quotation.items.push({
       ...item,
-      key: this.quotation.items.length + 1
+      key: this.quotation.items.length + 1,
     });
     this.$store.dispatch("SET_RECORD", {
       record: { ...item, reference: db.doc(`${item.path}`).path },
       path: `${this.quotation.path}/items`,
-      ref: item.id
+      ref: item.id,
     });
 
     this.updateQuotation(this.quotation);
@@ -283,12 +284,12 @@ export default class QuotationEditor extends Vue {
   async deleteLineItem(item: LineItem) {
     const res = await this.$dialog.confirm({
       text: `Do you want to remove '${item.name}' from quotation?`,
-      title: "Delete Line Item"
+      title: "Delete Line Item",
     });
     if (res) {
       this.quotation.items = await curd
         .delete(item.path as string)
-        .then(() => this.quotation.items.filter(it => it.id !== item.id));
+        .then(() => this.quotation.items.filter((it) => it.id !== item.id));
       await this.updateQuotation(this.quotation);
     }
   }
@@ -319,7 +320,7 @@ export default class QuotationEditor extends Vue {
   set isCompleted(value: boolean) {
     const res = this.toggleComplete(value);
 
-    res.then(choice => {
+    res.then((choice) => {
       if (choice) {
         this.quotation.completed = value;
         curd.update(this.quotation, this.quotation.path as string);
@@ -339,6 +340,10 @@ export default class QuotationEditor extends Vue {
     return this.isCompleted ? "Invoice" : "Quotation";
   }
 
+  get color() {
+    return this.isCompleted ? "primary" : "warning";
+  }
+
   async sendEmail() {
     // generate PDF
     // this.generatePDF();
@@ -356,7 +361,7 @@ export default class QuotationEditor extends Vue {
 
     const res = await this.$dialog.confirm({
       text: `Attemping to launch your default email client, would you like to proceed?`,
-      title: `Send ${type} e-mail`
+      title: `Send ${type} e-mail`,
     });
 
     if (res) {
@@ -372,7 +377,7 @@ export default class QuotationEditor extends Vue {
           quantity,
           description: details,
           tax: 0,
-          price: discountAmount ? cost - discountAmount : cost
+          price: discountAmount ? cost - discountAmount : cost,
         };
       }
     );
@@ -392,26 +397,26 @@ export default class QuotationEditor extends Vue {
         zip: "7780",
         city: "Cape Town",
         country: "South Africa",
-        "phone number": "021 696 2600"
+        "phone number": "021 696 2600",
       },
       client: {
         company: this.quotation.client,
         address: this.quotation.meta.client.email,
         zip: "7700",
         city: "Cape Town",
-        country: "South Africa"
+        country: "South Africa",
       },
       invoiceNumber: this.quotation.id,
       invoiceDate: this.quotation.updated,
       products: products,
       bottomNotice: this.isCompleted
         ? "Kindly pay your invoice within 15 days."
-        : "Please note: this is quotation is valid for 15 days"
+        : "Please note: this is quotation is valid for 15 days",
     };
 
     const dialogRes = await this.$dialog.confirm({
       title: `Download ${this.documentType} PDF`,
-      text: `Woud you like to download ${this.documentType} PDF?`
+      text: `Woud you like to download ${this.documentType} PDF?`,
     });
 
     if (dialogRes) {
@@ -428,7 +433,7 @@ export default class QuotationEditor extends Vue {
       text: value
         ? `Do you want to convert this quotation to an invoice?`
         : `Do you want to convert this invoice to a quotation?`,
-      title: "Convert to Invoice"
+      title: "Convert to Invoice",
     });
   }
 }

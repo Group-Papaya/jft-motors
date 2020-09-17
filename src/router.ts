@@ -51,7 +51,7 @@ const router = new Router({
         },
         {
           path: "invoices/:id",
-          component: () => import("@/views/InvoiceViewer.vue")
+          component: () => import("@/views/QuotationEditor.vue")
         },
         {
           name: "Clients",
