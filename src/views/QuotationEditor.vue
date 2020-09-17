@@ -6,7 +6,7 @@
         <v-row class="justify-md-center ml-1">
           <v-btn-toggle dense>
             <v-btn @click="sendEmail()">Send Email</v-btn>
-            <v-btn @click="createInvoice()">Print PDF</v-btn>
+            <v-btn @click="downloadInvoice()">Print PDF</v-btn>
           </v-btn-toggle>
         </v-row>
       </v-col>
@@ -232,7 +232,7 @@ export default class QuotationEditor extends Vue {
     // );
 
     this.itemsWatcher = watchDocument(
-      { path: this.quotation.path },
+      { path: this.quotation.path as string },
       (it: Quotation) => (this.quotation.items = it.items)
     );
   }
@@ -335,6 +335,10 @@ export default class QuotationEditor extends Vue {
     });
   }
 
+  get documentType() {
+    return this.isCompleted ? "Invoice" : "Quotation";
+  }
+
   async sendEmail() {
     // generate PDF
     // this.generatePDF();
@@ -350,64 +354,38 @@ export default class QuotationEditor extends Vue {
 
     const body = `Hi, ${this.quotation.meta.client.firstname} ${this.quotation.meta.client.lastname}. Please visit the link to view ${type}: ${quotationUrl}`;
 
-    // open email client
-    window.open(`mailto:${email}?subject=${subject}&body=${body}`);
-
-    const dialog = await this.$dialog.confirm({
-      text: `Attemping to launch your default email client....`,
-      title: `Send ${type} e-mail`,
-      actions: ["Close"]
+    const res = await this.$dialog.confirm({
+      text: `Attemping to launch your default email client, would you like to proceed?`,
+      title: `Send ${type} e-mail`
     });
+
+    if (res) {
+      // open email client
+      window.open(`mailto:${email}?subject=${subject}&body=${body}`);
+    }
   }
 
-  generatePDF() {
-    /** WITH CSS */
-    // const canvasElement = document.createElement('canvas');
-
-    const pdfData = (this.$refs.quotationPage as Vue).$el as HTMLElement;
-
-    const divHeight = pdfData.clientHeight;
-    const divWidth = pdfData.clientWidth;
-    const ratio = divHeight / divWidth;
-
-    html2canvas(pdfData, { scale: 1 }).then(function(canvas) {
-      // const doc = new jsPDF();
-      // const width = doc.internal.pageSize.getWidth();
-      // const height = doc.internal.pageSize.getHeight() * ratio
-
-      const imgData = canvas.toDataURL("image/jpeg");
-      const pdfDOC = new jsPDF("portrait", "mm", "a4"); //  use a4 for smaller page
-
-      const width = pdfDOC.internal.pageSize.getWidth();
-      let height = pdfDOC.internal.pageSize.getHeight();
-      height = ratio * width;
-
-      pdfDOC.addImage(imgData, "JPEG", 0, 0, width - 20, height - 10);
-      pdfDOC.save("summary.pdf");
-
-      // const img = canvas.toDataURL("png");
-      //
-      // const imgOpts: ImageOptions = {
-      //     height, width, x: 0, y: 0,
-      //     imageData: img
-      // }
-      // doc.addImage(imgOpts);
-      //
-      // doc.save("sample.pdf");
-    });
-  }
-
-  async createInvoice() {
+  async downloadInvoice() {
+    const products = this.quotation.items.map(
+      ({ quantity, details, cost, discountAmount }) => {
+        return {
+          quantity,
+          description: details,
+          tax: 0,
+          price: discountAmount ? cost - discountAmount : cost
+        };
+      }
+    );
     const data = {
-      //"documentTitle": "RECEIPT", //Defaults to INVOICE
+      documentTitle: this.documentType,
       currency: "ZAR",
       taxNotation: "vat", //or gst
       marginTop: 25,
       marginRight: 25,
       marginLeft: 25,
       marginBottom: 25,
-      logo: "https://www.easyinvoice.cloud/img/logo.png", //or base64
-      //"logoExtension": "png", //only when logo is base64
+      logo:
+        "https://firebasestorage.googleapis.com/v0/b/jft-motors.appspot.com/o/logo.png?alt=media&token=f29da7d9-c265-438a-8f53-f3c728666bb6",
       sender: {
         company: "JFT Motors",
         address: "373 Imam Haron Rd, Lansdowne",
@@ -415,40 +393,34 @@ export default class QuotationEditor extends Vue {
         city: "Cape Town",
         country: "South Africa",
         "phone number": "021 696 2600"
-        //"custom2": "custom value 2",
-        //"custom3": "custom value 3"
       },
       client: {
-        // company: "Client Corp",
-        address: "Clientstreet 456",
+        company: this.quotation.client,
+        address: this.quotation.meta.client.email,
         zip: "7700",
         city: "Cape Town",
-        country: "South Africa",
-        clientName: `${this.quotation.meta.client.firstname} ${this.quotation.meta.client.lastname}`
-        //"custom2": "custom value 2",
-        //"custom3": "custom value 3"
+        country: "South Africa"
       },
-      invoiceNumber: "2020.0001",
-      invoiceDate: "05-01-2020",
-      products: [
-        {
-          quantity: "2",
-          description: "Test1",
-          tax: 6,
-          price: 33.87
-        },
-        {
-          quantity: "4",
-          description: "Test2",
-          tax: 21,
-          price: 10.45
-        }
-      ],
-      bottomNotice: "Kindly pay your invoice within 15 days."
+      invoiceNumber: this.quotation.id,
+      invoiceDate: this.quotation.updated,
+      products: products,
+      bottomNotice: this.isCompleted
+        ? "Kindly pay your invoice within 15 days."
+        : "Please note: this is quotation is valid for 15 days"
     };
-    const result = await easyinvoice.createInvoice(data);
-    console.log(result.pdf);
-    easyinvoice.download("myInvoice.pdf", result.pdf);
+
+    const dialogRes = await this.$dialog.confirm({
+      title: `Download ${this.documentType} PDF`,
+      text: `Woud you like to download ${this.documentType} PDF?`
+    });
+
+    if (dialogRes) {
+      const result = await easyinvoice.createInvoice(data);
+      easyinvoice.download(
+        `${Date.now()}-${this.documentType}.pdf`,
+        result.pdf
+      );
+    }
   }
 
   async toggleComplete(value: boolean) {
