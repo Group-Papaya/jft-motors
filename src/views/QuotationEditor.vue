@@ -106,9 +106,9 @@
         <!-- quotation line items -->
         <div v-if="quotation.items.length">
           <v-col
+            :key="item.key"
             class="py-0 px-0 my-1"
             v-for="(item, index) in quotation.items"
-            :key="item.id"
           >
             <AppQuotationItem
               :item="item"
@@ -164,7 +164,7 @@ import { Component, Vue } from "vue-property-decorator";
 import { LineItem, Quotation } from "@/models";
 
 import VFormBase from "../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
-import { watchCollection, curd } from "@/services/curd.service";
+import { watchCollection, curd, watchDocument } from "@/services/curd.service";
 import { db } from "@/firebase";
 import AppQuotationItem from "@/components/layouts/AppQuotationItem.vue";
 import AppAddLineItemToQuotation from "@/components/layouts/AppAddLineItemToQuotation.vue";
@@ -226,9 +226,14 @@ export default class QuotationEditor extends Vue {
     this.lineItems = this.getLineItems();
     this.getQuotation(this.$route.params.id);
 
-    this.itemsWatcher = watchCollection(
-      `${this.quotation.path}/items`,
-      items => (this.quotation.items = items)
+    // this.itemsWatcher = watchCollection(
+    //   `${this.quotation.path}/items`,
+    //   items => (this.quotation.items = items)
+    // );
+
+    this.itemsWatcher = watchDocument(
+      { path: this.quotation.path },
+      (it: Quotation) => (this.quotation.items = it.items)
     );
   }
 
@@ -248,14 +253,27 @@ export default class QuotationEditor extends Vue {
     this.dialogRef.showDialog(add, item);
   }
 
+  updateQuotation(quotation: Quotation) {
+    return this.$store.dispatch("SET_RECORD", {
+      record: { ...quotation, total: this.total, format: `R${this.total}` },
+      path: "quotations",
+      ref: quotation.id
+    });
+  }
+
   addLineItem(item: LineItem) {
     this.addLineItemDialog = false;
-    this.quotation.items.push(item);
+    this.quotation.items.push({
+      ...item,
+      key: this.quotation.items.length + 1
+    });
     this.$store.dispatch("SET_RECORD", {
       record: { ...item, reference: db.doc(`${item.path}`).path },
       path: `${this.quotation.path}/items`,
       ref: item.id
     });
+
+    this.updateQuotation(this.quotation);
   }
 
   editLineItem(item: LineItem) {
@@ -268,7 +286,10 @@ export default class QuotationEditor extends Vue {
       title: "Delete Line Item"
     });
     if (res) {
-      await curd.delete(item.path as string);
+      this.quotation.items = await curd
+        .delete(item.path as string)
+        .then(() => this.quotation.items.filter(it => it.id !== item.id));
+      await this.updateQuotation(this.quotation);
     }
   }
 

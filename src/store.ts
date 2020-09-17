@@ -3,7 +3,6 @@ import { auth } from "@/services/auth.service";
 import Vue from "vue";
 import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
-import { vuexfireMutations } from "vuexfire";
 import { curd } from "./services/curd.service";
 
 Vue.use(Vuex);
@@ -15,7 +14,6 @@ export default new Vuex.Store({
     drawer: null,
     auth: {
       user: User,
-      data: auth.user,
       authenticated: auth.user ? !auth.user.isAnonymous : false
     },
     records: {

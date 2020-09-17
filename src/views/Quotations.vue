@@ -1,13 +1,14 @@
 <template>
   <AppManager
     title="Quotations"
+    icon="mdi-note"
     :model="model"
     :schema="schema"
-    :addHandler="addQuotation"
-    icon="mdi-note"
-    :changeHandler="handleChanges"
-    :items="this.items"
     :headers="headers"
+    :items="this.items"
+    :add-handler="addQuotation"
+    :change-handler="handleChanges"
+    :on-delete-dialog="deleteQuotation"
   />
 </template>
 
@@ -16,8 +17,7 @@ import moment from "moment";
 import { Component, Vue } from "vue-property-decorator";
 import AppManager from "@/components/layouts/AppManager.vue";
 import Quotation from "@/models/Quotation";
-import { curd, watchCollection } from "@/services/curd.service";
-import { auth } from "firebase";
+import { curd } from "@/services/curd.service";
 import { Client } from "@/models";
 
 @Component({
@@ -48,7 +48,7 @@ export default class Quotations extends Vue {
     {
       sortable: false,
       text: "Total",
-      value: "total"
+      value: "format"
     },
     {
       sortable: false,
@@ -74,7 +74,7 @@ export default class Quotations extends Vue {
     }
   };
 
-  async handleChanges({ key, value }: any) {
+  async handleChanges({ _, value }: any) {
     this.model.meta.client = value;
   }
 
@@ -86,6 +86,13 @@ export default class Quotations extends Vue {
     return this.$store.state.records.clients;
   }
 
+  deleteQuotation(result: boolean, quotation: Quotation) {
+    if (result)
+      curd
+        .deleteCollection(`${quotation.path}/items`)
+        .then(() => curd.delete(quotation.path as string));
+  }
+
   addQuotation(record: Quotation) {
     const client = record.meta.client;
     const user = this.$store.state.auth.user;
@@ -94,9 +101,10 @@ export default class Quotations extends Vue {
         ...record,
         items: [],
         total: 0.0,
-        client: `${client.firstname} ${client.lastname}`,
+        format: "R0.0",
         completed: false,
         user: `${user.firstname} ${user.lastname}`,
+        client: `${client.firstname} ${client.lastname}`,
         created: moment().format("MMMM Do YYYY"),
         updated: moment().format("MMMM Do YYYY"),
         meta: {
