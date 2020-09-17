@@ -6,7 +6,6 @@ export default class LineItem extends Record {
   type!: string;
   cost!: number;
   units!: number;
-  format!: string;
   details!: string;
   quantity!: number;
   discount!: string | Discount;
