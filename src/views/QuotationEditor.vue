@@ -6,7 +6,7 @@
         <v-row class="justify-md-center ml-1">
           <v-btn-toggle dense>
             <v-btn @click="sendEmail()">Send Email</v-btn>
-            <v-btn>Print PDF</v-btn>
+            <v-btn @click="createInvoice()">Print PDF</v-btn>
           </v-btn-toggle>
         </v-row>
       </v-col>
@@ -148,6 +148,8 @@ import AppAddLineItemToQuotation from "@/components/layouts/AppAddLineItemToQuot
 
 import jsPDF, { ImageOptions } from "jspdf";
 import html2canvas from "html2canvas";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const easyinvoice = require("easyinvoice");
 
 @Component({
   components: { VFormBase, AppQuotationItem, AppAddLineItemToQuotation }
@@ -310,7 +312,7 @@ export default class QuotationEditor extends Vue {
     const dialog = await this.$dialog.confirm({
       text: `Attemping to launch your default email client....`,
       title: `Send ${type} e-mail`,
-      actions: ['Close']
+      actions: ["Close"]
     });
   }
 
@@ -351,21 +353,58 @@ export default class QuotationEditor extends Vue {
     });
   }
 
-  async generateHTML() {
-    let html = `<table>
-    <tr>
-    <td>#</td>
-    <td>Line Item Name</td>
-    <td>Qty</td>
-    <td>Discount</td>
-    <td>Price</td>
-</tr>`;
-    this.lineItems.forEach(lineItem => {
-      html += ``;
-    });
-
-    html += "</table>";
-    return html;
+  async createInvoice() {
+    const data = {
+      //"documentTitle": "RECEIPT", //Defaults to INVOICE
+      currency: "ZAR",
+      taxNotation: "vat", //or gst
+      marginTop: 25,
+      marginRight: 25,
+      marginLeft: 25,
+      marginBottom: 25,
+      logo: "https://www.easyinvoice.cloud/img/logo.png", //or base64
+      //"logoExtension": "png", //only when logo is base64
+      sender: {
+        company: "JFT Motors",
+        address: "373 Imam Haron Rd, Lansdowne",
+        zip: "7780",
+        city: "Cape Town",
+        country: "South Africa",
+        "phone number": "021 696 2600"
+        //"custom2": "custom value 2",
+        //"custom3": "custom value 3"
+      },
+      client: {
+        // company: "Client Corp",
+        address: "Clientstreet 456",
+        zip: "7700",
+        city: "Cape Town",
+        country: "South Africa",
+        clientName: `${this.quotation.meta.client.firstname} ${this.quotation.meta.client.lastname}`
+        //"custom2": "custom value 2",
+        //"custom3": "custom value 3"
+      },
+      invoiceNumber: "2020.0001",
+      invoiceDate: "05-01-2020",
+      products: [
+        {
+          quantity: "2",
+          description: "Test1",
+          tax: 6,
+          price: 33.87
+        },
+        {
+          quantity: "4",
+          description: "Test2",
+          tax: 21,
+          price: 10.45
+        }
+      ],
+      bottomNotice: "Kindly pay your invoice within 15 days."
+    };
+    const result = await easyinvoice.createInvoice(data);
+    console.log(result.pdf);
+    easyinvoice.download("myInvoice.pdf", result.pdf);
   }
 
   async toggleComplete(value: boolean) {
