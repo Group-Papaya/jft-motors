@@ -10,6 +10,8 @@ import router from "./router";
 import "./service-worker";
 import { watchCollection } from "./services/curd.service";
 import store from "./store";
+import Toast from "vue-toastification";
+import "vue-toastification/dist/index.css";
 
 Vue.config.productionTip = false;
 
@@ -32,6 +34,12 @@ const lineitems = watchCollection("line-items", data =>
 const quotations = watchCollection("quotations", data =>
   store.commit("SET_RECORDS", { quotations: data })
 );
+
+Vue.use(Toast, {
+  transition: "Vue-Toastification__bounce",
+  maxToasts: 5,
+  newestOnTop: true
+});
 
 new Vue({
   router,
