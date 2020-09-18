@@ -165,13 +165,11 @@ import { Component, Vue } from "vue-property-decorator";
 import { LineItem, Quotation } from "@/models";
 
 import VFormBase from "../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
-import { watchCollection, curd, watchDocument } from "@/services/curd.service";
+import { curd, watchDocument } from "@/services/curd.service";
 import { db } from "@/firebase";
 import AppQuotationItem from "@/components/layouts/AppQuotationItem.vue";
 import AppAddLineItemToQuotation from "@/components/layouts/AppAddLineItemToQuotation.vue";
 
-import jsPDF, { ImageOptions } from "jspdf";
-import html2canvas from "html2canvas";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const easyinvoice = require("easyinvoice");
 
