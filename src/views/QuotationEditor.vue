@@ -89,17 +89,17 @@
             <v-row class="py-0 my-0">
               <v-col cols="1">#</v-col>
               <v-col cols="3" class="text-left caption font-weight-bold"
-                >Line Item Name</v-col
-              >
+                >Line Item Name
+              </v-col>
               <v-col cols="1" class="text-right caption font-weight-bold"
-                >Qty</v-col
-              >
+                >Qty
+              </v-col>
               <v-col cols="2" class="text-right caption font-weight-bold"
-                >Discount</v-col
-              >
+                >Discount
+              </v-col>
               <v-col cols="3" class="text-right caption font-weight-bold"
-                >Price</v-col
-              >
+                >Price
+              </v-col>
               <v-col cols="2" class="text-right" v-if="isCompleted"></v-col>
             </v-row>
           </v-card-text>
@@ -167,16 +167,14 @@ import { Component, Vue } from "vue-property-decorator";
 import { LineItem, Quotation } from "@/models";
 
 import VFormBase from "../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
-import { watchCollection, curd, watchDocument } from "@/services/curd.service";
+import { curd, watchDocument } from "@/services/curd.service";
 import { db } from "@/firebase";
 import AppQuotationItem from "@/components/layouts/AppQuotationItem.vue";
 import AppAddLineItemToQuotation from "@/components/layouts/AppAddLineItemToQuotation.vue";
 
-import jsPDF, { ImageOptions } from "jspdf";
-import html2canvas from "html2canvas";
 import firebase from "firebase";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const easyinvoice = require("easyinvoice");
+const easyInvoice = require("easyinvoice");
 
 @Component({
   components: { VFormBase, AppQuotationItem, AppAddLineItemToQuotation }
@@ -229,11 +227,6 @@ export default class QuotationEditor extends Vue {
   created() {
     this.lineItems = this.getLineItems();
     this.getQuotation(this.$route.params.id);
-
-    // this.itemsWatcher = watchCollection(
-    //   `${this.quotation.path}/items`,
-    //   items => (this.quotation.items = items)
-    // );
 
     this.itemsWatcher = watchDocument(
       { path: this.quotation.path as string },
@@ -396,7 +389,7 @@ export default class QuotationEditor extends Vue {
 
   async sendEmail() {
     // generate pdf
-    const result = await easyinvoice.createInvoice(this.pdfData);
+    const result = await easyInvoice.createInvoice(this.pdfData);
     await this.uploadPDF(result.pdf);
 
     // confirm
@@ -433,10 +426,10 @@ export default class QuotationEditor extends Vue {
 
     if (dialogRes) {
       // generate pdf
-      const result = await easyinvoice.createInvoice(this.pdfData);
+      const result = await easyInvoice.createInvoice(this.pdfData);
 
       // download pdf
-      await easyinvoice.download(
+      await easyInvoice.download(
         `${Date.now()}-${this.documentType}.pdf`,
         result.pdf
       );
