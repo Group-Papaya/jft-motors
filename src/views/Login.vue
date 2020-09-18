@@ -30,9 +30,10 @@
           >Click here to reset
         </router-link>
       </p>
-      <p class="text-center">
-        Don't have an account?
-        <router-link :to="{ path: 'register' }">Register here </router-link>
+      <p v-if="!this.$store.state.registered" class="text-center">
+        <router-link :to="{ path: 'register' }">
+          Setup business
+        </router-link>
       </p>
     </v-col>
   </app-auth>

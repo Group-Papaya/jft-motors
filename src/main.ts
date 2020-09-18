@@ -15,6 +15,11 @@ import "vue-toastification/dist/index.css";
 
 Vue.config.productionTip = false;
 
+const settings = watchCollection("settings", data => {
+  store.commit("SET_REGISTERED", data.length > 0);
+  store.commit("SET_RECORDS", { settings: data });
+});
+
 const users = watchCollection("users", data =>
   store.commit("SET_RECORDS", { users: data })
 );
@@ -52,5 +57,6 @@ new Vue({
     discounts();
     lineitems();
     quotations();
+    settings();
   }
 }).$mount("#app");

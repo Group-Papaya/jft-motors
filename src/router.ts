@@ -110,7 +110,11 @@ const router = new Router({
           component: () =>
             import(
               /* webpackChunkName: "auth-register" */ "@/views/Register.vue"
-            )
+            ),
+          async beforeEnter(to, from, next) {
+            if (store.state.registered) next({ name: "Login" });
+            else next();
+          }
         },
         {
           name: "Forgot Password",
