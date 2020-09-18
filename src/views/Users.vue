@@ -13,9 +13,10 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import User, { BASE_ROLE, ROLES } from "@/models/User";
+import User, { BASE_ROLE, MANAGER_ROLE, ROLES } from "@/models/User";
 import AppEditor from "@/components/layouts/AppManager.vue";
 import { auth } from "@/services/auth.service";
+import { POSITION } from "vue-toastification";
 
 @Component({
   components: { AppEditor }
@@ -60,7 +61,11 @@ export default class Users extends Vue {
 
   get users() {
     const users = this.$store.state.records.users;
-    return users.filter(user => user.id !== this.$store.getters.currentUser.id);
+    return users.filter(
+      user =>
+        user.role !== MANAGER_ROLE &&
+        user.id !== this.$store.getters.currentUser.id
+    );
   }
 
   model = {
@@ -91,7 +96,7 @@ export default class Users extends Vue {
     role: {
       type: "select",
       label: "Role",
-      items: ROLES
+      items: ROLES.filter(it => it !== MANAGER_ROLE)
     }
   };
 
@@ -108,7 +113,7 @@ export default class Users extends Vue {
     if (appUser.role !== BASE_ROLE) {
       auth.register({ ...user, password: "P@ssword1" }).then(() => {
         this.$toast.success(`New account created: ${user.email}`, {
-          position: "top"
+          position: POSITION.TOP_RIGHT
         });
       });
     }
