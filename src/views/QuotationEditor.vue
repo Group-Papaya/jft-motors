@@ -64,14 +64,16 @@
           <v-btn
             class="d-none d-sm-flex"
             @click="openModal(true)"
+            v-if="!isCompleted"
             :color="color"
-            >Add Line Item</v-btn
-          >
+            >Add Line Item
+          </v-btn>
           <v-btn
             fab
             right
             x-small
             :color="color"
+            v-if="!isCompleted"
             class="d-flex d-sm-none"
             @click="openModal(true)"
           >
@@ -98,7 +100,7 @@
               <v-col cols="3" class="text-right caption font-weight-bold"
                 >Price</v-col
               >
-              <v-col cols="2" class="text-right"></v-col>
+              <v-col cols="2" class="text-right" v-if="isCompleted"></v-col>
             </v-row>
           </v-card-text>
         </v-card>
@@ -165,11 +167,14 @@ import { Component, Vue } from "vue-property-decorator";
 import { LineItem, Quotation } from "@/models";
 
 import VFormBase from "../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
-import { curd, watchDocument } from "@/services/curd.service";
+import { watchCollection, curd, watchDocument } from "@/services/curd.service";
 import { db } from "@/firebase";
 import AppQuotationItem from "@/components/layouts/AppQuotationItem.vue";
 import AppAddLineItemToQuotation from "@/components/layouts/AppAddLineItemToQuotation.vue";
 
+import jsPDF, { ImageOptions } from "jspdf";
+import html2canvas from "html2canvas";
+import firebase from "firebase";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const easyinvoice = require("easyinvoice");
 
@@ -321,7 +326,8 @@ export default class QuotationEditor extends Vue {
     res.then(choice => {
       if (choice) {
         this.quotation.completed = value;
-        curd.update(this.quotation, this.quotation.path as string);
+        // curd.update(this.quotation, this.quotation.path as string)
+        this.updateQuotation(this.quotation).then();
 
         // if (value) {
         //   // redirect to invoice page
@@ -342,33 +348,7 @@ export default class QuotationEditor extends Vue {
     return this.isCompleted ? "primary" : "warning";
   }
 
-  async sendEmail() {
-    // generate PDF
-    // this.generatePDF();
-
-    // get client email from database
-    const email = this.quotation.meta.client.email;
-
-    const type = this.quotation.completed ? "Invoice" : "Quotation";
-    const subject = `${type} from JFT Motors`;
-
-    // TODO: add url to PDF
-    const quotationUrl = window.location.href;
-
-    const body = `Hi, ${this.quotation.meta.client.firstname} ${this.quotation.meta.client.lastname}. Please visit the link to view ${type}: ${quotationUrl}`;
-
-    const res = await this.$dialog.confirm({
-      text: `Attemping to launch your default email client, would you like to proceed?`,
-      title: `Send ${type} e-mail`
-    });
-
-    if (res) {
-      // open email client
-      window.open(`mailto:${email}?subject=${subject}&body=${body}`);
-    }
-  }
-
-  async downloadInvoice() {
+  get pdfData() {
     const products = this.quotation.items.map(
       ({ quantity, details, cost, discountAmount }) => {
         return {
@@ -379,7 +359,8 @@ export default class QuotationEditor extends Vue {
         };
       }
     );
-    const data = {
+
+    return {
       documentTitle: this.documentType,
       currency: "ZAR",
       taxNotation: "vat", //or gst
@@ -411,19 +392,92 @@ export default class QuotationEditor extends Vue {
         ? "Kindly pay your invoice within 15 days."
         : "Please note: this is quotation is valid for 15 days"
     };
+  }
 
+  async sendEmail() {
+    // generate pdf
+    const result = await easyinvoice.createInvoice(this.pdfData);
+    await this.uploadPDF(result.pdf);
+
+    // confirm
+    const res = await this.$dialog.confirm({
+      text: `Attempting to launch your default email client, would you like to proceed?`,
+      title: `Send ${this.documentType} e-mail`
+    });
+    if (res) {
+      // TODO: remove this hack!! make this codeblock wait until pdf url is updated
+      setTimeout(() => {
+        // if user agrees
+
+        // populate email content
+        const email = this.quotation.meta.client.email;
+        const subject = `${this.documentType} from JFT Motors`;
+        let downloadURL = this.isCompleted
+          ? this.quotation.meta["pdf"]["invoice"]
+          : this.quotation.meta["pdf"]["quotation"];
+        downloadURL = encodeURIComponent(downloadURL);
+        const body = `Hi, ${this.quotation.meta.client.firstname} ${this.quotation.meta.client.lastname}. Please visit the link to view ${this.documentType}: ${downloadURL}`;
+
+        // open email client
+        window.open(`mailto:${email}?subject=${subject}&body=${body}`);
+      }, 3000);
+    }
+  }
+
+  async downloadInvoice() {
+    // confirm
     const dialogRes = await this.$dialog.confirm({
       title: `Download ${this.documentType} PDF`,
-      text: `Woud you like to download ${this.documentType} PDF?`
+      text: `Would you like to download ${this.documentType} PDF?`
     });
 
     if (dialogRes) {
-      const result = await easyinvoice.createInvoice(data);
-      easyinvoice.download(
+      // generate pdf
+      const result = await easyinvoice.createInvoice(this.pdfData);
+
+      // download pdf
+      await easyinvoice.download(
         `${Date.now()}-${this.documentType}.pdf`,
         result.pdf
       );
+
+      // upload file
+      await this.uploadPDF(result.pdf);
     }
+  }
+
+  async uploadPDF(file: any) {
+    const filename = `${this.documentType}s/${this.quotation.id}.pdf`;
+
+    const storageRef = firebase
+      .storage()
+      .ref(filename)
+      .putString(file, "base64");
+
+    storageRef.on(
+      firebase.storage.TaskEvent.STATE_CHANGED,
+      snapshot => {
+        // TODO: implement loading screen
+        console.log((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+      },
+      error => {
+        console.log(error);
+      },
+      () => {
+        storageRef.snapshot.ref.getDownloadURL().then(url => {
+          if (!this.quotation.meta["pdf"]) {
+            this.quotation.meta["pdf"] = {};
+          }
+
+          this.isCompleted
+            ? (this.quotation.meta["pdf"]["invoice"] = url)
+            : (this.quotation.meta["pdf"]["quotation"] = url);
+
+          this.updateQuotation(this.quotation).then();
+          console.log(`${this.documentType} PDF url: ${url}`);
+        });
+      }
+    );
   }
 
   async toggleComplete(value: boolean) {
