@@ -11,8 +11,20 @@ export default new Vuex.Store({
   state: {
     barColor: "rgba(0, 0, 0)",
     barImage: require("@/assets/background.jpg"),
+    rules: {},
     drawer: null,
-    registered: false,
+    details: {
+      telephone: "",
+      company: "",
+      address: {
+        city: "",
+        street: "",
+        suburb: "",
+        zipcode: 0o000,
+        country: ""
+      }
+    },
+    registered: true,
     auth: {
       user: User,
       authenticated: auth.user ? !auth.user.isAnonymous : false
@@ -53,6 +65,12 @@ export default new Vuex.Store({
     },
     SET_AUTH_STATE(state, payload) {
       state.auth = payload;
+    },
+    SET_DETAILS(state, payload) {
+      state.details = payload;
+    },
+    SET_RULES(state, payload) {
+      state.rules = payload;
     },
     SET_RECORDS(state, payload) {
       state.records = {

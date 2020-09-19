@@ -8,17 +8,12 @@ import vuetify from "./plugins/vuetify";
 import "./plugins/vuetify-dialog";
 import router from "./router";
 import "./service-worker";
-import { watchCollection } from "./services/curd.service";
+import { getDocument, watchCollection } from "./services/curd.service";
 import store from "./store";
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 
 Vue.config.productionTip = false;
-
-const settings = watchCollection("settings", data => {
-  store.commit("SET_REGISTERED", data.length > 0);
-  store.commit("SET_RECORDS", { settings: data });
-});
 
 const users = watchCollection("users", data =>
   store.commit("SET_RECORDS", { users: data })
@@ -51,12 +46,22 @@ new Vue({
   store,
   vuetify,
   render: h => h(App),
+  beforeCreate() {
+    getDocument("settings/business-details")
+      .get()
+      .then(doc => {
+        store.commit("SET_REGISTERED", doc.exists);
+        store.commit("SET_DETAILS", doc.data());
+      });
+    getDocument("settings/business-rules")
+      .get()
+      .then(doc => store.commit("SET_RULES", doc.data()));
+  },
   beforeDestroy: () => {
     users();
     clients();
     discounts();
     lineitems();
     quotations();
-    settings();
   }
 }).$mount("#app");
