@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import firebase from "firebase/app";
 import { curd } from "./curd.service";
 import { dbService } from "./firestore.service";
+import { BASE_ROLE } from "@/models/User";
 
 interface AuthResponse {
   error?: any;
@@ -51,6 +52,46 @@ export default class AuthService {
       .catch(reason => {
         return { error: reason };
       });
+  }
+
+  @tryCatch(Logger)
+  async socialLogin(
+    userRole?: string,
+    onCreation?: (details: any) => void
+  ): Promise<AuthResponse> {
+    return this.firebaseAuth
+      .signInWithPopup(new firebase.auth.GoogleAuthProvider())
+      .then(async ({ user, additionalUserInfo: info, ...credentials }) => {
+        if (store.getters.getUser(user?.email) === undefined) {
+          if (onCreation === undefined) {
+            bcrypt.hash("P@assword1", 2).then(hash => {
+              const {
+                given_name: firstname,
+                family_name: lastname
+              } = info?.profile as any;
+              const newUser: User = {
+                id: user?.uid,
+                password: hash,
+                role: userRole ? userRole : BASE_ROLE,
+                lastname: lastname,
+                firstname: firstname,
+                email: user?.email as string,
+                meta: {
+                  isGoogleAccount: true
+                }
+              };
+              dbService.add(newUser, "users", user?.uid);
+            });
+          } else onCreation({ user, info, ...credentials });
+        }
+
+        store.commit("SET_AUTH_STATE", {
+          user: await curd.get("users", user?.uid),
+          authenticated: true
+        });
+        return { result: { user, info, ...credentials } };
+      })
+      .catch(reason => ({ error: reason }));
   }
 
   @tryCatch(Logger)

@@ -10,8 +10,15 @@ import router from "./router";
 import "./service-worker";
 import { watchCollection } from "./services/curd.service";
 import store from "./store";
+import Toast from "vue-toastification";
+import "vue-toastification/dist/index.css";
 
 Vue.config.productionTip = false;
+
+const settings = watchCollection("settings", data => {
+  store.commit("SET_REGISTERED", data.length > 0);
+  store.commit("SET_RECORDS", { settings: data });
+});
 
 const users = watchCollection("users", data =>
   store.commit("SET_RECORDS", { users: data })
@@ -33,6 +40,17 @@ const quotations = watchCollection("quotations", data =>
   store.commit("SET_RECORDS", { quotations: data })
 );
 
+Vue.use(Toast, {
+  transition: "Vue-Toastification__bounce",
+  maxToasts: 5,
+  newestOnTop: true,
+  draggable: true,
+  draggablePercent: 0.6,
+  showCloseButtonOnHover: false,
+  timeout: 5000,
+  closeOnClick: true
+});
+
 new Vue({
   router,
   store,
@@ -44,5 +62,6 @@ new Vue({
     discounts();
     lineitems();
     quotations();
+    settings();
   }
 }).$mount("#app");

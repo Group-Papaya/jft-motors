@@ -12,6 +12,7 @@ export default new Vuex.Store({
     barColor: "rgba(0, 0, 0)",
     barImage: require("@/assets/background.jpg"),
     drawer: null,
+    registered: false,
     auth: {
       user: User,
       authenticated: auth.user ? !auth.user.isAnonymous : false
@@ -41,9 +42,15 @@ export default new Vuex.Store({
     },
     getClient: state => (path: string) => {
       return state.records.clients.find(client => client.path === path);
+    },
+    currentUser: state => {
+      return state.auth.user;
     }
   },
   mutations: {
+    SET_REGISTERED(state, payload) {
+      state.registered = payload;
+    },
     SET_AUTH_STATE(state, payload) {
       state.auth = payload;
     },

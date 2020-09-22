@@ -6,8 +6,8 @@
       </v-alert>
       <v-form
         ref="form"
-        v-model="valid"
         lazy-validation
+        v-model="formValid"
         @submit.prevent="formSubmit"
       >
         <v-row class="px-5">
@@ -18,7 +18,7 @@
               color="success"
               class="mr-0"
               min-width="100%"
-              :disabled="!valid"
+              :disabled="disabled"
               >{{ buttonText ? buttonText : title }}
             </v-btn>
           </v-col>
@@ -32,11 +32,20 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component
 export default class AppAuth extends Vue {
-  private valid = true;
+  private formValid = false;
   @Prop() private title!: string;
+  @Prop() private valid!: boolean;
   @Prop() private formError!: void;
-  @Prop() private formSubmit!: void;
+  @Prop() private formSubmit!: (any) => void;
   @Prop() private buttonText!: string;
+
+  mounted() {
+    this.formValid = false;
+  }
+
+  get disabled() {
+    return !this.formValid && !this.valid;
+  }
 }
 </script>
 
