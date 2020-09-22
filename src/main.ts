@@ -43,7 +43,12 @@ const quotations = watchCollection("quotations", data =>
 Vue.use(Toast, {
   transition: "Vue-Toastification__bounce",
   maxToasts: 5,
-  newestOnTop: true
+  newestOnTop: true,
+  draggable: true,
+  draggablePercent: 0.6,
+  showCloseButtonOnHover: false,
+  timeout: 5000,
+  closeOnClick: true
 });
 
 new Vue({

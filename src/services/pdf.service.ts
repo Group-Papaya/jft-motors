@@ -2,7 +2,7 @@ import { Quotation } from "@/models";
 import firebase from "firebase";
 import store from "../store";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const easyInvoice = require("easyinvoice");
+import easyInvoice from "easyinvoice";
 
 let pdfData: any;
 
@@ -93,6 +93,10 @@ async function generatePDF(quotation) {
   pdfData = result.pdf;
 }
 
+async function renderPDFViewer() {
+  await easyInvoice.render("pdf", pdfData);
+}
+
 async function emailInvoice(quotation: Quotation) {
   // upload pdf
   await uploadPDF(quotation, pdfData);
@@ -122,4 +126,11 @@ async function downloadInvoice(quotation: Quotation) {
   );
 }
 
-export { getPdfData, uploadPDF, downloadInvoice, emailInvoice, generatePDF };
+export {
+  getPdfData,
+  uploadPDF,
+  downloadInvoice,
+  emailInvoice,
+  generatePDF,
+  renderPDFViewer
+};

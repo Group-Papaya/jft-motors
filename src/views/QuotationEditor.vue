@@ -1,5 +1,7 @@
 <template>
   <v-container :id="name" fluid tag="section" class="my-5">
+    <AppOverlay :show="loading" />
+
     <!--  quotation menu      -->
     <v-row class="mb-8 flex-row flex-sx-column">
       <v-col cols="12">
@@ -88,7 +90,7 @@
 
           <v-btn
             class="d-none d-sm-flex"
-            @click="openModal(true)"
+            @click="openModal('lineItemDialog', true)"
             v-if="!isCompleted"
             :color="color"
             >Add Line Item
@@ -100,7 +102,7 @@
             :color="color"
             v-if="!isCompleted"
             class="d-flex d-sm-none"
-            @click="openModal(true)"
+            @click="openModal('lineItemDialog', true)"
           >
             <v-icon>mdi-plus</v-icon>
           </v-btn>
@@ -185,7 +187,7 @@
       :quotation="quotation"
     />
 
-    <AppOverlay :show="loading" />
+    <AppPdfViewer ref="pdfViewerDialog" />
   </v-container>
 </template>
 
@@ -199,18 +201,19 @@ import { db } from "@/firebase";
 import AppQuotationItem from "@/components/layouts/AppQuotationItem.vue";
 import AppAddLineItemToQuotation from "@/components/layouts/AppAddLineItemToQuotation.vue";
 import AppOverlay from "@/components/layouts/AppOverlay.vue";
+import AppPdfViewer from "@/components/layouts/AppPdfViewer.vue";
 
 import firebase from "firebase";
 import {
   downloadInvoice,
   emailInvoice,
-  generatePDF
+  generatePDF,
+  renderPDFViewer
 } from "@/services/pdf.service";
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const easyInvoice = require("easyinvoice");
 
 @Component({
   components: {
+    AppPdfViewer,
     VFormBase,
     AppQuotationItem,
     AppAddLineItemToQuotation,
@@ -307,8 +310,8 @@ export default class QuotationEditor extends Vue {
     this.quotation = this.$store.getters.getQuotation(id);
   }
 
-  openModal(add: boolean, item?: LineItem) {
-    this.dialogRef.showDialog(add, item);
+  openModal(name = "lineItemDialog", add: boolean, item?: LineItem) {
+    this.getDialogRef(name).showDialog(add, item);
   }
 
   updateQuotation(quotation: Quotation) {
@@ -358,8 +361,8 @@ export default class QuotationEditor extends Vue {
     );
   }
 
-  get dialogRef() {
-    return this.$refs.lineItemDialog as Vue & {
+  getDialogRef(name: string) {
+    return this.$refs[`${name}`] as Vue & {
       showDialog: (add?: boolean, item?: any) => Function;
     };
   }
@@ -409,7 +412,10 @@ export default class QuotationEditor extends Vue {
   }
 
   async viewPDF() {
-    console.log("I am grateful");
+    this.loading = true;
+    this.getDialogRef("pdfViewerDialog").showDialog();
+    await renderPDFViewer();
+    this.loading = false;
   }
 
   async sendEmail() {
