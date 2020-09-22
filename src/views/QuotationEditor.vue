@@ -15,6 +15,7 @@
               <v-btn
                 v-bind="attrs"
                 v-on="on"
+                :color="color"
                 @click="generatePdf()"
                 :disabled="loading"
               >
