@@ -4,10 +4,35 @@
     <v-row class="mb-8 flex-row flex-sx-column">
       <v-col cols="12">
         <v-row class="justify-md-center ml-1">
-          <v-btn-toggle dense>
-            <v-btn @click="sendEmail()">Send Email</v-btn>
-            <v-btn @click="downloadInvoice()">Print PDF</v-btn>
-          </v-btn-toggle>
+          <!--          <v-btn-toggle dense>-->
+          <!--            <v-btn @click="sendEmail()">Send Email</v-btn>-->
+          <!--            <v-btn @click="downloadPDF()">Print PDF</v-btn>-->
+          <!--          </v-btn-toggle>-->
+          <v-menu>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                v-bind="attrs"
+                v-on="on"
+                @click="generatePdf()"
+                :disabled="loading"
+              >
+                GENERATE PDF
+              </v-btn>
+            </template>
+            <v-list v-if="!loading">
+              <v-list-item @click="viewPDF()">
+                <v-list-item-title>VIEW PDF</v-list-item-title>
+              </v-list-item>
+
+              <v-list-item @click="sendEmail()">
+                <v-list-item-title>EMAIL PDF</v-list-item-title>
+              </v-list-item>
+
+              <v-list-item @click="downloadPDF()">
+                <v-list-item-title>DOWNLOAD PDF</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
         </v-row>
       </v-col>
     </v-row>
@@ -159,6 +184,8 @@
       :editHandler="editLineItem"
       :quotation="quotation"
     />
+
+    <AppOverlay :show="loading" />
   </v-container>
 </template>
 
@@ -171,13 +198,24 @@ import { curd, watchDocument } from "@/services/curd.service";
 import { db } from "@/firebase";
 import AppQuotationItem from "@/components/layouts/AppQuotationItem.vue";
 import AppAddLineItemToQuotation from "@/components/layouts/AppAddLineItemToQuotation.vue";
+import AppOverlay from "@/components/layouts/AppOverlay.vue";
 
 import firebase from "firebase";
+import {
+  downloadInvoice,
+  emailInvoice,
+  generatePDF
+} from "@/services/pdf.service";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const easyInvoice = require("easyinvoice");
 
 @Component({
-  components: { VFormBase, AppQuotationItem, AppAddLineItemToQuotation }
+  components: {
+    VFormBase,
+    AppQuotationItem,
+    AppAddLineItemToQuotation,
+    AppOverlay
+  }
 })
 export default class QuotationEditor extends Vue {
   name = "QuotationEditor";
@@ -197,6 +235,12 @@ export default class QuotationEditor extends Vue {
     discount: "",
     discounted: false
   };
+
+  items = [
+    { title: "VIEW PDF" },
+    { title: "EMAIL PDF" },
+    { title: "PRINT PDF" }
+  ];
 
   lineItems: Array<LineItem> = Array<LineItem>();
 
@@ -223,6 +267,7 @@ export default class QuotationEditor extends Vue {
   };
 
   itemsWatcher: any = null;
+  loading = false;
 
   created() {
     this.lineItems = this.getLineItems();
@@ -232,6 +277,22 @@ export default class QuotationEditor extends Vue {
       { path: this.quotation.path as string },
       (it: Quotation) => (this.quotation.items = it.items)
     );
+  }
+
+  mounted() {
+    const recaptchaScript = document.createElement("script");
+    recaptchaScript.setAttribute(
+      "src",
+      "https://unpkg.com/pdfjs-dist/build/pdf.min.js"
+    );
+
+    const recaptchaScriptTwo = document.createElement("script");
+    recaptchaScriptTwo.setAttribute(
+      "src",
+      "https://unpkg.com/pdfjs-dist/build/pdf.worker.min.js"
+    );
+
+    document.head.appendChild(recaptchaScript);
   }
 
   destroyed() {
@@ -341,83 +402,31 @@ export default class QuotationEditor extends Vue {
     return this.isCompleted ? "primary" : "warning";
   }
 
-  get pdfData() {
-    const products = this.quotation.items.map(
-      ({ quantity, details, cost, discountAmount }) => {
-        return {
-          quantity,
-          description: details,
-          tax: 0,
-          price: discountAmount ? cost - discountAmount : cost
-        };
-      }
-    );
+  async generatePdf() {
+    this.loading = true;
+    await generatePDF(this.quotation);
+    this.loading = false;
+  }
 
-    return {
-      documentTitle: this.documentType,
-      currency: "ZAR",
-      taxNotation: "vat", //or gst
-      marginTop: 25,
-      marginRight: 25,
-      marginLeft: 25,
-      marginBottom: 25,
-      logo:
-        "https://firebasestorage.googleapis.com/v0/b/jft-motors.appspot.com/o/logo.png?alt=media&token=f29da7d9-c265-438a-8f53-f3c728666bb6",
-      sender: {
-        company: "JFT Motors",
-        address: "373 Imam Haron Rd, Lansdowne",
-        zip: "7780",
-        city: "Cape Town",
-        country: "South Africa",
-        "phone number": "021 696 2600"
-      },
-      client: {
-        company: this.quotation.client,
-        address: this.quotation.meta.client.email,
-        zip: "7700",
-        city: "Cape Town",
-        country: "South Africa"
-      },
-      invoiceNumber: this.quotation.id,
-      invoiceDate: this.quotation.updated,
-      products: products,
-      bottomNotice: this.isCompleted
-        ? "Kindly pay your invoice within 15 days."
-        : "Please note: this is quotation is valid for 15 days"
-    };
+  async viewPDF() {
+    console.log("I am grateful");
   }
 
   async sendEmail() {
-    // generate pdf
-    const result = await easyInvoice.createInvoice(this.pdfData);
-    await this.uploadPDF(result.pdf);
-
     // confirm
     const res = await this.$dialog.confirm({
       text: `Attempting to launch your default email client, would you like to proceed?`,
       title: `Send ${this.documentType} e-mail`
     });
+
     if (res) {
-      // TODO: remove this hack!! make this codeblock wait until pdf url is updated
-      setTimeout(() => {
-        // if user agrees
-
-        // populate email content
-        const email = this.quotation.meta.client.email;
-        const subject = `${this.documentType} from JFT Motors`;
-        let downloadURL = this.isCompleted
-          ? this.quotation.meta["pdf"]["invoice"]
-          : this.quotation.meta["pdf"]["quotation"];
-        downloadURL = encodeURIComponent(downloadURL);
-        const body = `Hi, ${this.quotation.meta.client.firstname} ${this.quotation.meta.client.lastname}. Please visit the link to view ${this.documentType}: ${downloadURL}`;
-
-        // open email client
-        window.open(`mailto:${email}?subject=${subject}&body=${body}`);
-      }, 3000);
+      this.loading = true;
+      await emailInvoice(this.quotation);
+      this.loading = false;
     }
   }
 
-  async downloadInvoice() {
+  async downloadPDF() {
     // confirm
     const dialogRes = await this.$dialog.confirm({
       title: `Download ${this.documentType} PDF`,
@@ -425,52 +434,10 @@ export default class QuotationEditor extends Vue {
     });
 
     if (dialogRes) {
-      // generate pdf
-      const result = await easyInvoice.createInvoice(this.pdfData);
-
-      // download pdf
-      await easyInvoice.download(
-        `${Date.now()}-${this.documentType}.pdf`,
-        result.pdf
-      );
-
-      // upload file
-      await this.uploadPDF(result.pdf);
+      this.loading = true;
+      await downloadInvoice(this.quotation);
+      this.loading = false;
     }
-  }
-
-  async uploadPDF(file: any) {
-    const filename = `${this.documentType}s/${this.quotation.id}.pdf`;
-
-    const storageRef = firebase
-      .storage()
-      .ref(filename)
-      .putString(file, "base64");
-
-    storageRef.on(
-      firebase.storage.TaskEvent.STATE_CHANGED,
-      snapshot => {
-        // TODO: implement loading screen
-        console.log((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-      },
-      error => {
-        console.log(error);
-      },
-      () => {
-        storageRef.snapshot.ref.getDownloadURL().then(url => {
-          if (!this.quotation.meta["pdf"]) {
-            this.quotation.meta["pdf"] = {};
-          }
-
-          this.isCompleted
-            ? (this.quotation.meta["pdf"]["invoice"] = url)
-            : (this.quotation.meta["pdf"]["quotation"] = url);
-
-          this.updateQuotation(this.quotation).then();
-          console.log(`${this.documentType} PDF url: ${url}`);
-        });
-      }
-    );
   }
 
   async toggleComplete(value: boolean) {
