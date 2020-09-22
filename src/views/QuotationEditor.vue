@@ -6,10 +6,6 @@
     <v-row class="mb-8 flex-row flex-sx-column">
       <v-col cols="12">
         <v-row class="justify-md-center ml-1">
-          <!--          <v-btn-toggle dense>-->
-          <!--            <v-btn @click="sendEmail()">Send Email</v-btn>-->
-          <!--            <v-btn @click="downloadPDF()">Print PDF</v-btn>-->
-          <!--          </v-btn-toggle>-->
           <v-menu>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
