@@ -13,7 +13,7 @@
                 v-on="on"
                 :color="color"
                 @click="generatePdf()"
-                :disabled="loading"
+                :disabled="loading || !quotation.items.length"
               >
                 GENERATE PDF
               </v-btn>
