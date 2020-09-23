@@ -39,12 +39,7 @@ export default class Discounts extends Vue {
     },
     {
       sortable: false,
-      text: "Percentage",
-      value: "percentage"
-    },
-    {
-      sortable: false,
-      text: "Details",
+      text: "Description",
       value: "details"
     },
     {
@@ -78,7 +73,7 @@ export default class Discounts extends Vue {
     },
     details: {
       type: "text",
-      label: "Discount details"
+      label: "Discount description"
     },
     amount: {
       min: 0,

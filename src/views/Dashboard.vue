@@ -54,18 +54,18 @@ export default class Dashboard extends Vue {
     },
     {
       sortable: false,
-      text: "client",
+      text: "Client",
       value: "client"
     },
     {
       sortable: false,
-      text: "created",
+      text: "Created",
       value: "created"
     },
     {
       sortable: false,
-      text: "total",
-      value: "total"
+      text: "Total",
+      value: "format"
     }
   ];
 
@@ -98,7 +98,7 @@ export default class Dashboard extends Vue {
     }
   };
 
-  async handleChanges({ key, value }: any) {
+  async handleChanges({ _, value }: any) {
     this.model.meta.client = value;
   }
 
