@@ -7,17 +7,19 @@
         </v-col>
         <v-col cols="3" class="text-left" v-text="item.name"></v-col>
         <v-col cols="1" class="text-right" v-text="item.quantity"></v-col>
-        <v-col cols="2" class="text-right">{{
-          item.meta.discount.format
-        }}</v-col>
-        <v-col :cols="isEditable ? '3' : '5'" class="text-right">{{ item.format }}</v-col>
+        <v-col cols="2" class="text-right">
+          {{ item.meta.discount.format }}
+        </v-col>
+        <v-col :cols="isEditable ? '3' : '5'" class="text-right">
+          {{ item.format }}
+        </v-col>
         <v-col cols="2" class="text-right" v-if="isEditable">
-          <v-icon small class="mr-2" @click.stop="editLineItem(item)"
-            >mdi-pencil</v-icon
-          >
-          <v-icon small class="mr-2" @click.stop="deleteLineItem(item)"
-            >mdi-delete</v-icon
-          >
+          <v-icon small class="mr-2" @click.stop="editLineItem(item)">
+            mdi-pencil
+          </v-icon>
+          <v-icon small class="mr-2" @click.stop="deleteLineItem(item)">
+            mdi-delete
+          </v-icon>
         </v-col>
       </v-row>
     </v-card-text>
@@ -45,7 +47,7 @@ export default class AppQuotationItem extends Vue {
     | undefined;
 
   editLineItem(item: LineItem) {
-    this.$emit("edit-line-item", false, item);
+    this.$emit("edit-line-item", "lineItemDialog", false, item);
   }
 
   deleteLineItem(item: LineItem) {
