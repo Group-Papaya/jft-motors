@@ -14,6 +14,7 @@ export default new Vuex.Store({
     rules: {},
     drawer: null,
     details: {
+      logo: "",
       telephone: "",
       company: "",
       address: {
