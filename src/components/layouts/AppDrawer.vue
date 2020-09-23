@@ -47,8 +47,9 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapGetters } from "vuex";
 import logo from "@/assets/logo.png";
+import { BASE_ROLE } from "@/models/User";
 
 export default {
   name: "AppDrawer",
@@ -91,11 +92,6 @@ export default {
         title: "Discounts",
         icon: "mdi-tag-text-outline",
         to: "/discounts"
-      },
-      {
-        title: "Users",
-        icon: "mdi-account-multiple",
-        to: "/users"
       }
     ],
     logo: logo
@@ -103,6 +99,7 @@ export default {
 
   computed: {
     ...mapState(["barColor"]),
+    ...mapGetters(["currentUser"]),
     drawer: {
       get() {
         return this.$store.state.drawer;
@@ -112,7 +109,17 @@ export default {
       }
     },
     computedItems() {
-      return this.items.map(this.mapItem);
+      return (this.authMenu
+        ? this.items.concat({
+            title: "Users",
+            icon: "mdi-account-multiple",
+            to: "/users"
+          })
+        : this.items
+      ).map(this.mapItem);
+    },
+    authMenu() {
+      return this.currentUser.role !== BASE_ROLE;
     },
     profile() {
       return {
