@@ -1,8 +1,8 @@
 <template>
   <app-auth
-    title="Forgot Password"
     :form-error="error"
-    :form-submit="resetPassword"
+    :form-submit="reset"
+    title="Forgot Password"
     button-text="Reset Password"
   >
     <v-col class="col-12">
@@ -40,10 +40,14 @@ export default {
     };
   },
   methods: {
-    async resetPassword() {
+    async reset() {
       await auth.resetPassword(this.form.email).then(value => {
         if (value.error) this.error = value.error.message;
-        else this.$router.replace("/");
+        else {
+          this.$toast.success(`Email Sent to: ${this.form.email}`);
+          if (this.$store.getters.isAuthenticated) this.$router.replace("/");
+          else this.$router.replace({ name: "Login" });
+        }
       });
     }
   }
