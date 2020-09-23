@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Router from "vue-router";
 import store from "./store";
+import { BASE_ROLE } from "@/models/User";
 
 Vue.use(Router);
 
@@ -71,7 +72,11 @@ const router = new Router({
         {
           name: "Users",
           path: "users",
-          component: () => import("@/views/Users.vue")
+          component: () => import("@/views/Users.vue"),
+          async beforeEnter(to, from, next): Promise<void> {
+            if (store.getters.currentUser.role === BASE_ROLE) next(from.path);
+            else next();
+          }
         },
         {
           name: "User Profile",
