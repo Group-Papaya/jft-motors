@@ -4,6 +4,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
 import { curd } from "./services/curd.service";
+import moment from "moment";
 
 Vue.use(Vuex);
 
@@ -84,6 +85,29 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    ADD_QUOTATION({ getters, dispatch }, quotation: Quotation) {
+      const client = quotation.meta.client;
+      const user = getters.currentUser;
+      dispatch("ADD_RECORD", {
+        record: {
+          ...quotation,
+          items: [],
+          total: 0,
+          format: "R0",
+          completed: false,
+          user: `${user.firstname} ${user.lastname}`,
+          client: `${client.firstname} ${client.lastname}`,
+          created: moment().format("MMMM Do YYYY"),
+          updated: moment().format("MMMM Do YYYY"),
+          meta: {
+            user: user,
+            client: client,
+            ...quotation.meta
+          }
+        },
+        path: "quotations"
+      });
+    },
     ADD_RECORD({ dispatch }, { record, path, ref = undefined }) {
       curd.add(record, path, ref).then(ref => {
         dispatch("SET_RECORD", {
