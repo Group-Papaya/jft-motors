@@ -353,6 +353,9 @@ export default class QuotationEditor extends Vue {
       }
     );
 
+    const details = this.$store.state.details;
+    const { street, suburb, city, zipcode, country } = details.address;
+
     return {
       documentTitle: this.documentType,
       currency: "ZAR",
@@ -361,15 +364,14 @@ export default class QuotationEditor extends Vue {
       marginRight: 25,
       marginLeft: 25,
       marginBottom: 25,
-      logo:
-        "https://firebasestorage.googleapis.com/v0/b/jft-motors.appspot.com/o/logo.png?alt=media&token=f29da7d9-c265-438a-8f53-f3c728666bb6",
+      logo: details.logo,
       sender: {
-        company: "JFT Motors",
-        address: "373 Imam Haron Rd, Lansdowne",
-        zip: "7780",
-        city: "Cape Town",
-        country: "South Africa",
-        "phone number": "021 696 2600"
+        city: city,
+        zip: zipcode,
+        country: country,
+        company: details.company,
+        "phone number": details.telephone,
+        address: street + (suburb.trim() !== "" ? `, ${suburb}` : "")
       },
       client: {
         company: this.quotation.client,
