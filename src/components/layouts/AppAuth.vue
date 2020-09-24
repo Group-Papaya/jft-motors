@@ -1,13 +1,11 @@
 <template>
   <v-container id="auth-layout" fluid tag="section">
     <app-material-card icon="mdi-account" :title="title" class="mx-auto">
-      <v-alert v-if="formError" type="error">
-        {{ formError }}
-      </v-alert>
       <v-form
         ref="form"
         lazy-validation
         v-model="formValid"
+        @input="formError = null"
         @submit.prevent="formSubmit"
       >
         <v-row class="px-5">
@@ -22,6 +20,11 @@
               >{{ buttonText ? buttonText : title }}
             </v-btn>
           </v-col>
+          <v-col class="col-12 mt-3">
+            <v-alert v-if="formError" type="error">
+              {{ formError }}
+            </v-alert>
+          </v-col>
         </v-row>
       </v-form>
     </app-material-card>
@@ -35,7 +38,7 @@ export default class AppAuth extends Vue {
   private formValid = false;
   @Prop() private title!: string;
   @Prop() private valid!: boolean;
-  @Prop() private formError!: void;
+  @Prop() private formError!: string;
   @Prop() private formSubmit!: (any) => void;
   @Prop() private buttonText!: string;
 
