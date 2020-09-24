@@ -45,7 +45,6 @@ import { Client } from "@/models";
   components: { AppManager }
 })
 export default class Dashboard extends Vue {
-  // quotation table header
   headers = [
     {
       sortable: false,
@@ -98,36 +97,18 @@ export default class Dashboard extends Vue {
     }
   };
 
-  async handleChanges({ _, value }: any) {
-    this.model.meta.client = value;
+  async handleChanges({ key, value }: any) {
+    if (key === "client") this.model.meta.client = value;
   }
 
-  currentMonth = moment().format("MMMM");
-
-  addQuotation(record: Quotation) {
-    const client = record.meta.client;
-    const user = this.$store.state.auth.user;
-    this.$store.dispatch("ADD_RECORD", {
-      record: {
-        ...record,
-        items: [],
-        total: 0.0,
-        client: `${client.firstname} ${client.lastname}`,
-        completed: false,
-        user: `${user.firstname} ${user.lastname}`,
-        created: moment().format("MMMM Do YYYY"),
-        updated: moment().format("MMMM Do YYYY"),
-        meta: {
-          ...record.meta,
-          user: user
-        }
-      },
-      path: "quotations"
-    });
+  addQuotation(quotation: Quotation) {
+    if (typeof quotation.meta.client === "object") {
+      this.$store.dispatch("ADD_QUOTATION", quotation);
+    } else this.$toast.error("Remember to Select a Client");
   }
 
   get subtitle() {
-    return `for month of ${this.currentMonth}`;
+    return `for month of ${moment().format("MMMM")}`;
   }
 }
 </script>

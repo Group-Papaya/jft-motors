@@ -13,7 +13,6 @@
 </template>
 
 <script lang="ts">
-import moment from "moment";
 import { Component, Vue } from "vue-property-decorator";
 import AppManager from "@/components/layouts/AppManager.vue";
 import Quotation from "@/models/Quotation";
@@ -93,27 +92,10 @@ export default class Quotations extends Vue {
         .then(() => curd.delete(quotation.path as string));
   }
 
-  addQuotation(record: Quotation) {
-    const client = record.meta.client;
-    const user = this.$store.state.auth.user;
-    this.$store.dispatch("ADD_RECORD", {
-      record: {
-        ...record,
-        items: [],
-        total: 0.0,
-        format: "R0.0",
-        completed: false,
-        user: `${user.firstname} ${user.lastname}`,
-        client: `${client.firstname} ${client.lastname}`,
-        created: moment().format("MMMM Do YYYY"),
-        updated: moment().format("MMMM Do YYYY"),
-        meta: {
-          ...record.meta,
-          user: user
-        }
-      },
-      path: "quotations"
-    });
+  addQuotation(quotation: Quotation) {
+    if (typeof quotation.meta.client === "object") {
+      this.$store.dispatch("ADD_QUOTATION", quotation);
+    } else this.$toast.error("Remember to Select a Client");
   }
 }
 </script>
