@@ -17,4 +17,10 @@ const WORKER = "Worker";
 const PRODUCT = "Product";
 const ITEMISES = [JOB, WORKER, PRODUCT];
 
-export { JOB, WORKER, PRODUCT, ITEMISES };
+const TYPE_ICONS = {
+  [JOB]: "🛠",
+  [WORKER]: "👷🏾‍",
+  [PRODUCT]: "📦"
+};
+
+export { JOB, WORKER, PRODUCT, ITEMISES, TYPE_ICONS };
