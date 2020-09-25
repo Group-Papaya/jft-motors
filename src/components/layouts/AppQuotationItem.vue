@@ -8,7 +8,7 @@
         <v-col cols="3" class="text-left" v-text="item.name"></v-col>
         <v-col cols="1" class="text-right" v-text="item.quantity"></v-col>
         <v-col cols="2" class="text-right">
-          {{ item.meta.discount.format }}
+          {{ item.discount }}
         </v-col>
         <v-col :cols="isEditable ? '3' : '5'" class="text-right">
           {{ item.format }}
