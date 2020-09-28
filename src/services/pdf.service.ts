@@ -3,6 +3,7 @@ import firebase from "firebase";
 import store from "@/store";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 import easyInvoice from "easyinvoice";
+import moment from "moment";
 
 let pdfData: any;
 
@@ -19,6 +20,8 @@ function updateQuotation(quotation: Quotation) {
 }
 
 function getPdfData(quotation: Quotation) {
+  const currentDate = moment().format("lll");
+
   const products = quotation.items.map(
     ({ quantity, details, cost, discountAmount }) => {
       return {
@@ -59,10 +62,14 @@ function getPdfData(quotation: Quotation) {
     },
     products: products,
     invoiceNumber: quotation.id,
-    invoiceDate: quotation.updated,
+    invoiceDate: currentDate,
     bottomNotice: quotation.completed
-      ? "Kindly pay your invoice within 15 days."
-      : "Please note: this is quotation is valid for 15 days"
+      ? "Kindly pay your invoice within 30 days."
+      : `This is quotation was generated on ${currentDate} valid until ${moment(
+          currentDate
+        )
+          .add(15, "days")
+          .format("lll")}`
   };
 }
 

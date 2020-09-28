@@ -1,7 +1,12 @@
 <template>
   <v-dialog v-model="dialog" v-if="dialog" max-width="900">
     <v-card>
-      <v-card-title>Add Line Item to Quotation</v-card-title>
+      <v-card-title class="flex-row justify-space-between">
+        <span>PDF View</span>
+        <v-btn fab x-small color="red" @click="showDialog()">
+          <v-icon color="white">mdi-close</v-icon>
+        </v-btn>
+      </v-card-title>
       <v-card-text>
         <div id="pdf"></div>
       </v-card-text>
@@ -9,19 +14,20 @@
   </v-dialog>
 </template>
 
-<script>
-export default {
-  name: "AppPdfViewer",
-  data() {
-    return {
-      dialog: false
-    };
-  },
-  methods: {
+<script lang="ts">
+
+  import {Component, Vue} from "vue-property-decorator";
+
+  @Component
+export default class AppPdfViewer extends Vue {
+  name = "AppPdfViewer"
+
+    dialog = false
+
     showDialog() {
       this.dialog = !this.dialog;
     }
-  }
+
 };
 </script>
 
