@@ -1,8 +1,8 @@
 <template>
   <v-overlay z-index="9999999" :value="show">
-    <v-progress-circular indeterminate size="150">{{
-      message
-    }}</v-progress-circular>
+    <v-progress-circular indeterminate size="150">
+      {{ message }}
+    </v-progress-circular>
   </v-overlay>
 </template>
 

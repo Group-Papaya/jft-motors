@@ -7,18 +7,18 @@
         </v-col>
         <v-col cols="3" class="text-left" v-text="item.name"></v-col>
         <v-col cols="1" class="text-right" v-text="item.quantity"></v-col>
-        <v-col cols="2" class="text-right"
-          >{{ item.meta.discount.format }}
+        <v-col cols="2" class="text-right">
+          {{ item.discount ? item.discount : "-" }}
         </v-col>
-        <v-col :cols="isEditable ? '3' : '5'" class="text-right"
-          >{{ item.format }}
+        <v-col :cols="isEditable ? '3' : '5'" class="text-right">
+          {{ item.format }}
         </v-col>
         <v-col cols="2" class="text-right" v-if="isEditable">
-          <v-icon small class="mr-2" @click.stop="editLineItem(item)"
-            >mdi-pencil
+          <v-icon small class="mr-2" @click.stop="editLineItem(item)">
+            mdi-pencil
           </v-icon>
-          <v-icon small class="mr-2" @click.stop="deleteLineItem(item)"
-            >mdi-delete
+          <v-icon small class="mr-2" @click.stop="deleteLineItem(item)">
+            mdi-delete
           </v-icon>
         </v-col>
       </v-row>

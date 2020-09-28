@@ -6,17 +6,18 @@
         <v-form>
           <v-autocomplete
             label="Line item"
-            :v-model="item"
-            :items="lineItems"
+            :model="item"
+            :items="items"
             :item-text="value => value.name"
-            :item-value="value => lineItems.find(it => it.id === value.id)"
+            :item-value="value => items.find(it => it.id === value.id)"
             @change="value => (item = value)"
           />
           <v-form-base
             :col="12"
             :model="item"
             :schema="schema"
-            :row="rowAttribute"
+            :row="attributes"
+            @update="update"
           />
         </v-form>
       </v-card-text>
@@ -29,90 +30,93 @@
   </v-dialog>
 </template>
 
-<script>
+<script lang="ts">
 import VFormBase from "../../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
-import LineItem from "@/models/LineItem";
+import { Component, Vue, Prop } from "vue-property-decorator";
 
-export default {
-  name: "AppAddLineItemToQuotation",
+@Component({
   components: {
     VFormBase
-  },
-  props: {
-    quotation: {
-      type: Object,
-      default: undefined
-    },
-    addHandler: {
-      type: Function
-    },
-    editHandler: {
-      type: Function
-    }
-  },
-  data() {
-    return {
-      dialog: false,
-      lineItems: this.$store.state.records.lineitems,
-      schema: {
-        quantity: {
-          value: 0,
-          type: "number",
-          label: "Quantity"
-        },
-        cost: {
-          value: 0,
-          type: "number",
-          label: "Cost",
-          disabled: true
-        },
-        discount: {
-          value: false,
-          type: "switch",
-          label: "Apply discount",
-          disabled: true
-        }
-      },
-      rowAttribute: { justify: "center", align: "center", noGutters: true },
-      item: {
-        id: "",
-        cost: 0,
-        name: "",
-        type: "",
-        units: 0,
-        quantity: 0,
-        details: "",
-        discounted: false,
-        path: ""
-      },
-      add: false
-    };
-  },
-  methods: {
-    showDialog(add, item = undefined) {
-      this.dialog = true;
-      this.add = add;
-
-      if (item) this.item = item;
-    },
-    handleInput(value) {
-      if (this.add) {
-        this.addHandler(value);
-      } else {
-        this.editHandler(value);
-      }
-
-      this.dialog = false;
-    }
-  },
-  watch: {
-    dialog(newVal) {
-      if (!newVal) {
-        this.item = {};
-      }
-    }
   }
-};
+})
+export default class AppAddLineItemToQuotation extends Vue {
+  @Prop({
+    type: Object,
+    default: undefined
+  })
+  readonly quotation;
+
+  @Prop({
+    type: Function,
+    default: () => undefined
+  })
+  readonly addHandler;
+
+  @Prop({
+    type: Function,
+    default: () => undefined
+  })
+  readonly editHandler;
+
+  add = false;
+  dialog = false;
+  items = this.$store.state.records.lineitems;
+  schema = {
+    quantity: {
+      value: 0,
+      type: "number",
+      required: true,
+      label: "Quantity"
+    },
+    cost: {
+      value: 0,
+      type: "number",
+      label: "Cost",
+      readonly: true
+    },
+    discount: {
+      value: false,
+      type: "switch",
+      label: "Apply discount",
+      hidden: true
+    }
+  };
+
+  attributes = {
+    justify: "center",
+    align: "center",
+    noGutters: true
+  };
+
+  item = {
+    id: "",
+    cost: 0,
+    name: "",
+    type: "",
+    path: "",
+    units: 0,
+    quantity: 0,
+    details: "",
+    discounted: false
+  };
+
+  showDialog(add, item) {
+    this.add = add;
+    this.dialog = true;
+    if (item) this.item = item;
+  }
+
+  handleInput(value) {
+    if (this.add) this.addHandler(value);
+    else this.editHandler(value);
+    this.dialog = false;
+  }
+
+  update({ schema }) {
+    schema.discount.value = this.item.discounted;
+    schema.discount.hidden = !this.item.discounted;
+  }
+}
 </script>
 
 <style scoped></style>

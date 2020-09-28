@@ -8,17 +8,33 @@ import vuetify from "./plugins/vuetify";
 import "./plugins/vuetify-dialog";
 import router from "./router";
 import "./service-worker";
-import { watchCollection } from "./services/curd.service";
+import {
+  getDocument,
+  watchCollection,
+  watchDocument
+} from "./services/curd.service";
 import store from "./store";
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
+import firebase from "firebase";
 
 Vue.config.productionTip = false;
 
-const settings = watchCollection("settings", data => {
-  store.commit("SET_REGISTERED", data.length > 0);
-  store.commit("SET_RECORDS", { settings: data });
-});
+const details = watchDocument(
+  { path: "settings/business-details" },
+  async document => {
+    const logo = await firebase
+      .storage()
+      .ref("/logo.png")
+      .getDownloadURL()
+      .then(url => url)
+      .catch(reason => {
+        console.warn({ ERROR: reason }, "Can't Find the Company logo");
+        return require("./assets/logo.png");
+      });
+    store.commit("SET_DETAILS", { ...document, logo });
+  }
+);
 
 const users = watchCollection("users", data =>
   store.commit("SET_RECORDS", { users: data })
@@ -56,12 +72,20 @@ new Vue({
   store,
   vuetify,
   render: h => h(App),
+  beforeCreate() {
+    getDocument("settings/business-details")
+      .get()
+      .then(doc => store.commit("SET_REGISTERED", doc.exists));
+    getDocument("settings/business-rules")
+      .get()
+      .then(doc => store.commit("SET_RULES", doc.data()));
+  },
   beforeDestroy: () => {
     users();
+    details();
     clients();
     discounts();
     lineitems();
     quotations();
-    settings();
   }
 }).$mount("#app");

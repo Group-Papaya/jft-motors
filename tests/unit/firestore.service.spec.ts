@@ -4,6 +4,7 @@ import { ADMIN_ROLE, BASE_ROLE } from "@/models/User";
 import FirestoreService from "@/services/firestore.service";
 import { assertSucceeds } from "@firebase/testing";
 import { initialize, setup } from "./firebase-testing";
+import firebase from "firebase";
 
 let testService: FirestoreService;
 
@@ -86,7 +87,10 @@ describe("Firebase Service", () => {
   beforeAll(
     async () =>
       await setup().then(
-        firestore => (testService = new FirestoreService(firestore))
+        firestore =>
+          (testService = new FirestoreService(
+            firestore as firebase.firestore.Firestore
+          ))
       )
   );
 
@@ -126,9 +130,6 @@ describe("Firebase Service", () => {
         draft.user = testService.getDocument(`users/${admin.id}`).path;
         draft.client = testService.getDocument(`clients/${client.id}`).path;
       }
-
-      draft.created = testService.currentTime();
-      draft.updated = testService.currentTime();
     });
 
     await assertSucceeds(items);

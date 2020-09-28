@@ -4,35 +4,43 @@
 
     <!--  quotation menu      -->
     <v-row class="mb-8 flex-row flex-sx-column">
-      <v-col cols="12">
-        <v-row class="justify-md-center ml-1">
-          <v-menu>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                v-bind="attrs"
-                v-on="on"
-                :color="color"
-                @click="generatePdf()"
-                :disabled="loading || !quotation.items.length"
-              >
-                GENERATE PDF
-              </v-btn>
-            </template>
-            <v-list v-if="!loading">
-              <v-list-item @click="viewPDF()">
-                <v-list-item-title>VIEW PDF</v-list-item-title>
-              </v-list-item>
+      <v-col class="justify-start">
+        <v-btn
+          fab
+          left
+          x-small
+          :color="color"
+          :to="isCompleted ? '/invoices' : '/quotations'"
+        >
+          <v-icon>mdi-arrow-left</v-icon>
+        </v-btn>
+      </v-col>
+      <v-col class="justify-md-center">
+        <v-menu>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              v-on="on"
+              :color="color"
+              @click="generatePdf()"
+              :disabled="loading || !quotation.items.length"
+              >GENERATE PDF
+            </v-btn>
+          </template>
+          <v-list v-if="!loading">
+            <v-list-item @click="viewPDF()">
+              <v-list-item-title>VIEW PDF</v-list-item-title>
+            </v-list-item>
 
-              <v-list-item @click="sendEmail()">
-                <v-list-item-title>EMAIL PDF</v-list-item-title>
-              </v-list-item>
+            <v-list-item @click="sendEmail()">
+              <v-list-item-title>EMAIL PDF</v-list-item-title>
+            </v-list-item>
 
-              <v-list-item @click="downloadPDF()">
-                <v-list-item-title>DOWNLOAD PDF</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-row>
+            <v-list-item @click="downloadPDF()">
+              <v-list-item-title>DOWNLOAD PDF</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </v-col>
     </v-row>
 
@@ -82,7 +90,7 @@
         <v-row col="12" class="justify-space-between align-center">
           <v-btn-toggle mandatory v-model="isCompleted" borderless dense>
             <v-btn :value="false">Draft</v-btn>
-            <v-btn :value="true">Complete</v-btn>
+            <v-btn v-if="quotation.items.length" :value="true">Complete</v-btn>
           </v-btn-toggle>
 
           <v-btn
@@ -113,17 +121,17 @@
             <v-row class="py-0 my-0">
               <v-col cols="1">#</v-col>
               <v-col cols="3" class="text-left caption font-weight-bold"
-                >Line Item Name
-              </v-col>
+                >Line Item Name</v-col
+              >
               <v-col cols="1" class="text-right caption font-weight-bold"
-                >Qty
-              </v-col>
+                >Qty</v-col
+              >
               <v-col cols="2" class="text-right caption font-weight-bold"
-                >Discount
-              </v-col>
+                >Discount</v-col
+              >
               <v-col cols="3" class="text-right caption font-weight-bold"
-                >Price
-              </v-col>
+                >Price</v-col
+              >
               <v-col cols="2" class="text-right" v-if="isCompleted"></v-col>
             </v-row>
           </v-card-text>
@@ -137,8 +145,8 @@
             v-for="(item, index) in quotation.items"
           >
             <AppQuotationItem
-              :color="color"
               :item="item"
+              :color="color"
               :position="index"
               v-on:edit-line-item="openModal"
               v-on:delete-line-item="deleteLineItem"
@@ -179,9 +187,9 @@
     <!--   add line item to quotation dialog   -->
     <AppAddLineItemToQuotation
       ref="lineItemDialog"
-      :addHandler="addLineItem"
-      :editHandler="editLineItem"
       :quotation="quotation"
+      :add-handler="addLineItem"
+      :edit-handler="editLineItem"
     />
 
     <AppPdfViewer ref="pdfViewerDialog" />
@@ -193,14 +201,13 @@ import { Component, Vue } from "vue-property-decorator";
 import { LineItem, Quotation } from "@/models";
 
 import VFormBase from "../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
-import { curd, watchDocument } from "@/services/curd.service";
-import { db } from "@/firebase";
+import { curd } from "@/services/curd.service";
 import AppQuotationItem from "@/components/layouts/AppQuotationItem.vue";
 import AppAddLineItemToQuotation from "@/components/layouts/AppAddLineItemToQuotation.vue";
 import AppOverlay from "@/components/layouts/AppOverlay.vue";
 import AppPdfViewer from "@/components/layouts/AppPdfViewer.vue";
+import moment from "moment";
 
-import firebase from "firebase";
 import {
   downloadInvoice,
   emailInvoice,
@@ -266,17 +273,11 @@ export default class QuotationEditor extends Vue {
     }
   };
 
-  itemsWatcher: any = null;
   loading = false;
 
   created() {
     this.lineItems = this.getLineItems();
     this.getQuotation(this.$route.params.id);
-
-    this.itemsWatcher = watchDocument(
-      { path: this.quotation.path as string },
-      (it: Quotation) => (this.quotation.items = it.items)
-    );
   }
 
   mounted() {
@@ -295,10 +296,6 @@ export default class QuotationEditor extends Vue {
     document.head.appendChild(recaptchaScript);
   }
 
-  destroyed() {
-    this.itemsWatcher();
-  }
-
   getLineItems() {
     return this.$store.state.records.lineitems;
   }
@@ -313,29 +310,33 @@ export default class QuotationEditor extends Vue {
 
   updateQuotation(quotation: Quotation) {
     return this.$store.dispatch("SET_RECORD", {
-      record: { ...quotation, total: this.total, format: `R${this.total}` },
+      record: { ...quotation, total: this.total },
       path: "quotations",
       ref: quotation.id
     });
   }
 
   addLineItem(item: LineItem) {
-    this.addLineItemDialog = false;
-    this.quotation.items.push({
-      ...item,
-      key: this.quotation.items.length + 1
-    });
-    this.$store.dispatch("SET_RECORD", {
-      record: { ...item, reference: db.doc(`${item.path}`).path },
-      path: `${this.quotation.path}/items`,
-      ref: item.id
-    });
-
-    this.updateQuotation(this.quotation);
+    if (item.id !== "" && item.quantity !== 0) {
+      this.addLineItemDialog = false;
+      this.quotation.items.push({
+        ...item,
+        meta: {
+          ...item.meta,
+          key: this.quotation.items.length + 1
+        }
+      });
+      this.updateQuotation(this.quotation);
+    } else
+      this.$toast.error(
+        "Select an item and give it a quantity greater then zero"
+      );
   }
 
   editLineItem(item: LineItem) {
-    curd.update(item, item.path as string);
+    if (item.quantity !== 0) {
+      curd.update(item, item.path as string);
+    } else this.$toast.error("Line Item quantity shouldn't be Zero");
   }
 
   async deleteLineItem(item: LineItem) {
@@ -344,18 +345,17 @@ export default class QuotationEditor extends Vue {
       title: "Delete Line Item"
     });
     if (res) {
-      this.quotation.items = await curd
-        .delete(item.path as string)
-        .then(() => this.quotation.items.filter(it => it.id !== item.id));
+      this.quotation.items = this.quotation.items.filter(
+        it => it.meta.key !== item.meta.key
+      );
       await this.updateQuotation(this.quotation);
     }
   }
 
   get discountTotal() {
-    return this.quotation.items?.reduce(
-      (total, item) => total + item.meta.discount.value,
-      0
-    );
+    return this.quotation.items?.reduce((total, item) => {
+      return total + item.meta.discount.value;
+    }, 0);
   }
 
   getDialogRef(name: string) {
@@ -375,22 +375,8 @@ export default class QuotationEditor extends Vue {
   }
 
   set isCompleted(value: boolean) {
-    const res = this.toggleComplete(value);
-
-    res.then(choice => {
-      if (choice) {
-        this.quotation.completed = value;
-        // curd.update(this.quotation, this.quotation.path as string)
-        this.updateQuotation(this.quotation).then();
-
-        // if (value) {
-        //   // redirect to invoice page
-        //   this.$router.replace(`/invoices/${this.quotation.id}`);
-        // } else {
-        //   // redirect to quotation page
-        //   this.$router.replace(`/quotations/${this.quotation.id}`);
-        // }
-      }
+    this.toggleComplete(value).then(choice => {
+      if (choice) this.updateQuotation({ ...this.quotation, completed: value });
     });
   }
 

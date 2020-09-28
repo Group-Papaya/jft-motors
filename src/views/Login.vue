@@ -71,7 +71,7 @@ export default {
     async loginUser() {
       await auth.login(this.form.email, this.form.password).then(value => {
         if (value.error) this.error = value.error.message;
-        else this.$router.replace("/");
+        else this.$router.replace({ name: "Dashboard" });
       });
     }
   }
