@@ -15,20 +15,18 @@
 </template>
 
 <script lang="ts">
+import { Component, Vue } from "vue-property-decorator";
 
-  import {Component, Vue} from "vue-property-decorator";
-
-  @Component
+@Component
 export default class AppPdfViewer extends Vue {
-  name = "AppPdfViewer"
+  name = "AppPdfViewer";
 
-    dialog = false
+  dialog = false;
 
-    showDialog() {
-      this.dialog = !this.dialog;
-    }
-
-};
+  showDialog() {
+    this.dialog = !this.dialog;
+  }
+}
 </script>
 
 <style scoped lang="scss">
