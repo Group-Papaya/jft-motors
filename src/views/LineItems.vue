@@ -2,7 +2,7 @@
   <AppEditor
     title="LineItems"
     :items="items"
-    :model="model"
+    :model="item"
     :schema="schema"
     :headers="headers"
     :editHandler="editItem"
@@ -17,7 +17,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import AppEditor from "@/components/layouts/AppManager.vue";
-import LineItem, { ITEMISES } from "@/models/LineItem";
+import LineItem, { ITEMISES, TYPE_ICONS } from "@/models/LineItem";
 import { Discount } from "@/models";
 
 @Component({
@@ -48,17 +48,17 @@ export default class LineItems extends Vue {
     {
       sortable: false,
       text: "Units",
-      value: "units"
+      value: "meta.units"
     },
     {
       sortable: false,
       text: "Discount",
-      value: "meta.discount.format"
+      value: "discount"
     },
     {
       sortable: false,
       text: "Discounted",
-      value: "discounted"
+      value: "meta.discounted"
     },
     {
       sortable: false,
@@ -70,7 +70,7 @@ export default class LineItems extends Vue {
     return this.$store.state.records.lineitems;
   }
 
-  model: LineItem = {
+  item: LineItem = {
     type: "",
     name: "",
     cost: 0,
@@ -92,28 +92,32 @@ export default class LineItems extends Vue {
       label: "Line Details"
     },
     type: {
-      type: "select",
       label: "Type",
+      type: "select",
       items: ITEMISES
     },
     cost: {
+      min: 0,
+      label: "Cost",
       type: "number",
-      label: "Cost"
+      prependIcon: "R",
+      rules: [v => v === 0 && "can't be zero"]
     },
     units: {
-      type: "number",
-      label: "Units"
+      label: "Units",
+      type: "number"
     },
     discounted: {
       inset: true,
       type: "switch",
       label: "Discountable?",
-      value: this.model.discounted
+      value: this.item.discounted
     },
     discount: {
       type: "autocomplete",
+      appendIcon: undefined,
       label: "Select Discount",
-      disabled: this.model.discounted,
+      disabled: this.item.discounted,
       items: this.$store.state.records.discounts,
       itemText: (value: Discount) => value.name,
       itemValue: (value: Discount) => value
@@ -126,7 +130,7 @@ export default class LineItems extends Vue {
 
   handleChange({ key, value }: any) {
     if (key === "discounted") {
-      this.model.discounted = value !== null;
+      this.item.discounted = value !== null;
       this.schema.discounted.value = value !== null;
       this.schema.discount.disabled = value === null;
     }
@@ -140,7 +144,7 @@ export default class LineItems extends Vue {
   }
 
   mutModelState(value: Discount) {
-    this.model.discount = `R${this.calculateDiscountFor(this.model, value)}`;
+    this.item.discount = `R${this.getDiscountFor(this.item, value)}`;
   }
 
   editItem(record: LineItem) {
@@ -157,24 +161,26 @@ export default class LineItems extends Vue {
     });
   }
 
-  calculateDiscountFor(item: LineItem, discount: Discount) {
+  getDiscountFor(item: LineItem, discount: Discount) {
     return discount.percentage
       ? item.cost * (discount.amount * (1 / 100))
-      : item.cost - discount.amount;
+      : discount.amount;
   }
 
   setDiscount(item: LineItem): LineItem {
-    const discount =
-      item.cost - this.calculateDiscountFor(item, item.discount as Discount);
+    const discount = this.getDiscountFor(item, item.discount as Discount);
+    // const unit = item.type === WORKER ? "hours" : "";
     return {
       ...item,
-      discounted: item.discounted,
       format: `R${item.cost}`,
-      discount: `R${discount}`,
+      discounted: item.discounted,
+      discount: `R${discount ? discount : "0"}`,
       meta: {
         ...item.meta,
+        discounted: item.discounted ? "✅" : "❌",
+        units: TYPE_ICONS[item.type] + ` x ${item.units}`,
         discount: {
-          value: discount,
+          value: discount ? discount : 0,
           ...(item.discount as Discount)
         }
       }

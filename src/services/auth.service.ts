@@ -112,7 +112,12 @@ export default class AuthService {
         return { result: "Password reset email sent" };
       })
       .catch(reason => {
-        return { error: `Email required; [error: ${reason.message}` };
+        return {
+          error: {
+            message: `Email required`,
+            value: `[error: ${reason.message}]`
+          }
+        };
       });
   }
 }

@@ -11,9 +11,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import moment from "moment";
 import AppManager from "@/components/layouts/AppManager.vue";
-import { watchCollection } from "@/services/curd.service";
 
 @Component({
   components: { AppManager }
@@ -27,18 +25,18 @@ export default class Invoices extends Vue {
     },
     {
       sortable: false,
-      text: "client",
+      text: "Client",
       value: "client"
     },
     {
       sortable: false,
-      text: "date",
-      value: "created"
+      text: "Invoice Date",
+      value: "updated"
     },
     {
       sortable: false,
-      text: "total",
-      value: "total"
+      text: "Total",
+      value: "format"
     }
   ];
 

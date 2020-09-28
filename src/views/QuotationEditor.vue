@@ -83,7 +83,7 @@
         <v-row col="12" class="justify-space-between align-center">
           <v-btn-toggle mandatory v-model="isCompleted" borderless dense>
             <v-btn :value="false">Draft</v-btn>
-            <v-btn :value="true">Complete</v-btn>
+            <v-btn v-if="quotation.items.length" :value="true">Complete</v-btn>
           </v-btn-toggle>
 
           <v-btn
@@ -125,8 +125,8 @@
         <div v-if="quotation.items.length">
           <v-col :key="item.key" class="py-0 px-0 my-1" v-for="(item, index) in quotation.items">
             <AppQuotationItem
-              :color="color"
               :item="item"
+              :color="color"
               :position="index"
               v-on:edit-line-item="openModal"
               v-on:delete-line-item="deleteLineItem"
@@ -161,9 +161,9 @@
     <!--   add line item to quotation dialog   -->
     <AppAddLineItemToQuotation
       ref="lineItemDialog"
-      :addHandler="addLineItem"
-      :editHandler="editLineItem"
       :quotation="quotation"
+      :add-handler="addLineItem"
+      :edit-handler="editLineItem"
     />
 
     <AppPdfViewer ref="pdfViewerDialog" />
@@ -175,14 +175,12 @@ import { Component, Vue } from "vue-property-decorator";
 import { LineItem, Quotation } from "@/models";
 
 import VFormBase from "../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
-import { curd, watchDocument } from "@/services/curd.service";
-import { db } from "@/firebase";
+import { curd } from "@/services/curd.service";
 import AppQuotationItem from "@/components/layouts/AppQuotationItem.vue";
 import AppAddLineItemToQuotation from "@/components/layouts/AppAddLineItemToQuotation.vue";
 import AppOverlay from "@/components/layouts/AppOverlay.vue";
 import AppPdfViewer from "@/components/layouts/AppPdfViewer.vue";
 
-import firebase from "firebase";
 import {
   downloadInvoice,
   emailInvoice,
@@ -248,17 +246,11 @@ export default class QuotationEditor extends Vue {
     }
   };
 
-  itemsWatcher: any = null;
   loading = false;
 
   created() {
     this.lineItems = this.getLineItems();
     this.getQuotation(this.$route.params.id);
-
-    this.itemsWatcher = watchDocument(
-      { path: this.quotation.path as string },
-      (it: Quotation) => (this.quotation.items = it.items)
-    );
   }
 
   mounted() {
@@ -275,10 +267,6 @@ export default class QuotationEditor extends Vue {
     );
 
     document.head.appendChild(recaptchaScript);
-  }
-
-  destroyed() {
-    this.itemsWatcher();
   }
 
   getLineItems() {
@@ -302,22 +290,26 @@ export default class QuotationEditor extends Vue {
   }
 
   addLineItem(item: LineItem) {
-    this.addLineItemDialog = false;
-    this.quotation.items.push({
-      ...item,
-      key: this.quotation.items.length + 1
-    });
-    this.$store.dispatch("SET_RECORD", {
-      record: { ...item, reference: db.doc(`${item.path}`).path },
-      path: `${this.quotation.path}/items`,
-      ref: item.id
-    });
-
-    this.updateQuotation(this.quotation);
+    if (item.id !== "" && item.quantity !== 0) {
+      this.addLineItemDialog = false;
+      this.quotation.items.push({
+        ...item,
+        meta: {
+          ...item.meta,
+          key: this.quotation.items.length + 1
+        }
+      });
+      this.updateQuotation(this.quotation);
+    } else
+      this.$toast.error(
+        "Select an item and give it a quantity greater then zero"
+      );
   }
 
   editLineItem(item: LineItem) {
-    curd.update(item, item.path as string);
+    if (item.quantity !== 0) {
+      curd.update(item, item.path as string);
+    } else this.$toast.error("Line Item quantity shouldn't be Zero");
   }
 
   async deleteLineItem(item: LineItem) {
@@ -326,16 +318,17 @@ export default class QuotationEditor extends Vue {
       title: "Delete Line Item"
     });
     if (res) {
-      this.quotation.items = await curd
-        .delete(item.path as string)
-        .then(() => this.quotation.items.filter(it => it.id !== item.id));
+      this.quotation.items = this.quotation.items.filter(
+        it => it.meta.key !== item.meta.key
+      );
       await this.updateQuotation(this.quotation);
     }
   }
 
   get discountTotal() {
     return this.quotation.items?.reduce(
-      (total, item) => total + item.meta.discount.value,
+      (total, item) =>
+        total + item.meta.discount ? item.meta.discount.value : 0,
       0
     );
   }
@@ -357,22 +350,8 @@ export default class QuotationEditor extends Vue {
   }
 
   set isCompleted(value: boolean) {
-    const res = this.toggleComplete(value);
-
-    res.then(choice => {
-      if (choice) {
-        this.quotation.completed = value;
-        // curd.update(this.quotation, this.quotation.path as string)
-        this.updateQuotation(this.quotation).then();
-
-        // if (value) {
-        //   // redirect to invoice page
-        //   this.$router.replace(`/invoices/${this.quotation.id}`);
-        // } else {
-        //   // redirect to quotation page
-        //   this.$router.replace(`/quotations/${this.quotation.id}`);
-        // }
-      }
+    this.toggleComplete(value).then(choice => {
+      if (choice) this.updateQuotation({ ...this.quotation, completed: value });
     });
   }
 
