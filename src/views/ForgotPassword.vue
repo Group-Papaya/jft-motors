@@ -16,6 +16,12 @@
         @focusin="error = null"
       />
     </v-col>
+    <v-col>
+      <p class="text-center">
+        Remembered your password?
+        <router-link :to="{ path: 'login' }">Click here to login </router-link>
+      </p>
+    </v-col>
   </app-auth>
 </template>
 <script>
