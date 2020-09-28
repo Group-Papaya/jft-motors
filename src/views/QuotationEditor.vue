@@ -310,7 +310,7 @@ export default class QuotationEditor extends Vue {
 
   updateQuotation(quotation: Quotation) {
     return this.$store.dispatch("SET_RECORD", {
-      record: { ...quotation, total: this.total },
+      record: { ...quotation, total: this.total, format: `R${this.total}` },
       path: "quotations",
       ref: quotation.id
     });
