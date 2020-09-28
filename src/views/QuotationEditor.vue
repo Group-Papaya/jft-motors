@@ -4,35 +4,36 @@
 
     <!--  quotation menu      -->
     <v-row class="mb-8 flex-row flex-sx-column">
-      <v-col cols="12">
-        <v-row class="justify-md-center ml-1">
-          <v-menu>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                v-bind="attrs"
-                v-on="on"
-                :color="color"
-                @click="generatePdf()"
-                :disabled="loading || !quotation.items.length"
-              >
-                GENERATE PDF
-              </v-btn>
-            </template>
-            <v-list v-if="!loading">
-              <v-list-item @click="viewPDF()">
-                <v-list-item-title>VIEW PDF</v-list-item-title>
-              </v-list-item>
+      <v-col class="justify-start">
+        <v-btn fab left x-small :color="color" :to="isCompleted ? '/invoices' : '/quotations'">
+          <v-icon>mdi-arrow-left</v-icon>
+        </v-btn>
+      </v-col>
+      <v-col class="justify-md-center">
+        <v-menu>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              v-on="on"
+              :color="color"
+              @click="generatePdf()"
+              :disabled="loading || !quotation.items.length"
+            >GENERATE PDF</v-btn>
+          </template>
+          <v-list v-if="!loading">
+            <v-list-item @click="viewPDF()">
+              <v-list-item-title>VIEW PDF</v-list-item-title>
+            </v-list-item>
 
-              <v-list-item @click="sendEmail()">
-                <v-list-item-title>EMAIL PDF</v-list-item-title>
-              </v-list-item>
+            <v-list-item @click="sendEmail()">
+              <v-list-item-title>EMAIL PDF</v-list-item-title>
+            </v-list-item>
 
-              <v-list-item @click="downloadPDF()">
-                <v-list-item-title>DOWNLOAD PDF</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-row>
+            <v-list-item @click="downloadPDF()">
+              <v-list-item-title>DOWNLOAD PDF</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </v-col>
     </v-row>
 
@@ -90,8 +91,7 @@
             @click="openModal('lineItemDialog', true)"
             v-if="!isCompleted"
             :color="color"
-            >Add Line Item
-          </v-btn>
+          >Add Line Item</v-btn>
           <v-btn
             fab
             right
@@ -112,18 +112,10 @@
           <v-card-text>
             <v-row class="py-0 my-0">
               <v-col cols="1">#</v-col>
-              <v-col cols="3" class="text-left caption font-weight-bold"
-                >Line Item Name
-              </v-col>
-              <v-col cols="1" class="text-right caption font-weight-bold"
-                >Qty
-              </v-col>
-              <v-col cols="2" class="text-right caption font-weight-bold"
-                >Discount
-              </v-col>
-              <v-col cols="3" class="text-right caption font-weight-bold"
-                >Price
-              </v-col>
+              <v-col cols="3" class="text-left caption font-weight-bold">Line Item Name</v-col>
+              <v-col cols="1" class="text-right caption font-weight-bold">Qty</v-col>
+              <v-col cols="2" class="text-right caption font-weight-bold">Discount</v-col>
+              <v-col cols="3" class="text-right caption font-weight-bold">Price</v-col>
               <v-col cols="2" class="text-right" v-if="isCompleted"></v-col>
             </v-row>
           </v-card-text>
@@ -131,11 +123,7 @@
 
         <!-- quotation line items -->
         <div v-if="quotation.items.length">
-          <v-col
-            :key="item.key"
-            class="py-0 px-0 my-1"
-            v-for="(item, index) in quotation.items"
-          >
+          <v-col :key="item.key" class="py-0 px-0 my-1" v-for="(item, index) in quotation.items">
             <AppQuotationItem
               :color="color"
               :item="item"
@@ -146,11 +134,7 @@
           </v-col>
         </div>
 
-        <v-divider
-          class="mt-10 mb-4"
-          light
-          v-if="quotation.items.length"
-        ></v-divider>
+        <v-divider class="mt-10 mb-4" light v-if="quotation.items.length"></v-divider>
 
         <!--  totals -->
         <v-row class="text-right" v-if="quotation.items.length">
@@ -164,9 +148,7 @@
           </v-col>
           <v-col>
             <div class="caption font-weight-bold">Grand Total</div>
-            <div class="body-2">
-              {{ (total - discountTotal) | currency("R", 2) }}
-            </div>
+            <div class="body-2">{{ (total - discountTotal) | currency("R", 2) }}</div>
           </v-col>
         </v-row>
 
