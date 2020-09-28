@@ -1,5 +1,7 @@
 # jft-motors-app
 
+![Production](https://github.com/Group-Papaya/jft-motors/workflows/Node.js%20%7C%20Build%20&%20Deploy/badge.svg)
+
 ## Project setup
 ```
 npm install
