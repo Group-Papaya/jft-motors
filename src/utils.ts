@@ -53,3 +53,6 @@ export const requiredArray = msg => v =>
   (Array.isArray(v) && v.length > 1) || msg;
 export const minLen = l => v => (v && v.length >= l) || `min. ${l} Characters`;
 export const maxLen = l => v => (v && v.length <= l) || `max. ${l} Characters`;
+export const nonZero = () => v => v > 0 || "can't be zero or less";
+export const emailVal = () => v =>
+  /.+@.+\..+/.test(v) || "E-mail must be valid";

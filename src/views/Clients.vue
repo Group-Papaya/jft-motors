@@ -16,7 +16,7 @@ import { Component, Vue } from "vue-property-decorator";
 import AppEditor from "@/components/layouts/AppManager.vue";
 import Client from "@/models/Client";
 import { watchCollection } from "@/services/curd.service";
-import { required } from "@/utils";
+import { emailVal, required } from "@/utils";
 
 @Component({
   components: { AppEditor }
@@ -84,7 +84,7 @@ export default class Clients extends Vue {
     email: {
       type: "email",
       label: "E-mail Address",
-      rules: [required("Email address is required")]
+      rules: [required("Email address is required"), emailVal()]
     }
   };
 

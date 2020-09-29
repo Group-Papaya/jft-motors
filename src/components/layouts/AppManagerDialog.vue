@@ -116,7 +116,7 @@ export default class AppManagerDialog extends Vue {
   showDialog(create, item?: LineItem) {
     this.item = { ...item };
     this.create = create;
-    this.onShowDialog(item);
+    this.onShowDialog({ ...item });
     this.dialog = true;
   }
 
