@@ -1,5 +1,9 @@
 <template>
-  <v-card v-bind="$attrs" :class="classes" class="v-card--material pa-3">
+  <v-card
+    v-bind="$attrs"
+    :class="classes"
+    class="v-card--material pa-3 fill-height"
+  >
     <div class="d-flex grow flex-wrap">
       <v-avatar
         v-if="avatar"
@@ -62,7 +66,7 @@
               <v-icon>mdi-plus</v-icon>
             </v-btn>
             <span class="card-title  ml-2 hidden-sm-and-down font-weight-light"
-              >Add {{ itemName }}</span
+              >Add</span
             >
           </div>
         </v-row>

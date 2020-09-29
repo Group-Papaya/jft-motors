@@ -7,33 +7,32 @@
       :button="button"
       :subtitle="subtitle"
       v-on:openDialog="openAddDialog"
-      class="px-5 py-3"
-    >
+      class="px-5 py-3 flex-grow-1">
       <!-- data list -->
+      <v-flex class="overflow-auto" :style="{ height: tableHeight + 'vh'}">
+        <v-data-table
+                :items="items"
+                :headers="headers"
+                @click:row="openEditDialog">
+          <template v-slot:item.id="{ item }">
+            <v-chip
+                    :color="title === 'Invoices' ? 'primary' : 'warning'"
+                    class="px-2"
+                    small>
+              #{{ items.map(x => x.id).indexOf(item.id) + 1 }}
+            </v-chip>
+          </template>
+          <template v-slot:item.actions="{ item }">
+            <v-icon small class="mr-2" @click.stop="openEditDialog(item)">
+              mdi-pencil
+            </v-icon>
+            <v-icon small @click.stop="deleteItem(item)" color="red">
+              mdi-delete
+            </v-icon>
+          </template>
+        </v-data-table>
+      </v-flex>
 
-      <v-data-table
-        :items="items"
-        :headers="headers"
-        @click:row="openEditDialog"
-      >
-        <template v-slot:item.id="{ item }">
-          <v-chip
-            :color="title === 'Invoices' ? 'primary' : 'warning'"
-            class="px-2"
-            small
-          >
-            #{{ items.map(x => x.id).indexOf(item.id) + 1 }}
-          </v-chip>
-        </template>
-        <template v-slot:item.actions="{ item }">
-          <v-icon small class="mr-2" @click.stop="openEditDialog(item)">
-            mdi-pencil
-          </v-icon>
-          <v-icon small @click.stop="deleteItem(item)" color="red">
-            mdi-delete
-          </v-icon>
-        </template>
-      </v-data-table>
     </app-material-card>
 
     <!-- modal component -->
@@ -55,7 +54,7 @@
 <script lang="ts">
 import AppManagerDialog from "@/components/layouts/AppManagerDialog.vue";
 import AppConfirmDialog from "@/components/layouts/AppConfirmDialog.vue";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import {Component, Prop, Vue, Watch} from "vue-property-decorator";
 import router from "@/router";
 import { curd } from "@/services/curd.service";
 
@@ -64,6 +63,8 @@ import { curd } from "@/services/curd.service";
 })
 export default class AppEditor extends Vue {
   name = "AppManager.vue";
+  innerHeight = window.innerHeight
+  tableHeight = 0
 
   @Prop({
     type: Function,
@@ -114,6 +115,7 @@ export default class AppEditor extends Vue {
 
   @Prop({ type: Object, default: undefined }) readonly schema: any | undefined;
 
+
   @Prop({ type: Function, default: undefined }) readonly addHandler:
     | Function
     | undefined;
@@ -155,6 +157,37 @@ export default class AppEditor extends Vue {
       showDialog: (create?: boolean, item?: any) => Function;
     };
   }
+
+  calculateTableHeight(height) {
+    const gutter = this.$route.name === 'Dashboard' ? 330 : 270;
+    const value = height - gutter
+    this.tableHeight = (100 * value) / window.innerHeight
+  }
+
+  @Watch('innerHeight')
+  heightChanged(newValue) {
+    this.calculateTableHeight(newValue)
+  }
+
+  mounted () {
+    // calculate table height
+    this.calculateTableHeight(this.innerHeight)
+
+    // add window resize listener
+    window.addEventListener('resize', ({ target }) => {
+      if (target) {
+        this.innerHeight = target['innerHeight']
+      }
+    })
+  }
+
+  beforeDestroy() {
+    window.removeEventListener('resize', () => {
+      console.log('listener removed')
+    })
+  }
+
+
 }
 </script>
 
