@@ -15,7 +15,6 @@
 import { Component, Vue } from "vue-property-decorator";
 import AppEditor from "@/components/layouts/AppManager.vue";
 import Client from "@/models/Client";
-import { watchCollection } from "@/services/curd.service";
 
 @Component({
   components: { AppEditor }

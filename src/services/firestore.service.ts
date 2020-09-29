@@ -16,8 +16,9 @@ export default class FirestoreService {
   }
 
   @tryCatch(Logger)
-  // The path is to a root collection or sub-collection
-  // e.g `/users | /products/:id/line-items`
+  /** The path is to a root collection or sub-collection
+   * e.g `/users | /products/:id/line-items`
+   */
   getCollection(path: string) {
     return this.db.collection(`/${path}`);
   }

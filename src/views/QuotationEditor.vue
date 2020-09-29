@@ -206,7 +206,6 @@ import AppQuotationItem from "@/components/layouts/AppQuotationItem.vue";
 import AppAddLineItemToQuotation from "@/components/layouts/AppAddLineItemToQuotation.vue";
 import AppOverlay from "@/components/layouts/AppOverlay.vue";
 import AppPdfViewer from "@/components/layouts/AppPdfViewer.vue";
-import moment from "moment";
 
 import {
   downloadInvoice,
