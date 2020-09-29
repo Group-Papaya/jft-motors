@@ -81,7 +81,7 @@ export default {
         telephone: [
           v => !!v || "Phone number is required",
           v =>
-            (v && v.length >= 10) ||
+            /^((?:\+27|27)|0)(\d{2})[- ]?(\d{3})[- ]?(\d{4})$/gm.test(v) ||
             "Please supply a valid South African Phone number"
         ]
       },

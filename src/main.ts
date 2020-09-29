@@ -16,16 +16,15 @@ import {
 import store from "./store";
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
-import firebase from "firebase";
 import "vuetify/dist/vuetify.min.css";
+import { storage } from "@/firebase";
 
 Vue.config.productionTip = false;
 
 const details = watchDocument(
   { path: "settings/business-details" },
   async document => {
-    const logo = await firebase
-      .storage()
+    const logo = await storage
       .ref("/logo.png")
       .getDownloadURL()
       .then(url => url)

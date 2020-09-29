@@ -1,5 +1,5 @@
 import { Quotation } from "@/models";
-import firebase from "firebase";
+import { storage } from "@/firebase";
 import store from "@/store";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 import easyInvoice from "easyinvoice";
@@ -77,7 +77,7 @@ async function uploadPDF(quotation: Quotation, file: any) {
   const documentType = getDocumentType(quotation);
   const filename = `${documentType}s/${quotation.id}.pdf`;
 
-  const storageRef = firebase.storage().ref(filename);
+  const storageRef = storage.ref(filename);
 
   const uploadTaskSnapshot = await storageRef.putString(file, "base64");
 
