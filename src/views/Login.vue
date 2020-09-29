@@ -9,6 +9,7 @@
         @focusin="error = null"
         :rules="rules.email"
         v-model="form.email"
+        autocomplete="username"
       />
     </v-col>
 
@@ -21,6 +22,7 @@
         @focusin="error = null"
         :rules="rules.password"
         v-model="form.password"
+        autocomplete="current-password"
       />
     </v-col>
     <v-col class="col-12">
