@@ -16,6 +16,7 @@
 import { Component, Vue } from "vue-property-decorator";
 import AppEditor from "@/components/layouts/AppManager.vue";
 import { Discount } from "@/models";
+import { required } from "@/utils";
 
 @Component({
   components: { AppEditor }
@@ -69,18 +70,21 @@ export default class Discounts extends Vue {
   schema = {
     name: {
       type: "text",
-      label: "Discount name"
+      label: "Discount name",
+      rules: [required("Discount name is required")]
     },
     details: {
       type: "text",
-      label: "Discount description"
+      label: "Discount description",
+      rules: [required("Description name is required")]
     },
     amount: {
       min: 0,
       step: 0.25,
       type: "number",
       label: "Amount",
-      max: this.rules.ispercentage(this.model.percentage)
+      max: this.rules.ispercentage(this.model.percentage),
+      rules: [required("Amount is required")]
     },
     percentage: {
       inset: true,
@@ -106,13 +110,16 @@ export default class Discounts extends Vue {
       record: this.discount(record),
       path: record.path
     });
+
+    this.$toast.success(`Discount "${record.name}" updated`);
   }
 
-  addDiscount(record: Discount) {
-    this.$store.dispatch("ADD_RECORD", {
+  async addDiscount(record: Discount) {
+    await this.$store.dispatch("ADD_RECORD", {
       record: this.discount(record),
       path: "discounts"
     });
+    this.$toast.success("New discount added");
   }
 
   discount({ percentage, ...discount }: Discount): Discount {

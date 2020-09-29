@@ -95,8 +95,8 @@ export default class Clients extends Vue {
     );
   }
 
-  addClient(record: Client) {
-    this.$store.dispatch("ADD_RECORD", { record, path: "clients" });
+  async addClient(record: Client) {
+    await this.$store.dispatch("ADD_RECORD", { record, path: "clients" });
     this.$toast.success("New client added");
   }
 }

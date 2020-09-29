@@ -161,11 +161,12 @@ export default class LineItems extends Vue {
     });
   }
 
-  addLineItem(record: LineItem) {
-    this.$store.dispatch("ADD_RECORD", {
+  async addLineItem(record: LineItem) {
+    await this.$store.dispatch("ADD_RECORD", {
       record: this.setDiscount(record),
       path: "line-items"
     });
+    this.$toast.success("New Line item added");
   }
 
   getDiscountFor(item: LineItem, discount: Discount) {
