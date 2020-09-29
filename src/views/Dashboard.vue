@@ -40,6 +40,7 @@ import moment from "moment";
 import Quotation from "@/models/Quotation";
 import AppManager from "@/components/layouts/AppManager.vue";
 import { Client } from "@/models";
+import { required } from "@/utils";
 
 @Component({
   components: { AppManager }
@@ -92,8 +93,10 @@ export default class Dashboard extends Vue {
       type: "autocomplete",
       label: "Select Client",
       items: this.clients,
+      hint: "Select a client to start building a quotation",
       itemText: (value: Client) => `${value.firstname} ${value.lastname}`,
-      itemValue: (value: Client) => value
+      itemValue: (value: Client) => value,
+      rules: [required("Client is required")]
     }
   };
 
@@ -101,10 +104,9 @@ export default class Dashboard extends Vue {
     if (key === "client") this.model.meta.client = value;
   }
 
-  addQuotation(quotation: Quotation) {
-    if (typeof quotation.meta.client === "object") {
-      this.$store.dispatch("ADD_QUOTATION", quotation);
-    } else this.$toast.error("Remember to Select a Client");
+  async addQuotation(quotation: Quotation) {
+    await this.$store.dispatch("ADD_QUOTATION", quotation);
+    this.$toast.success("New quotation added");
   }
 
   get subtitle() {

@@ -17,7 +17,7 @@ import store from "./store";
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 import firebase from "firebase";
-import 'vuetify/dist/vuetify.min.css'
+import "vuetify/dist/vuetify.min.css";
 
 Vue.config.productionTip = false;
 

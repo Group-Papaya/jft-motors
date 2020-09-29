@@ -18,6 +18,7 @@ import AppManager from "@/components/layouts/AppManager.vue";
 import Quotation from "@/models/Quotation";
 import { curd } from "@/services/curd.service";
 import { Client } from "@/models";
+import { required } from "@/utils";
 
 @Component({
   components: { AppManager }
@@ -69,7 +70,8 @@ export default class Quotations extends Vue {
       label: "Select Client",
       items: this.clients,
       itemText: (value: Client) => `${value.firstname} ${value.lastname}`,
-      itemValue: (value: Client) => value
+      itemValue: (value: Client) => value,
+      rules: [required("Client is required")]
     }
   };
 
@@ -92,10 +94,9 @@ export default class Quotations extends Vue {
         .then(() => curd.delete(quotation.path as string));
   }
 
-  addQuotation(quotation: Quotation) {
-    if (typeof quotation.meta.client === "object") {
-      this.$store.dispatch("ADD_QUOTATION", quotation);
-    } else this.$toast.error("Remember to Select a Client");
+  async addQuotation(quotation: Quotation) {
+    await this.$store.dispatch("ADD_QUOTATION", quotation);
+    this.$toast.success("New quotation added");
   }
 }
 </script>
