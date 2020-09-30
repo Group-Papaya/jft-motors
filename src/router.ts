@@ -79,12 +79,10 @@ const router = new Router({
           }
         },
         {
-          name: "User Profile",
+          name: "Business Profile",
           path: "profile",
           component: () =>
-            import(
-              /* webpackChunkName: "app-profile" */ "@/views/UserProfile.vue"
-            )
+            import(/* webpackChunkName: "app-profile" */ "@/views/Business.vue")
         }
       ]
     },
