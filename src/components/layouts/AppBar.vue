@@ -1,5 +1,13 @@
 <template>
-  <v-app-bar id="app-bar" absolute app color="transparent" flat height="75">
+  <v-app-bar
+    id="app-bar"
+    absolute
+    app
+    color="transparent"
+    flat
+    height="75"
+    style="padding: 0 50px"
+  >
     <v-app-bar-nav-icon class="mr-3" fab @click="setDrawer(!drawer)" />
 
     <v-toolbar-title

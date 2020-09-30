@@ -16,14 +16,17 @@ export default new Vuex.Store({
     drawer: null,
     details: {
       logo: "",
-      telephone: "",
       company: "",
+      telephone: "",
       address: {
         city: "",
         street: "",
         suburb: "",
         zipcode: 0o000,
         country: ""
+      },
+      settings: {
+        discounts: {}
       }
     },
     registered: true,
@@ -59,6 +62,9 @@ export default new Vuex.Store({
     },
     currentUser: state => {
       return state.auth.user;
+    },
+    discounts: state => {
+      return state.details.settings.discounts;
     }
   },
   mutations: {
