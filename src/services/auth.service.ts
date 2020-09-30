@@ -15,32 +15,45 @@ interface AuthResponse {
 
 export default class AuthService {
   user!: firebase.User | null;
-  firebaseAuth!: firebase.auth.Auth;
+  auth!: firebase.auth.Auth;
 
   constructor(app: firebase.app.App) {
-    this.firebaseAuth = app.auth();
+    this.auth = app.auth();
     this.user = app.auth().currentUser;
   }
 
   @tryCatch(Logger)
   async register({ email, password, ...rest }: User): Promise<AuthResponse> {
-    return await this.firebaseAuth
-      .createUserWithEmailAndPassword(email, password)
-      .then(value => {
-        bcrypt.hash(password, 2).then(hash => {
-          const user = { id: value.user?.uid, email, password: hash, ...rest };
-          dbService.add(user, "users", value.user?.uid);
+    if (store.getters.getUser(email) === undefined) {
+      return await this.auth
+        .createUserWithEmailAndPassword(email, password)
+        .then(async credentials => {
+          const { user } = credentials;
+          if (user) {
+            bcrypt.hash(password, 2).then(hash => {
+              const newUser: User = {
+                ...rest,
+                id: user.uid,
+                email: email,
+                password: hash,
+                role: rest.role ? rest.role : BASE_ROLE
+              };
+              dbService.add(newUser, "users", user.uid);
+            });
+            return { result: credentials };
+          }
+          return { error: "Failed to get the user registered" };
+        })
+        .catch(reason => {
+          return { error: reason.message };
         });
-        return { result: value };
-      })
-      .catch(reason => {
-        return { error: reason.message };
-      });
+    }
+    return { error: `Email: ${email}, already in use` };
   }
 
   @tryCatch(Logger)
   async login(email: string, password: string): Promise<AuthResponse> {
-    return await this.firebaseAuth
+    return await this.auth
       .signInWithEmailAndPassword(email, password)
       .then(async credentials => {
         store.commit("SET_AUTH_STATE", {
@@ -56,47 +69,20 @@ export default class AuthService {
 
   @tryCatch(Logger)
   async socialLogin(
-    userRole?: string,
-    onCreation?: (details: any) => void
+    callback: (credentials: firebase.auth.UserCredential) => void
   ): Promise<AuthResponse> {
-    return this.firebaseAuth
+    return this.auth
       .signInWithPopup(new firebase.auth.GoogleAuthProvider())
-      .then(async ({ user, additionalUserInfo: info, ...credentials }) => {
-        if (store.getters.getUser(user?.email) === undefined) {
-          if (onCreation === undefined) {
-            bcrypt.hash("P@assword1", 2).then(hash => {
-              const {
-                given_name: firstname,
-                family_name: lastname
-              } = info?.profile as any;
-              const newUser: User = {
-                id: user?.uid,
-                password: hash,
-                role: userRole ? userRole : BASE_ROLE,
-                lastname: lastname,
-                firstname: firstname,
-                email: user?.email as string,
-                meta: {
-                  isGoogleAccount: true
-                }
-              };
-              dbService.add(newUser, "users", user?.uid);
-            });
-          } else onCreation({ user, info, ...credentials });
-        }
-
-        store.commit("SET_AUTH_STATE", {
-          user: await curd.get("users", user?.uid),
-          authenticated: true
-        });
-        return { result: { user, info, ...credentials } };
+      .then(async credential => {
+        if (credential.user) callback(credential);
+        return { result: credential };
       })
       .catch(reason => ({ error: reason }));
   }
 
   @tryCatch(Logger)
   async logout() {
-    await this.firebaseAuth.signOut().then(() => {
+    await this.auth.signOut().then(() => {
       store.commit("SET_AUTH_STATE", {
         user: null,
         authenticated: null
@@ -106,7 +92,7 @@ export default class AuthService {
 
   @tryCatch(Logger)
   async resetPassword(email: string): Promise<AuthResponse> {
-    return await this.firebaseAuth
+    return await this.auth
       .sendPasswordResetEmail(email)
       .then(() => {
         return { result: "Password reset email sent" };
