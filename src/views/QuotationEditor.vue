@@ -380,7 +380,10 @@ export default class QuotationEditor extends Vue {
 
   set isCompleted(value: boolean) {
     this.toggleComplete(value).then(choice => {
-      if (choice) this.updateQuotation({ ...this.quotation, completed: value });
+      if (choice) {
+        this.quotation.completed = value;
+        this.updateQuotation({ ...this.quotation });
+      }
     });
   }
 
