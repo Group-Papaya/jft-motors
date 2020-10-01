@@ -17,6 +17,7 @@ import User, { BASE_ROLE, MANAGER_ROLE, ROLES } from "@/models/User";
 import AppEditor from "@/components/layouts/AppManager.vue";
 import { auth } from "@/services/auth.service";
 import { POSITION } from "vue-toastification";
+import { emailVal, required } from "@/utils";
 
 @Component({
   components: { AppEditor }
@@ -79,11 +80,13 @@ export default class Users extends Vue {
   schema = {
     firstname: {
       type: "text",
-      label: "First Name"
+      label: "First Name",
+      rules: [required("Amount is required")]
     },
     lastname: {
       type: "text",
-      label: "Last Name"
+      label: "Last Name",
+      rules: [required("Amount is required")]
     },
     phone: {
       type: "text",
@@ -91,7 +94,8 @@ export default class Users extends Vue {
     },
     email: {
       type: "email",
-      label: "Email Address"
+      label: "Email Address",
+      rules: [required("Amount is required"), emailVal()]
     },
     role: {
       type: "select",
@@ -100,11 +104,13 @@ export default class Users extends Vue {
     }
   };
 
-  editItem(user: User) {
-    this.$store.dispatch("SET_RECORD", {
+  async editItem(user: User) {
+    await this.$store.dispatch("SET_RECORD", {
       record: this.mutUser(user),
       path: user.path
     });
+
+    this.$toast.success(`User "${user.email}" updated`);
   }
 
   addUser(user: User) {

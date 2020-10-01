@@ -1,5 +1,5 @@
 <template>
-  <v-container :id="title" fluid tag="section" class="my-5">
+  <v-container :id="title" fluid tag="section" class="my-1 my-md-5">
     <app-material-card
       :icon="icon"
       :color="color"
@@ -7,18 +7,21 @@
       :button="button"
       :subtitle="subtitle"
       v-on:openDialog="openAddDialog"
-      class="px-5 py-3 flex-grow-1">
+      class="px-5 py-3 flex-grow-1"
+    >
       <!-- data list -->
-      <v-flex class="overflow-auto" :style="{ height: tableHeight + 'vh'}">
+      <v-flex class="overflow-auto" :style="{ height: tableHeight + 'vh' }">
         <v-data-table
-                :items="items"
-                :headers="headers"
-                @click:row="openEditDialog">
+          :items="items"
+          :headers="headers"
+          @click:row="openEditDialog"
+        >
           <template v-slot:item.id="{ item }">
             <v-chip
-                    :color="title === 'Invoices' ? 'primary' : 'warning'"
-                    class="px-2"
-                    small>
+              :color="title === 'Invoices' ? 'primary' : 'warning'"
+              class="px-2"
+              small
+            >
               #{{ items.map(x => x.id).indexOf(item.id) + 1 }}
             </v-chip>
           </template>
@@ -32,7 +35,6 @@
           </template>
         </v-data-table>
       </v-flex>
-
     </app-material-card>
 
     <!-- modal component -->
@@ -45,6 +47,7 @@
       :watch-handler="watchHandler"
       :on-show-dialog="onShowDialog"
       :change-handler="changeHandler"
+      :headline="title.slice(0, title.length - 1)"
     />
 
     <AppConfirmDialog ref="confirm" />
@@ -54,7 +57,7 @@
 <script lang="ts">
 import AppManagerDialog from "@/components/layouts/AppManagerDialog.vue";
 import AppConfirmDialog from "@/components/layouts/AppConfirmDialog.vue";
-import {Component, Prop, Vue, Watch} from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import router from "@/router";
 import { curd } from "@/services/curd.service";
 
@@ -63,8 +66,8 @@ import { curd } from "@/services/curd.service";
 })
 export default class AppEditor extends Vue {
   name = "AppManager.vue";
-  innerHeight = window.innerHeight
-  tableHeight = 0
+  innerHeight = window.innerHeight;
+  tableHeight = 0;
 
   @Prop({
     type: Function,
@@ -115,7 +118,6 @@ export default class AppEditor extends Vue {
 
   @Prop({ type: Object, default: undefined }) readonly schema: any | undefined;
 
-
   @Prop({ type: Function, default: undefined }) readonly addHandler:
     | Function
     | undefined;
@@ -148,7 +150,12 @@ export default class AppEditor extends Vue {
         title: "You are about to delete this item"
       })
       .then(result => {
-        if (this.onDeleteDialog) this.onDeleteDialog(result, item);
+        if (this.onDeleteDialog && result) {
+          this.onDeleteDialog(result, item);
+          this.$toast.success(
+            `${this.title?.slice(0, this.title?.length - 1)} record deleted`
+          );
+        }
       });
   }
 
@@ -159,35 +166,33 @@ export default class AppEditor extends Vue {
   }
 
   calculateTableHeight(height) {
-    const gutter = this.$route.name === 'Dashboard' ? 330 : 270;
-    const value = height - gutter
-    this.tableHeight = (100 * value) / window.innerHeight
+    const gutter = this.$route.name === "Dashboard" ? 330 : 270;
+    const value = height - gutter;
+    this.tableHeight = (100 * value) / window.innerHeight;
   }
 
-  @Watch('innerHeight')
+  @Watch("innerHeight")
   heightChanged(newValue) {
-    this.calculateTableHeight(newValue)
+    this.calculateTableHeight(newValue);
   }
 
-  mounted () {
+  mounted() {
     // calculate table height
-    this.calculateTableHeight(this.innerHeight)
+    this.calculateTableHeight(this.innerHeight);
 
     // add window resize listener
-    window.addEventListener('resize', ({ target }) => {
+    window.addEventListener("resize", ({ target }) => {
       if (target) {
-        this.innerHeight = target['innerHeight']
+        this.innerHeight = target["innerHeight"];
       }
-    })
+    });
   }
 
   beforeDestroy() {
-    window.removeEventListener('resize', () => {
-      console.log('listener removed')
-    })
+    window.removeEventListener("resize", () => {
+      console.log("listener removed");
+    });
   }
-
-
 }
 </script>
 

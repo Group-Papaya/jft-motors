@@ -19,6 +19,7 @@ import { Component, Vue } from "vue-property-decorator";
 import AppEditor from "@/components/layouts/AppManager.vue";
 import LineItem, { ITEMISES, TYPE_ICONS } from "@/models/LineItem";
 import { Discount } from "@/models";
+import { required, nonZero } from "@/utils";
 
 @Component({
   components: { AppEditor }
@@ -85,7 +86,8 @@ export default class LineItems extends Vue {
   schema = {
     name: {
       type: "text",
-      label: "Line item name"
+      label: "Line item name",
+      rules: [required("Line item name is required")]
     },
     details: {
       type: "text",
@@ -94,14 +96,15 @@ export default class LineItems extends Vue {
     type: {
       label: "Type",
       type: "select",
-      items: ITEMISES
+      items: ITEMISES,
+      rules: [required("Type is required")]
     },
     cost: {
       min: 0,
       label: "Cost",
       type: "number",
       prependIcon: "R",
-      rules: [v => v === 0 && "can't be zero"]
+      rules: [required("Cost is required"), nonZero()]
     },
     units: {
       label: "Units",
@@ -128,7 +131,9 @@ export default class LineItems extends Vue {
     this.schema.discount.disabled = !item?.discounted;
   }
 
-  handleChange({ key, value }: any) {
+  handleChange({ key, value, data: { name } }: any) {
+    if (!name) return;
+
     if (key === "discounted") {
       this.item.discounted = value !== null;
       this.schema.discounted.value = value !== null;
@@ -138,6 +143,8 @@ export default class LineItems extends Vue {
   }
 
   watchEvent({ on, key, value }: any) {
+    if (!value) return;
+
     if (on === "input") {
       if (key === "discount") this.mutModelState(value);
     }
@@ -154,11 +161,12 @@ export default class LineItems extends Vue {
     });
   }
 
-  addLineItem(record: LineItem) {
-    this.$store.dispatch("ADD_RECORD", {
+  async addLineItem(record: LineItem) {
+    await this.$store.dispatch("ADD_RECORD", {
       record: this.setDiscount(record),
       path: "line-items"
     });
+    this.$toast.success("New Line item added");
   }
 
   getDiscountFor(item: LineItem, discount: Discount) {

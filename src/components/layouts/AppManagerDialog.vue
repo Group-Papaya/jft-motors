@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="dialog" max-width="600">
+  <v-dialog v-model="dialog" max-width="600" persistent>
     <v-card>
       <v-card-title>
         <span class="headline"
@@ -7,7 +7,7 @@
         >
       </v-card-title>
       <v-card-text>
-        <v-form ref="form" v-model="valid" lazy-validation>
+        <v-form ref="baseForm" v-model="valid" lazy-validation>
           <v-form-base
             :col="12"
             :schema="schema"
@@ -20,10 +20,10 @@
         </v-form>
       </v-card-text>
       <v-card-actions>
-        <v-btn color="success" @click="handleInput(create ? model : item)">
+        <v-btn color="success" @click="validate()">
           Submit
         </v-btn>
-        <v-btn color="error" @click="dialog = false">Cancel</v-btn>
+        <v-btn color="error" @click="cancel()">Cancel</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -102,17 +102,7 @@ export default class AppManagerDialog extends Vue {
     return !this.valid;
   }
 
-  item?: LineItem = {
-    cost: 0,
-    type: "",
-    name: "",
-    units: 0,
-    format: "",
-    details: "",
-    quantity: 0,
-    discount: "",
-    discounted: false
-  };
+  item? = {};
 
   valid = false;
   dialog = false;
@@ -124,19 +114,39 @@ export default class AppManagerDialog extends Vue {
   };
 
   showDialog(create, item?: LineItem) {
-    this.item = item;
+    this.item = { ...item };
     this.create = create;
-    this.onShowDialog(item);
+    this.onShowDialog({ ...item });
     this.dialog = true;
+  }
+
+  resetDialog() {
+    this.form.resetValidation();
+    this.form.reset();
+    this.dialog = false;
   }
 
   handleInput(item) {
     if (this.create) {
-      this.addHandler(item);
+      this.addHandler({ ...item });
     } else {
-      this.editHandler(item);
+      this.editHandler({ ...item });
     }
-    this.dialog = false;
+    this.resetDialog();
+  }
+
+  cancel() {
+    this.resetDialog();
+  }
+
+  validate() {
+    if (this.form.validate()) {
+      this.handleInput(this.create ? this.model : this.item);
+    }
+  }
+
+  get form() {
+    return this.$refs.baseForm as VFormBase;
   }
 }
 </script>

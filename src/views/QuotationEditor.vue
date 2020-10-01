@@ -89,8 +89,13 @@
 
         <v-row col="12" class="justify-space-between align-center">
           <v-btn-toggle mandatory v-model="isCompleted" borderless dense>
-            <v-btn :value="false">Draft</v-btn>
-            <v-btn v-if="quotation.items.length" :value="true">Complete</v-btn>
+            <v-btn :value="false" :disabled="!isCompleted">Draft</v-btn>
+            <v-btn
+              v-if="quotation.items.length"
+              :value="true"
+              :disabled="isCompleted"
+              >Complete</v-btn
+            >
           </v-btn-toggle>
 
           <v-btn
@@ -375,7 +380,10 @@ export default class QuotationEditor extends Vue {
 
   set isCompleted(value: boolean) {
     this.toggleComplete(value).then(choice => {
-      if (choice) this.updateQuotation({ ...this.quotation, completed: value });
+      if (choice) {
+        this.quotation.completed = value;
+        this.updateQuotation({ ...this.quotation });
+      }
     });
   }
 

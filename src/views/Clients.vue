@@ -15,6 +15,8 @@
 import { Component, Vue } from "vue-property-decorator";
 import AppEditor from "@/components/layouts/AppManager.vue";
 import Client from "@/models/Client";
+import { watchCollection } from "@/services/curd.service";
+import { emailVal, required } from "@/utils";
 
 @Component({
   components: { AppEditor }
@@ -66,28 +68,36 @@ export default class Clients extends Vue {
   schema = {
     firstname: {
       type: "text",
-      label: "Firstname"
+      label: "First Name",
+      rules: [required("First name is required")]
     },
     lastname: {
       type: "text",
-      label: "Lastname"
+      label: "Last Name",
+      rules: [required("Last Name is required")]
     },
     phone: {
       type: "text",
-      label: "Phone Number"
+      label: "Phone Number",
+      rules: [required("Phone number is required")]
     },
     email: {
       type: "email",
-      label: "E-mail Address"
+      label: "E-mail Address",
+      rules: [required("Email address is required"), emailVal()]
     }
   };
 
-  editItem(record: Client) {
-    this.$store.dispatch("SET_RECORD", { record, path: record.path });
+  async editItem(record: Client) {
+    await this.$store.dispatch("SET_RECORD", { record, path: record.path });
+    this.$toast.success(
+      `Client "${record.firstname} ${record.lastname}" updated`
+    );
   }
 
-  addClient(record: Client) {
-    this.$store.dispatch("ADD_RECORD", { record, path: "clients" });
+  async addClient(record: Client) {
+    await this.$store.dispatch("ADD_RECORD", { record, path: "clients" });
+    this.$toast.success("New client added");
   }
 }
 </script>
