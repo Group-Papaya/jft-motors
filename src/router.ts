@@ -74,6 +74,11 @@ const router = new Router({
           component: () => import("@/views/LineItems.vue")
         },
         {
+          name: "Reports",
+          path: "reports",
+          component: () => import("@/views/Reports.vue")
+        },
+        {
           name: "Users",
           path: "users",
           component: () => import("@/views/Users.vue"),

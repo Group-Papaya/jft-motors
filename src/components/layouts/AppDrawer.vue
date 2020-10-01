@@ -79,14 +79,19 @@ export default {
         to: "/invoices"
       },
       {
+        title: "Line Items",
+        icon: "mdi-format-list-bulleted",
+        to: "/line-items"
+      },
+      {
         title: "Clients",
         icon: "mdi-account-box-outline",
         to: "/clients"
       },
       {
-        title: "Line Items",
-        icon: "mdi-format-list-bulleted",
-        to: "/line-items"
+        title: "Reports",
+        icon: "mdi-chart-bar",
+        to: "/reports"
       }
     ],
     logo: logo
@@ -106,18 +111,18 @@ export default {
     },
     computedItems() {
       const items = [
-        this.authMenu
-          ? {
-              title: "Users",
-              icon: "mdi-account-multiple",
-              to: "/users"
-            }
-          : null,
         this.discounts.allowed
           ? {
               title: "Discounts",
               icon: "mdi-tag-text-outline",
               to: "/discounts"
+            }
+          : null,
+        this.authMenu
+          ? {
+              title: "Users",
+              icon: "mdi-account-multiple",
+              to: "/users"
             }
           : null
       ].filter(item => item !== null);

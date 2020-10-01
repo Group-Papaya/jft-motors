@@ -14,10 +14,11 @@ import {
   watchDocument
 } from "./services/curd.service";
 import store from "./store";
+import { storage } from "@/firebase";
 import Toast from "vue-toastification";
+import VueApexCharts from "vue-apexcharts";
 import "vue-toastification/dist/index.css";
 import "vuetify/dist/vuetify.min.css";
-import { storage } from "@/firebase";
 
 Vue.config.productionTip = false;
 
@@ -66,6 +67,8 @@ Vue.use(Toast, {
   timeout: 5000,
   closeOnClick: true
 });
+
+Vue.use(VueApexCharts);
 
 new Vue({
   router,
