@@ -1,5 +1,5 @@
 <template>
-  <v-footer id="app-footer" fixed class="hidden-sm-and-down">
+  <v-footer id="app-footer" fixed class="hidden-sm-and-down" v-if="showFooter">
     <v-container>
       <v-row align="center" no-gutters>
         <v-spacer class="hidden-sm-and-down" />
@@ -17,8 +17,21 @@
   </v-footer>
 </template>
 
-<script>
-export default {
-  name: "AppFooter"
-};
+<script lang="ts">
+import { Component, Vue, Watch } from "vue-property-decorator";
+
+@Component
+export default class AppFooter extends Vue {
+  name = "AppFooter";
+  showFooter = true;
+
+  @Watch("$route")
+  setCurrentRoute(newRoute: any) {
+    if (newRoute.path.split("/").length >= 3) { 
+      this.showFooter = false; 
+    } else {
+      this.showFooter = true;
+    }
+  }
+}
 </script>
