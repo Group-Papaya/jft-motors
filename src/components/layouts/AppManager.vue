@@ -150,8 +150,10 @@ export default class AppEditor extends Vue {
       })
       .then(result => {
         if (this.onDeleteDialog && result) {
-          this.onDeleteDialog(result, item)
-            this.$toast.success(`${this.title?.slice(0, this.title?.length - 1)} record deleted`)
+          this.onDeleteDialog(result, item);
+          this.$toast.success(
+            `${this.title?.slice(0, this.title?.length - 1)} record deleted`
+          );
         }
       });
   }
