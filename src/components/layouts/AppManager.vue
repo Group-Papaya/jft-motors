@@ -47,6 +47,7 @@
       :watch-handler="watchHandler"
       :on-show-dialog="onShowDialog"
       :change-handler="changeHandler"
+      :headline="title.slice(0, title.length - 1)"
     />
 
     <AppConfirmDialog ref="confirm" />

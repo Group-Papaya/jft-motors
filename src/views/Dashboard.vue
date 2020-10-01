@@ -91,7 +91,7 @@ export default class Dashboard extends Vue {
   schema = {
     client: {
       type: "autocomplete",
-      label: "Select Client",
+      label: "Type to search for a client",
       items: this.clients,
       hint: "Select a client to start building a quotation",
       itemText: (value: Client) => `${value.firstname} ${value.lastname}`,
