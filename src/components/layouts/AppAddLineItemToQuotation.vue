@@ -75,10 +75,12 @@ export default class AppAddLineItemToQuotation extends Vue {
       readonly: true
     },
     discount: {
+      inset: true,
       value: false,
+      hidden: true,
       type: "switch",
-      label: "Apply discount",
-      hidden: true
+      disabled: false,
+      label: "Apply discount"
     }
   };
 
@@ -115,6 +117,7 @@ export default class AppAddLineItemToQuotation extends Vue {
   update({ schema }) {
     schema.discount.value = this.item.discounted;
     schema.discount.hidden = !this.item.discounted;
+    schema.discount.disabled = !this.$store.getters.discounts.allowed;
   }
 }
 </script>

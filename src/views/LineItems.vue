@@ -24,6 +24,8 @@ import { Discount } from "@/models";
   components: { AppEditor }
 })
 export default class LineItems extends Vue {
+  discounts = this.$store.getters.discounts;
+
   headers = [
     {
       sortable: false,
@@ -50,21 +52,25 @@ export default class LineItems extends Vue {
       text: "Units",
       value: "meta.units"
     },
-    {
-      sortable: false,
-      text: "Discount",
-      value: "discount"
-    },
-    {
-      sortable: false,
-      text: "Discounted",
-      value: "meta.discounted"
-    },
+    this.discounts.allowed
+      ? {
+          sortable: false,
+          text: "Discount",
+          value: "discount"
+        }
+      : null,
+    this.discounts.allowed
+      ? {
+          sortable: false,
+          text: "Discounted",
+          value: "meta.discounted"
+        }
+      : null,
     {
       sortable: false,
       value: "actions"
     }
-  ];
+  ].filter(item => item !== null);
 
   get items() {
     return this.$store.state.records.lineitems;
@@ -111,16 +117,18 @@ export default class LineItems extends Vue {
       inset: true,
       type: "switch",
       label: "Discountable?",
-      value: this.item.discounted
+      value: this.item.discounted,
+      hidden: !this.discounts.allowed
     },
     discount: {
       type: "autocomplete",
       appendIcon: undefined,
       label: "Select Discount",
       disabled: this.item.discounted,
-      items: this.$store.state.records.discounts,
+      hidden: !this.discounts.allowed,
+      itemValue: (value: Discount) => value,
       itemText: (value: Discount) => value.name,
-      itemValue: (value: Discount) => value
+      items: this.$store.state.records.discounts
     }
   };
 

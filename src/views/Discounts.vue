@@ -48,13 +48,16 @@ export default class Discounts extends Vue {
     }
   ];
 
+  discounts = this.$store.getters.discounts;
+
   get items() {
     return this.$store.state.records.discounts;
   }
 
   get rules() {
     return {
-      ispercentage: (it: any) => (it ? 15 : 150)
+      ispercentage: (it: any) =>
+        it ? this.discounts.percentage : this.discounts.rands
     };
   }
 
@@ -84,9 +87,9 @@ export default class Discounts extends Vue {
     },
     percentage: {
       inset: true,
+      value: false,
       type: "switch",
-      label: "Percentage Discount",
-      value: false
+      label: "Percentage Discount"
     }
   };
 

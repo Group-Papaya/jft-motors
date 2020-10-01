@@ -252,26 +252,6 @@ export default class QuotationEditor extends Vue {
 
   rowAttribute = { justify: "center", align: "center", noGutters: true };
 
-  schema = {
-    quantity: {
-      value: 0,
-      type: "number",
-      label: "Quantity"
-    },
-    cost: {
-      value: 0,
-      type: "number",
-      label: "Cost",
-      disabled: true
-    },
-    discount: {
-      value: false,
-      type: "switch",
-      label: "Apply discount",
-      disabled: true
-    }
-  };
-
   loading = false;
 
   created() {

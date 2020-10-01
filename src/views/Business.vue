@@ -116,7 +116,7 @@
                         type="number"
                         label="Rand amount"
                         class="purple-input"
-                        :value="discounts.rands"
+                        v-model="discounts.rands"
                       />
                     </v-col>
                     <v-col cols="12" md="3">
@@ -124,21 +124,21 @@
                         type="number"
                         label="Percentage"
                         class="purple-input"
-                        :value="discounts.percentage"
+                        v-model="discounts.percentage"
                       />
                     </v-col>
                     <v-col cols="12" md="6">
                       <v-switch
                         inset
                         label="Allow Discounts"
-                        :value="discounts.allowed"
+                        v-model="discounts.allowed"
                       />
                     </v-col>
                   </v-row>
                 </v-col>
 
                 <v-col cols="12" class="text-right">
-                  <v-btn color="success" class="mr-0">
+                  <v-btn color="success" class="mr-0" @click="update">
                     Update Settings
                   </v-btn>
                 </v-col>
@@ -154,11 +154,13 @@
 import { Component, Vue } from "vue-property-decorator";
 import AppEditor from "@/components/layouts/AppManager.vue";
 import User, { ROLES } from "@/models/User";
+import { curd, watchDocument } from "@/services/curd.service";
+import { db } from "@/firebase";
 
 @Component({
   components: { AppEditor }
 })
-export default class UserProfile extends Vue {
+export default class Business extends Vue {
   get user(): User {
     return this.$store.state.auth.user;
   }
@@ -171,16 +173,30 @@ export default class UserProfile extends Vue {
     return this.$store.state.details;
   }
 
-  get discounts() {
-    return {
-      rands: 150,
-      allowed: false,
-      percentage: 15
-    };
+  watcher: any = null;
+
+  discounts = {
+    rands: 150,
+    allowed: false,
+    percentage: 15
+  };
+
+  update() {
+    curd.add({ discounts: this.discounts }, "settings", "rules");
   }
 
-  set discounts(obj) {
-    console.log(obj);
+  created() {
+    this.watcher = watchDocument(db.doc("/settings/rules"), data => {
+      const { discounts } = data;
+      if (discounts) {
+        this.discounts = discounts;
+        this.$store.commit("SET_RULES", { discounts });
+      }
+    });
+  }
+
+  destroyed() {
+    this.watcher();
   }
 
   get business() {
