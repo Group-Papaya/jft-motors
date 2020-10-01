@@ -62,7 +62,11 @@ const router = new Router({
         {
           name: "Discounts",
           path: "discounts",
-          component: () => import("@/views/Discounts.vue")
+          component: () => import("@/views/Discounts.vue"),
+          async beforeEnter(to, from, next): Promise<void> {
+            if (!store.getters.discounts.allowed) next(from.fullPath);
+            else next();
+          }
         },
         {
           name: "LineItems",
@@ -74,7 +78,8 @@ const router = new Router({
           path: "users",
           component: () => import("@/views/Users.vue"),
           async beforeEnter(to, from, next): Promise<void> {
-            if (store.getters.currentUser.role === BASE_ROLE) next(from.path);
+            if (store.getters.currentUser.role === BASE_ROLE)
+              next(from.fullPath);
             else next();
           }
         },

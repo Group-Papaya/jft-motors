@@ -12,7 +12,9 @@ export default new Vuex.Store({
   state: {
     barColor: "rgba(0, 0, 0)",
     barImage: require("@/assets/background.jpg"),
-    rules: {},
+    rules: {
+      discounts: {}
+    },
     drawer: null,
     details: {
       logo: "",
@@ -24,9 +26,6 @@ export default new Vuex.Store({
         suburb: "",
         zipcode: 0o000,
         country: ""
-      },
-      settings: {
-        discounts: {}
       }
     },
     registered: true,
@@ -64,7 +63,7 @@ export default new Vuex.Store({
       return state.auth.user;
     },
     discounts: state => {
-      return state.details.settings.discounts;
+      return state.rules.discounts;
     }
   },
   mutations: {
@@ -78,7 +77,10 @@ export default new Vuex.Store({
       state.details = payload;
     },
     SET_RULES(state, payload) {
-      state.rules = payload;
+      state.rules = {
+        ...state.rules,
+        ...payload
+      };
     },
     SET_RECORDS(state, payload) {
       state.records = {
