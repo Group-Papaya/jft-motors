@@ -87,11 +87,6 @@ export default {
         title: "Line Items",
         icon: "mdi-format-list-bulleted",
         to: "/line-items"
-      },
-      {
-        title: "Discounts",
-        icon: "mdi-tag-text-outline",
-        to: "/discounts"
       }
     ],
     logo: logo
@@ -99,6 +94,7 @@ export default {
 
   computed: {
     ...mapState(["barColor"]),
+    ...mapGetters(["discounts"]),
     ...mapGetters(["currentUser"]),
     drawer: {
       get() {
@@ -109,14 +105,24 @@ export default {
       }
     },
     computedItems() {
-      return (this.authMenu
-        ? this.items.concat({
-            title: "Users",
-            icon: "mdi-account-multiple",
-            to: "/users"
-          })
-        : this.items
-      ).map(this.mapItem);
+      const items = [
+        this.authMenu
+          ? {
+              title: "Users",
+              icon: "mdi-account-multiple",
+              to: "/users"
+            }
+          : null,
+        this.discounts.allowed
+          ? {
+              title: "Discounts",
+              icon: "mdi-tag-text-outline",
+              to: "/discounts"
+            }
+          : null
+      ].filter(item => item !== null);
+
+      return this.items.concat(items).map(this.mapItem);
     },
     authMenu() {
       return this.currentUser.role !== BASE_ROLE;
