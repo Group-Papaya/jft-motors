@@ -177,15 +177,16 @@ export default class LineItems extends Vue {
     this.$toast.success("New Line item added");
   }
 
-  getDiscountFor(item: LineItem, discount: Discount) {
-    return discount.percentage
-      ? item.cost * (discount.amount * (1 / 100))
-      : discount.amount;
+  getDiscountFor(item: LineItem, discount?: Discount) {
+    return discount
+      ? discount.percentage
+        ? item.cost * (discount.amount * (1 / 100))
+        : discount.amount
+      : null;
   }
 
   setDiscount(item: LineItem): LineItem {
     const discount = this.getDiscountFor(item, item.discount as Discount);
-    // const unit = item.type === WORKER ? "hours" : "";
     return {
       ...item,
       format: `R${item.cost}`,

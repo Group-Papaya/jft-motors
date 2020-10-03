@@ -4,7 +4,6 @@ import Vue from "vue";
 import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
 import { curd } from "./services/curd.service";
-import moment from "moment";
 
 Vue.use(Vuex);
 
@@ -105,8 +104,8 @@ export default new Vuex.Store({
           completed: false,
           user: `${user.firstname} ${user.lastname}`,
           client: `${client.firstname} ${client.lastname}`,
-          created: moment().format("MMMM Do YYYY"),
-          updated: moment().format("MMMM Do YYYY"),
+          created: new Date().toDateString(),
+          updated: new Date().toDateString(),
           meta: {
             user: user,
             client: client,

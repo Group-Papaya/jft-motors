@@ -194,6 +194,7 @@ export default {
         .collection("/settings")
         .doc("business-details")
         .set({ address: newAddress, telephone, company })
+        .then(() => this.$store.commit("SET_REGISTERED", true))
         .then(() => this.$router.replace("/"));
     }
   }
