@@ -56,3 +56,7 @@ export const maxLen = l => v => (v && v.length <= l) || `max. ${l} Characters`;
 export const nonZero = () => v => v > 0 || "can't be zero or less";
 export const emailVal = () => v =>
   /.+@.+\..+/.test(v) || "E-mail must be valid";
+
+export function range(start, end) {
+  return start !== end ? [start, ...range(start + 1, end)] : [start];
+}
