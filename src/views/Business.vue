@@ -66,10 +66,20 @@
                   <v-banner class="mb-2" icon="mdi-map" single-line sticky>
                     Business Address
                   </v-banner>
+                </v-col>
+
+                <v-col cols="8" md="8">
                   <v-text-field
-                    label="Address"
+                    label="Street Address"
                     class="purple-input"
-                    :value="details.address.street"
+                    v-model="details.address.street"
+                  />
+                </v-col>
+                <v-col cols="4" md="4">
+                  <v-text-field
+                    label="Suburb"
+                    class="purple-input"
+                    v-model="details.address.suburb"
                   />
                 </v-col>
 
@@ -77,7 +87,7 @@
                   <v-text-field
                     label="City"
                     class="purple-input"
-                    :value="details.address.city"
+                    v-model="details.address.city"
                   />
                 </v-col>
 
@@ -85,7 +95,7 @@
                   <v-text-field
                     label="Country"
                     class="purple-input"
-                    :value="details.address.country"
+                    v-model="details.address.country"
                   />
                 </v-col>
 
@@ -94,7 +104,7 @@
                     class="purple-input"
                     label="Postal Code"
                     type="number"
-                    :value="details.address.zipcode"
+                    v-model="details.address.zipcode"
                   />
                 </v-col>
 
@@ -153,7 +163,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import AppEditor from "@/components/layouts/AppManager.vue";
-import User, { ROLES } from "@/models/User";
+import User from "@/models/User";
 import { curd, watchDocument } from "@/services/curd.service";
 import { db } from "@/firebase";
 
@@ -165,15 +175,9 @@ export default class Business extends Vue {
     return this.$store.state.auth.user;
   }
 
-  get roles() {
-    return ROLES;
-  }
-
-  get details() {
-    return this.$store.state.details;
-  }
-
   watcher: any = null;
+
+  details = this.$store.state.details;
 
   discounts = {
     rands: 150,
@@ -182,7 +186,8 @@ export default class Business extends Vue {
   };
 
   update() {
-    curd.add({ discounts: this.discounts }, "settings", "rules");
+    curd.update(this.details, "settings", "business-details");
+    curd.update({ discounts: this.discounts }, "settings", "rules");
   }
 
   created() {
