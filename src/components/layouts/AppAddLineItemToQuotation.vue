@@ -1,9 +1,11 @@
 <template>
-  <v-dialog v-model="dialog" v-if="dialog" max-width="600">
+  <v-dialog v-model="dialog" max-width="600" persistent>
     <v-card>
-      <v-card-title>Add Line Item to Quotation</v-card-title>
+      <v-card-title v-if="add">Add Line Item to Quotation</v-card-title>
+      <v-card-title v-else>Update Line Item on Quotation</v-card-title>
+
       <v-card-text>
-        <v-form>
+        <v-form ref="addLineItemForm" v-model="valid" lazy-validation>
           <v-autocomplete
             label="Line item"
             :model="item"
@@ -22,16 +24,19 @@
         </v-form>
       </v-card-text>
       <v-card-actions class="justify-center align-center">
-        <v-btn color="warning" @click="handleInput(item)">
+        <v-btn color="warning" @click="validate(item)">
           {{ add ? "Add" : "Update" }} Line Item
         </v-btn>
+        <v-btn color="error" @click="cancel()">Cancel</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script lang="ts">
-import VFormBase from "../../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
+// noinspection TypeScriptCheckImport
+import VFormBase from "vuetify-form-base";
+
 import { Component, Vue, Prop } from "vue-property-decorator";
 
 @Component({
@@ -58,9 +63,10 @@ export default class AppAddLineItemToQuotation extends Vue {
   })
   readonly editHandler;
 
+  valid = false;
   add = false;
   dialog = false;
-  items = this.$store.state.records.lineitems;
+
   schema = {
     quantity: {
       value: 0,
@@ -111,7 +117,33 @@ export default class AppAddLineItemToQuotation extends Vue {
   handleInput(value) {
     if (this.add) this.addHandler(value);
     else this.editHandler(value);
+    this.resetDialog();
+  }
+  resetDialog() {
+    this.form.resetValidation();
+    this.form.reset();
     this.dialog = false;
+  }
+
+  cancel() {
+    this.resetDialog();
+  }
+
+  validate(item) {
+    if (this.form.validate()) {
+      this.handleInput({ ...item });
+    }
+  }
+
+  get form() {
+    return this.$refs.addLineItemForm as VFormBase;
+  }
+
+  // filter items that are already on quotation so that user cannot add the same line item more than
+  get items() {
+    return this.$store.state.records.lineitems.filter(
+      item => !this.quotation.items.find(_item => item.id === _item.id)
+    );
   }
 
   update({ schema }) {
