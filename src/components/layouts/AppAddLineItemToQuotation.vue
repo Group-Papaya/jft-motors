@@ -138,7 +138,7 @@ export default class AppAddLineItemToQuotation extends Vue {
   resetDialog() {
     this.form.resetValidation();
     this.form.reset();
-    this.item = {}
+    this.item = {};
     this.dialog = false;
   }
 

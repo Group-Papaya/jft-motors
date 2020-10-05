@@ -237,7 +237,6 @@ import {
   renderPDFViewer
 } from "@/services/pdf.service";
 import moment from "moment";
-import { indexOf } from "lodash";
 
 // declare Quotation Editor component with nested components components
 @Component({
@@ -253,13 +252,10 @@ export default class QuotationEditor extends Vue {
   // component name
   name = "QuotationEditor";
 
-  // quotion object
+  // quotation object
   quotation!: Quotation;
 
-  // boolen to hide or show line item dialog
-  addLineItemDialog = false;
-
-  // boolean to show  or hide loading screen
+  // boolean flag to show or hide loading screen
   loading = false;
 
   /**
@@ -298,6 +294,7 @@ export default class QuotationEditor extends Vue {
    * @param id quotation unique id
    */
   getQuotation(id: string) {
+    // get quotation from firebase / app state
     this.quotation = this.$store.getters.getQuotation(id);
   }
 
@@ -308,24 +305,8 @@ export default class QuotationEditor extends Vue {
    * @param item line item object (optional)
    */
   openModal(name = "lineItemDialog", add: boolean, item?: LineItem) {
+    // show add line item dialog
     this.getDialogRef(name).showDialog(add, item);
-  }
-
-  /**
-   * method to update quotation
-   * @param quotation quotation object
-   */
-  updateQuotation(quotation: Quotation) {
-    return this.$store.dispatch("SET_RECORD", {
-      record: {
-        ...quotation,
-        total: this.total,
-        format: `R${this.total}`,
-        updated: moment().format("MMMM Do YYYY")
-      },
-      path: "quotations",
-      ref: quotation.id
-    });
   }
 
   /**
@@ -333,6 +314,7 @@ export default class QuotationEditor extends Vue {
    * @param item line item
    */
   addLineItem(item: LineItem) {
+    // add line item to items array field of quotation
     this.quotation.items.push({
       ...item,
       meta: {
@@ -341,6 +323,7 @@ export default class QuotationEditor extends Vue {
       }
     });
 
+    // update quotation in firebase
     this.updateQuotation(this.quotation);
   }
 
@@ -349,10 +332,15 @@ export default class QuotationEditor extends Vue {
    * @param item line item
    */
   editLineItem(item: LineItem) {
+    // find index of line item that was updated
     const index = this.quotation.items.indexOf(
       this.quotation.items.find(_item => _item.id == item.id)
     );
+
+    // update quantity at index
     this.quotation.items[index].quantity = item.quantity;
+
+    // update quotation
     this.updateQuotation(this.quotation);
   }
 
@@ -372,6 +360,24 @@ export default class QuotationEditor extends Vue {
       await this.updateQuotation(this.quotation);
     }
   }
+
+  /**
+   * method to update quotation
+   * @param quotation quotation object
+   */
+  updateQuotation(quotation: Quotation) {
+    return this.$store.dispatch("SET_RECORD", {
+      record: {
+        ...quotation,
+        total: this.total,
+        format: `R${this.total}`,
+        updated: moment().format("MMMM Do YYYY")
+      },
+      path: "quotations",
+      ref: quotation.id
+    });
+  }
+
   /**
    * method to get HTML element referece by name
    * @param name reference name
