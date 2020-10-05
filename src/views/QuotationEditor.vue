@@ -222,10 +222,9 @@
 
 <script lang="ts">
 // import Modules
-import { Component, Vue, Watch } from "vue-property-decorator";
+import { Component, Vue } from "vue-property-decorator";
 import { LineItem, Quotation } from "@/models";
 import VFormBase from "../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
-import { curd } from "@/services/curd.service";
 import AppQuotationItem from "@/components/layouts/AppQuotationItem.vue";
 import AppAddLineItemToQuotation from "@/components/layouts/AppAddLineItemToQuotation.vue";
 import AppOverlay from "@/components/layouts/AppOverlay.vue";

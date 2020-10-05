@@ -1,4 +1,0 @@
-diff a/src/views/QuotationEditor.vue b/src/views/QuotationEditor.vue	(rejected hunks)
-@@ -258 +258 @@ export default class QuotationEditor extends Vue {
--  // boolean to show  or hide loading screen
-+  // boolean flag to show or hide loading screen
