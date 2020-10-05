@@ -164,7 +164,7 @@
           <v-col
             :key="item.key"
             class="py-0 px-0 my-1"
-            v-for="(item, index) in quotation.items"
+            v-for="(item, index) in lineItems"
           >
             <AppQuotationItem
               :item="item"
@@ -222,7 +222,7 @@
 
 <script lang="ts">
 // import Modules
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
 import { LineItem, Quotation } from "@/models";
 import VFormBase from "../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
 import { curd } from "@/services/curd.service";
@@ -237,6 +237,7 @@ import {
   renderPDFViewer
 } from "@/services/pdf.service";
 import moment from "moment";
+import { indexOf } from "lodash";
 
 // declare Quotation Editor component with nested components components
 @Component({
@@ -258,9 +259,6 @@ export default class QuotationEditor extends Vue {
   // boolen to hide or show line item dialog
   addLineItemDialog = false;
 
-  // line items array
-  lineItems: Array<LineItem> = Array<LineItem>();
-
   // boolean to show  or hide loading screen
   loading = false;
 
@@ -268,9 +266,6 @@ export default class QuotationEditor extends Vue {
    * Function is called automatically after component is created. Used to set up quotation editor data
    */
   created() {
-    // get line items
-    this.lineItems = this.getLineItems();
-
     // get quotation
     this.getQuotation(this.$route.params.id);
   }
@@ -296,13 +291,6 @@ export default class QuotationEditor extends Vue {
     // add scripts to document header (dynamically import javascript)
     document.head.appendChild(recaptchaScript);
     document.head.appendChild(recaptchaScriptTwo);
-  }
-
-  /**
-   * method to get all line items
-   */
-  getLineItems() {
-    return this.$store.state.records.lineitems;
   }
 
   /**
@@ -345,20 +333,15 @@ export default class QuotationEditor extends Vue {
    * @param item line item
    */
   addLineItem(item: LineItem) {
-    if (item.id !== "" && item.quantity !== 0) {
-      this.addLineItemDialog = false;
-      this.quotation.items.push({
-        ...item,
-        meta: {
-          ...item.meta,
-          key: this.quotation.items.length + 1
-        }
-      });
-      this.updateQuotation(this.quotation);
-    } else
-      this.$toast.error(
-        "Select an item and give it a quantity greater then zero"
-      );
+    this.quotation.items.push({
+      ...item,
+      meta: {
+        ...item.meta,
+        key: this.quotation.items.length + 1
+      }
+    });
+
+    this.updateQuotation(this.quotation);
   }
 
   /**
@@ -366,9 +349,11 @@ export default class QuotationEditor extends Vue {
    * @param item line item
    */
   editLineItem(item: LineItem) {
-    if (item.quantity !== 0) {
-      curd.update(item, item.path as string);
-    } else this.$toast.error("Line Item quantity shouldn't be Zero");
+    const index = this.quotation.items.indexOf(
+      this.quotation.items.find(_item => _item.id == item.id)
+    );
+    this.quotation.items[index] = { ...item };
+    this.updateQuotation(this.quotation);
   }
 
   /**
@@ -495,6 +480,10 @@ export default class QuotationEditor extends Vue {
 
   get color() {
     return this.isCompleted ? "primary" : "warning";
+  }
+
+  get lineItems() {
+    return this.quotation.items;
   }
 }
 </script>
