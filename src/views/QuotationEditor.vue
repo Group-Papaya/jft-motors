@@ -352,7 +352,7 @@ export default class QuotationEditor extends Vue {
     const index = this.quotation.items.indexOf(
       this.quotation.items.find(_item => _item.id == item.id)
     );
-    this.quotation.items[index] = { ...item };
+    this.quotation.items[index].quantity = item.quantity;
     this.updateQuotation(this.quotation);
   }
 
@@ -386,8 +386,13 @@ export default class QuotationEditor extends Vue {
    * generates pdf
    */
   async generatePdf() {
+    // show loading screen
     this.loading = true;
+
+    // call generate PDF function and wait
     await generatePDF(this.quotation);
+
+    // hide loading screen
     this.loading = false;
   }
 
@@ -395,9 +400,16 @@ export default class QuotationEditor extends Vue {
    * opens view pdf dialog
    */
   async viewPDF() {
+    // show loading screen
     this.loading = true;
+
+    // open PDF viewer dialog
     this.getDialogRef("pdfViewerDialog").showDialog();
+
+    // call download function to render PDF to screen and wait
     await renderPDFViewer();
+
+    // hide loading screen
     this.loading = false;
   }
 
@@ -405,15 +417,21 @@ export default class QuotationEditor extends Vue {
    * opens systems default email client
    */
   async sendEmail() {
-    // confirm
+    // show confirmation dialog
     const res = await this.$dialog.confirm({
       text: `Attempting to launch your default email client, would you like to proceed?`,
       title: `Send ${this.documentType} e-mail`
     });
 
+    // if user's response is yes
     if (res) {
+      // show loading screen
       this.loading = true;
+
+      // call download invoice and wait
       await emailInvoice(this.quotation);
+
+      // hide loading screen
       this.loading = false;
     }
   }
@@ -422,14 +440,21 @@ export default class QuotationEditor extends Vue {
    * downloads pdf to computer
    */
   async downloadPDF() {
+    // show confirmation dialog
     const dialogRes = await this.$dialog.confirm({
       title: `Download ${this.documentType} PDF`,
       text: `Would you like to download ${this.documentType} PDF?`
     });
 
+    // if user's response is yes
     if (dialogRes) {
+      // show loading screen
       this.loading = true;
+
+      // call download invoice and wait
       await downloadInvoice(this.quotation);
+
+      // hide loading screen
       this.loading = false;
     }
   }
@@ -438,6 +463,7 @@ export default class QuotationEditor extends Vue {
    * @param value boolean value holding pdf
    */
   async toggleComplete(value: boolean) {
+    // show confirmation dialog
     return await this.$dialog.confirm({
       text: value
         ? `Do you want to convert this quotation to an invoice?`
