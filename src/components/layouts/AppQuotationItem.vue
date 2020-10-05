@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { LineItem } from "@/models";
 
 @Component
@@ -56,6 +56,11 @@ export default class AppQuotationItem extends Vue {
 
   get isEditable() {
     return this.color === "warning";
+  }
+
+  @Watch("item")
+  setItem(newValue: any) {
+    console.log(newValue);
   }
 }
 </script>

@@ -1,38 +1,63 @@
 <template>
-  <v-dialog v-model="dialog" v-if="dialog" max-width="600">
+  <v-dialog v-model="dialog" max-width="600" persistent>
     <v-card>
-      <v-card-title>Add Line Item to Quotation</v-card-title>
+      <v-card-title v-if="add">Add Line Item to Quotation</v-card-title>
+      <v-card-title v-else>Update Line Item on Quotation</v-card-title>
+
       <v-card-text>
-        <v-form>
+        <v-form ref="addLineItemForm" v-model="valid" lazy-validation>
           <v-autocomplete
+            v-if="add"
             label="Line item"
             :model="item"
             :items="items"
             :item-text="value => value.name"
             :item-value="value => items.find(it => it.id === value.id)"
             @change="value => (item = value)"
+            :rules="rules.item"
           />
-          <v-form-base
-            :col="12"
-            :model="item"
-            :schema="schema"
-            :row="attributes"
-            @update="update"
-          />
+
+          <v-text-field
+            v-else
+            disabled
+            label="Line item"
+            :value="item.name"
+          ></v-text-field>
+
+          <v-text-field
+            v-if="item.cost && item.cost > 0"
+            disabled
+            :value="item.cost"
+            label="Cost"
+            prefix="R"
+            type="number"
+          ></v-text-field>
+
+          <v-text-field
+            v-if="item.cost"
+            v-model="item.quantity"
+            label="Quantity"
+            type="number"
+            :rules="rules.quantity"
+          ></v-text-field>
         </v-form>
       </v-card-text>
       <v-card-actions class="justify-center align-center">
-        <v-btn color="warning" @click="handleInput(item)">
+        <v-btn color="warning" @click="validate(item)">
           {{ add ? "Add" : "Update" }} Line Item
         </v-btn>
+        <v-btn color="error" @click="cancel()">Cancel</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script lang="ts">
-import VFormBase from "../../../node_modules/vuetify-form-base/dist/src/vFormBase.vue";
+// noinspection TypeScriptCheckImport
+import VFormBase from "vuetify-form-base";
+
 import { Component, Vue, Prop } from "vue-property-decorator";
+import { nonZero, required } from "@/utils";
 
 @Component({
   components: {
@@ -58,9 +83,10 @@ export default class AppAddLineItemToQuotation extends Vue {
   })
   readonly editHandler;
 
+  valid = false;
   add = false;
   dialog = false;
-  items = this.$store.state.records.lineitems;
+
   schema = {
     quantity: {
       value: 0,
@@ -72,6 +98,7 @@ export default class AppAddLineItemToQuotation extends Vue {
       value: 0,
       type: "number",
       label: "Cost",
+      prefix: "R",
       readonly: true
     },
     discount: {
@@ -90,35 +117,57 @@ export default class AppAddLineItemToQuotation extends Vue {
     noGutters: true
   };
 
-  item = {
-    id: "",
-    cost: 0,
-    name: "",
-    type: "",
-    path: "",
-    units: 0,
-    quantity: 0,
-    details: "",
-    discounted: false
+  item = {};
+
+  rules = {
+    item: [required("Item is required")],
+    quantity: [required("Quanity is required"), nonZero()]
   };
 
   showDialog(add, item) {
     this.add = add;
     this.dialog = true;
-    if (item) this.item = item;
+    if (item) this.item = { ...item };
   }
 
   handleInput(value) {
-    if (this.add) this.addHandler(value);
-    else this.editHandler(value);
+    if (this.add) this.addHandler({ ...value });
+    else this.editHandler({ ...value });
+    this.resetDialog();
+  }
+  resetDialog() {
+    this.form.resetValidation();
+    this.form.reset();
+    this.item = {};
     this.dialog = false;
   }
 
-  update({ schema }) {
-    schema.discount.value = this.item.discounted;
-    schema.discount.hidden = !this.item.discounted;
-    schema.discount.disabled = !this.$store.getters.discounts.allowed;
+  cancel() {
+    this.resetDialog();
   }
+
+  validate(item) {
+    if (this.form.validate()) {
+      this.handleInput({ ...item });
+    }
+  }
+
+  get form() {
+    return this.$refs.addLineItemForm as VFormBase;
+  }
+
+  // filter items that are already on quotation so that user cannot add the same line item more than
+  get items() {
+    return this.$store.state.records.lineitems.filter(
+      item => !this.quotation.items.find(_item => item.id === _item.id)
+    );
+  }
+
+  // update({ schema }) {
+  //   schema.discount.value = this.item.discounted;
+  //   schema.discount.hidden = !this.item.discounted;
+  //   schema.discount.disabled = !this.$store.getters.discounts.allowed;
+  // }
 }
 </script>
 

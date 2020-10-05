@@ -2,13 +2,12 @@
   <v-container id="dashboard" fluid tag="section">
     <v-row>
       <v-col cols="12" md="6">
-        <!-- quotation card -->
+        <!-- quotation list -->
         <AppManager
           title="Quotations"
           :subtitle="'Quotations ' + subtitle"
           :model="model"
           :schema="schema"
-          :changeHandler="handleChanges"
           :addHandler="addQuotation"
           :items="this.drafts"
           :headers="headers"
@@ -16,7 +15,7 @@
       </v-col>
 
       <v-col cols="12" md="6">
-        <!-- invoice card -->
+        <!-- invoice list: App Manager component -->
         <AppManager
           title="Invoices"
           :subtitle="'Invoices ' + subtitle"
@@ -24,7 +23,6 @@
           :schema="schema"
           :addHandler="addQuotation"
           :items="this.invoices"
-          :changeHandler="handleChanges"
           :button="false"
           color="primary"
           :headers="headers"
@@ -35,6 +33,7 @@
 </template>
 
 <script lang="ts">
+// import Modules
 import { Component, Vue } from "vue-property-decorator";
 import moment from "moment";
 import Quotation from "@/models/Quotation";
@@ -42,10 +41,12 @@ import AppManager from "@/components/layouts/AppManager.vue";
 import { Client } from "@/models";
 import { required } from "@/utils";
 
+// declare Dashboard component with nested components components
 @Component({
   components: { AppManager }
 })
 export default class Dashboard extends Vue {
+  // list header configuration
   headers = [
     {
       sortable: false,
@@ -69,18 +70,7 @@ export default class Dashboard extends Vue {
     }
   ];
 
-  get drafts() {
-    return this.$store.getters.drafts;
-  }
-
-  get invoices() {
-    return this.$store.getters.invoices;
-  }
-
-  get clients() {
-    return this.$store.state.records.clients;
-  }
-
+  // data model for add new quotation form
   model = {
     client: "",
     meta: {
@@ -88,6 +78,7 @@ export default class Dashboard extends Vue {
     }
   };
 
+  // schema for add new quotation form
   schema = {
     client: {
       type: "autocomplete",
@@ -100,15 +91,41 @@ export default class Dashboard extends Vue {
     }
   };
 
-  async handleChanges({ key, value }: any) {
-    if (key === "client") this.model.meta.client = value;
+  /**
+   * method to get a list of quotations that are not marked as complete
+   */
+  get drafts() {
+    return this.$store.getters.drafts;
   }
 
+  /**
+   * method to get a list of quotations that are marked as complete
+   */
+  get invoices() {
+    return this.$store.getters.invoices;
+  }
+
+  /**
+   * method to get a list of all clients
+   */
+  get clients() {
+    return this.$store.state.records.clients;
+  }
+
+  /**
+   * method to save a new quotation firebase
+   */
   async addQuotation(quotation: Quotation) {
+    // add new quotation to store
     await this.$store.dispatch("ADD_QUOTATION", quotation);
+
+    // show success notification
     this.$toast.success("New quotation added");
   }
 
+  /**
+   * GETTERS
+   */
   get subtitle() {
     return `for month of ${moment().format("MMMM")}`;
   }
