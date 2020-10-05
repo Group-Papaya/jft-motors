@@ -255,14 +255,14 @@ export default class QuotationEditor extends Vue {
   // quotation object
   quotation!: Quotation;
 
-  // boolean flag to show or hide loading screen
+  // flag to show  or hide loading screen
   loading = false;
 
   /**
    * Function is called automatically after component is created. Used to set up quotation editor data
    */
   created() {
-    // get quotation
+    // get quotation, using the quotation id from the browser url
     this.getQuotation(this.$route.params.id);
   }
 
@@ -291,7 +291,7 @@ export default class QuotationEditor extends Vue {
 
   /**
    * method to get quotation
-   * @param id quotation unique id
+   * @param id quotation's unique id
    */
   getQuotation(id: string) {
     // get quotation from firebase / app state
