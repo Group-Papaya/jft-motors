@@ -87,30 +87,6 @@ export default class AppAddLineItemToQuotation extends Vue {
   add = false;
   dialog = false;
 
-  schema = {
-    quantity: {
-      value: 0,
-      type: "number",
-      required: true,
-      label: "Quantity"
-    },
-    cost: {
-      value: 0,
-      type: "number",
-      label: "Cost",
-      prefix: "R",
-      readonly: true
-    },
-    discount: {
-      inset: true,
-      value: false,
-      hidden: true,
-      type: "switch",
-      disabled: false,
-      label: "Apply discount"
-    }
-  };
-
   attributes = {
     justify: "center",
     align: "center",
@@ -162,12 +138,6 @@ export default class AppAddLineItemToQuotation extends Vue {
       item => !this.quotation.items.find(_item => item.id === _item.id)
     );
   }
-
-  // update({ schema }) {
-  //   schema.discount.value = this.item.discounted;
-  //   schema.discount.hidden = !this.item.discounted;
-  //   schema.discount.disabled = !this.$store.getters.discounts.allowed;
-  // }
 }
 </script>
 
