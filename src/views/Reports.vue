@@ -19,6 +19,7 @@
           ></apex-chart>
         </v-card>
       </v-col>
+
       <!-- TODO: A table below the two charts, showing the accounted invoices per day from last month -->
       <v-col cols="12">
         <v-card style="padding: 10px">
@@ -38,20 +39,16 @@
             <v-card flat>
               <v-card-text>
                 <v-row class="py-0 my-0">
-                  <v-col cols="1">Date</v-col>
+                  <v-col cols="2">Date</v-col>
                   <v-col cols="3" class="text-left caption font-weight-bold"
                     >Created By</v-col
                   >
                   <v-col cols="1" class="text-right caption font-weight-bold"
                     >Discounts</v-col
                   >
-                  <v-col cols="2" class="text-right caption font-weight-bold"
-                    >Sub Total</v-col
-                  >
                   <v-col cols="3" class="text-right caption font-weight-bold"
                     >Total</v-col
                   >
-                  <v-col cols="2" class="text-right"></v-col>
                 </v-row>
               </v-card-text>
             </v-card>
@@ -61,18 +58,23 @@
               <v-col class="py-0 px-0 my-1">
                 <v-card outlined hover>
                   <v-card-text
-                    v-for="(total, day) in invoiceTableData.items"
+                    v-for="(item, index) in invoiceTableData.items"
                     class="py-0 px-0 my-1"
-                    :key="day"
+                    :key="index"
                   >
-                    <v-row>
-                      <v-col cols="1" class="text-left">
-                        <v-chip small>03/10</v-chip>
+                    <v-row class="px-5">
+                      <v-col cols="2">
+                        <v-chip small>{{ item.date }}</v-chip>
                       </v-col>
-                      <v-col cols="3" class="text-left">{{ total }}</v-col>
-                      <v-col cols="1" class="text-right"></v-col>
-                      <v-col cols="2" class="text-right"> </v-col>
-                      <v-col class="text-right"> </v-col>
+                      <v-col cols="3" class="text-left">{{
+                        item.createdBy
+                      }}</v-col>
+                      <v-col cols="1" class="text-right">{{
+                        item.discounts | currency("R", 2)
+                      }}</v-col>
+                      <v-col cols="3" class="text-right">{{
+                        item.total | currency("R", 2)
+                      }}</v-col>
                     </v-row>
                   </v-card-text>
                 </v-card>
@@ -87,15 +89,15 @@
                 <div class="caption font-weight-bold">
                   Monthly: Discount Total
                 </div>
-                <div class="body-2">R{{ invoiceTableData.discount() }}</div>
-              </v-col>
-              <v-col>
-                <div class="caption font-weight-bold">Monthly: Sub Total</div>
-                <div class="body-2">R{{ invoiceTableData.sub() }}</div>
+                <div class="body-2">
+                  {{ invoiceTableData.discount() | currency("R", 2) }}
+                </div>
               </v-col>
               <v-col>
                 <div class="caption font-weight-bold">Monthly: Grand Total</div>
-                <div class="body-2">R{{ invoiceTableData.total() }}</div>
+                <div class="body-2">
+                  {{ invoiceTableData.total() | currency("R", 2) }}
+                </div>
               </v-col>
             </v-row>
           </div>
@@ -214,13 +216,24 @@ export default class Reports extends Vue {
    * @return object
    * */
   get invoiceTableData() {
-    const invoices = [];
+    const invoices: any[] = [];
+
+    for (let x = 0; x < 30; x++) {
+      const random = Math.random();
+      const day = {
+        createdBy: "JFT Motors",
+        date: `Sep ${x + 1}`,
+        discounts: 1200 * random,
+        total: 5000 * random
+      };
+      invoices.push(day);
+    }
 
     return {
       items: invoices,
-      sub: () => invoices.reduce((last, next) => last + next, 0),
-      total: () => invoices.reduce((last, next) => last + next, 0),
-      discount: () => invoices.reduce((last, next) => last + next, 0)
+      // sub: () => invoices.reduce((last, next) => last.discounts + next.discounts, 0),
+      total: () => invoices.reduce((last, next) => last + next.total, 0),
+      discount: () => invoices.reduce((last, next) => last + next.discounts, 0)
     };
   }
 

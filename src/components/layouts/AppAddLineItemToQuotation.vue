@@ -32,7 +32,6 @@
             prefix="R"
             type="number"
           ></v-text-field>
-
           <v-text-field
             v-if="item.cost"
             v-model="item.quantity"

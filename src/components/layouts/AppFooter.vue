@@ -27,7 +27,10 @@ export default class AppFooter extends Vue {
 
   @Watch("$route")
   setCurrentRoute(newRoute: any) {
-    if (newRoute.path.split("/").length >= 3) {
+    if (
+      newRoute.path.split("/").length >= 3 ||
+      (newRoute.name && newRoute.name === "Reports")
+    ) {
       this.showFooter = false;
     } else {
       this.showFooter = true;
