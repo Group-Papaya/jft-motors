@@ -17,7 +17,7 @@ import User, { BASE_ROLE, MANAGER_ROLE, ROLES } from "@/models/User";
 import AppEditor from "@/components/layouts/AppManager.vue";
 import { auth } from "@/services/auth.service";
 import { POSITION } from "vue-toastification";
-import { emailVal, required } from "@/utils";
+import { emailVal, phoneVal, required } from "@/utils";
 
 @Component({
   components: { AppEditor }
@@ -90,7 +90,8 @@ export default class Users extends Vue {
     },
     phone: {
       type: "text",
-      label: "Phone Number"
+      label: "Phone Number",
+      rules: [required("Phone numer is required"), phoneVal()]
     },
     email: {
       type: "email",

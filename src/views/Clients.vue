@@ -16,7 +16,7 @@ import { Component, Vue } from "vue-property-decorator";
 import AppEditor from "@/components/layouts/AppManager.vue";
 import Client from "@/models/Client";
 import { watchCollection } from "@/services/curd.service";
-import { emailVal, required } from "@/utils";
+import { emailVal, phoneVal, required } from "@/utils";
 
 @Component({
   components: { AppEditor }
@@ -79,7 +79,7 @@ export default class Clients extends Vue {
     phone: {
       type: "text",
       label: "Phone Number",
-      rules: [required("Phone number is required")]
+      rules: [required("Phone number is required"), phoneVal()]
     },
     email: {
       type: "email",

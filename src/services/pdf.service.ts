@@ -23,12 +23,12 @@ function getPdfData(quotation: Quotation) {
   const currentDate = moment().format("lll");
 
   const products = quotation.items.map(
-    ({ quantity, details, cost, discountAmount }) => {
+    ({ name, quantity, details, cost, discounted, discount }) => {
       return {
         quantity,
-        description: details,
+        description: `${name} - ${details}`,
         tax: 0,
-        price: discountAmount ? cost - discountAmount : cost
+        price: cost
       };
     }
   );
