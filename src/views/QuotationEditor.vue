@@ -162,9 +162,9 @@
         <!-- quotation line items -->
         <div v-if="quotation.items.length">
           <v-col
-            :key="item.key"
             class="py-0 px-0 my-1"
             v-for="(item, index) in lineItems"
+            :key="index"
           >
             <AppQuotationItem
               :item="item"

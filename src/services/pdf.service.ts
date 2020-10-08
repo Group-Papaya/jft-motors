@@ -22,16 +22,16 @@ function updateQuotation(quotation: Quotation) {
 function getPdfData(quotation: Quotation) {
   const currentDate = moment().format("lll");
 
-  const products = quotation.items.map(
-    ({ name, quantity, details, cost, discounted, discount }) => {
-      return {
-        quantity,
-        description: `${name} - ${details}`,
-        tax: 0,
-        price: cost
-      };
-    }
-  );
+  const products = quotation.items.map((item, index) => {
+    console.log(item);
+    return {
+      quantity: item.quantity,
+      description: `${item.name} - ${item.details}`,
+      tax: 0,
+      rate: 0.5,
+      price: item.cost
+    };
+  });
 
   const details = store.state.details;
   const { street, suburb, city, zipcode, country } = details.address;

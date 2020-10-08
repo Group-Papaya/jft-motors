@@ -22,7 +22,7 @@
               class="px-2"
               small
             >
-              #{{ items.map(x => x.id).indexOf(item.id) + 1 }}
+              {{ items.map(x => x.id).indexOf(item.id) + 1 }}
             </v-chip>
           </template>
           <template v-slot:item.actions="{ item }">
